@@ -67,7 +67,7 @@ const TString g1Name_FRmu_EB = "FR_OS_muon_EB";
 const TString g1Name_FRmu_EE = "FR_OS_muon_EE";
 //TH1D *h1DFRelEB, *h1DFRelEE, *h1DFRmuEB, *h1DFRmuEE;
 
-TGraph *g1DFRelEB, *g1DFRelEE, *g1DFRmuEB, *g1DFRmuEE;  // 
+TGraph *g1DFRelEB, *g1DFRelEE, *g1DFRmuEB, *g1DFRmuEE;  //
 
 
 // k-factor files and graphs
@@ -84,7 +84,7 @@ void templatesXS(TString processNameTag, TString processFileName, TString sqrtsT
 
 int getTemplateXS(TString processNameTag, TString processFileName, TString sqrtsTag, TString sfinalState,
                   TString obsName, TString obsBinDn, TString obsBinUp, TString fitTypeZ4l, bool useRefit,
-                  double elpT = CUT_ELPT, double mupT = CUT_MUPT, double mZ2_low = CUT_MZ2LOW, 
+                  double elpT = CUT_ELPT, double mupT = CUT_MUPT, double mZ2_low = CUT_MZ2LOW,
                   double mZ1_low = CUT_MZ1LOW, double m4l_low = CUT_M4LLOW, double m4l_high = CUT_M4LHIGH);
 
 double getFakeRateWeight(TString lepMode = "el", TString etaRegion = "EB", double pT = 10.);
@@ -129,7 +129,7 @@ void fiducialXSTemplates(TString processNameTag = "qqZZ", TString processFileNam
         CUT_M4LHIGH = 885;
         nbinsX=390;
     }
-    
+
     if (obsName!="mass4l") {
         nbinsX=15;
     }
@@ -159,7 +159,7 @@ void templatesXS(TString processNameTag, TString processFileName, TString sqrtsT
         getTemplateXS(processNameTag, processFileName, sqrtsTag, "2e2mu", obsName, obsBinDn, obsBinUp, fitTypeZ4l, useRefit);
         getTemplateXS(processNameTag, processFileName, sqrtsTag, "4e", obsName, obsBinDn, obsBinUp, fitTypeZ4l, useRefit);
         getTemplateXS(processNameTag, processFileName, sqrtsTag, "4mu", obsName, obsBinDn, obsBinUp, fitTypeZ4l, useRefit);
-    } else {                            
+    } else {
         getTemplateXS(processNameTag, processFileName, sqrtsTag, sfinalState, obsName, obsBinDn, obsBinUp, fitTypeZ4l, useRefit);
     }
 }
@@ -256,9 +256,9 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
 
 
     // prepare tree for a set of discriminants and variables (for templates)
-    float selectedWeight; 
+    float selectedWeight;
     float kfactor_ggZZ; //, Dbkg;
-    float kfactor_qqZZ; 
+    float kfactor_qqZZ;
     // info
     TT->Branch("Run",&Run,"Run/l");
     TT->Branch("LumiSect",&LumiSect,"LumiSect/l");
@@ -297,7 +297,7 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     int nEvtMassWindow = 0;
     // fill histograms
     Long64_t nentries = tree->GetEntries();
-//    nentries = 1000;
+    // nentries = 1000;
     if(!SILENT) {
         cout << setw(printOutWidth) << "nEntries: " << nentries << setw(printOutWidth) << "iFinState: " << iFinState << endl;
         cout << "Event" << ":" << "Run" << ":" << "LumiSect" << ":" << "mass4l" << ":" << "massZ1" << ":" << "massZ2" << ":" <<
@@ -385,7 +385,7 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
                 if (finalState==4) sfinalState = "2mu2e";
                 cout << fixed;
                 cout.precision(printOutPrecision);
-//                cout << Event << ":" << Run << ":" << LumiSect << ":" << mass4l << ":" << massZ1 << ":" << massZ2 << ":" << weight << ":" << kd_ALT << ":" << mekd_m4l << ":" << pdfSigM4l << ":" << pdfBkgM4l << endl;
+                // cout << Event << ":" << Run << ":" << LumiSect << ":" << mass4l << ":" << massZ1 << ":" << massZ2 << ":" << weight << ":" << kd_ALT << ":" << mekd_m4l << ":" << pdfSigM4l << ":" << pdfBkgM4l << endl;
             }
         }
     }
@@ -461,9 +461,9 @@ int getTemplateXS(TString processNameTag, TString processFileName, TString sqrts
     }
 
     // store & delete the tree, produce & store the templates
-//    TString templateNameTag = getTemplateNameTag(processNameTag);
-//    TString fLocation = templatesDir+"/"+PROCESSING_TYPE+"_"+obsName+"/"+sqrtsTag+"/";
-//    TString fOption = "RECREATE";
+    // TString templateNameTag = getTemplateNameTag(processNameTag);
+    // TString fLocation = templatesDir+"/"+PROCESSING_TYPE+"_"+obsName+"/"+sqrtsTag+"/";
+    // TString fOption = "RECREATE";
     cout<<"obsBinDn "<<obsBinDn<<" obsBinUp "<<obsBinUp<<endl;
     if (obsBinDn==obsBinUp && obsBinDn.Contains("|")) { // if bin boundaries are passed - get the  boundaries in TObjArray and loop
         TObjArray* ta = (TObjArray*) obsBinDn.Tokenize("|");
@@ -478,7 +478,7 @@ int getTemplateXS(TString processNameTag, TString processFileName, TString sqrts
         storeTreeAndTemplatesXS(TT, obsName, obsBinDn, obsBinUp, sfinalState, fLocation, templateNameTag, fOption, fitTypeZ4l, useRefit);
     }
 
-//    TFile* fTemplateTree = new TFile(fLocation+"/"+templateNameTag+"_"+sfinalState+".root", fOption);
+    // TFile* fTemplateTree = new TFile(fLocation+"/"+templateNameTag+"_"+sfinalState+".root", fOption);
     fTemplateTree->cd();
     TT->Write();
     h2D_m4l_mZ2->SetName("h2D_m4l_massZ2"); h2D_m4l_mZ2->Write();
@@ -486,7 +486,7 @@ int getTemplateXS(TString processNameTag, TString processFileName, TString sqrts
     h2D_m4l_eta4l->SetName("h2D_m4l_eta4l"); h2D_m4l_eta4l->Write();
     h2D_m4l_nJets->SetName("h2D_m4l_nJets"); h2D_m4l_nJets->Write();
     fTemplateTree->Close();
-//    TT->Delete();
+    // TT->Delete();
 
     return 0;
 }
@@ -562,7 +562,7 @@ void storeTreeAndTemplatesXS(TTree* TT, TString obsName, TString obsBinDn, TStri
     h1D->GetXaxis()->SetTitle("CMS_zz4l_mass");
 
     if (fitTypeZ4l!="doHighMass") {
-        //for (int k = 0; k < 5; k++)        
+        //for (int k = 0; k < 5; k++)
         smoothAndNormaliseTemplate1D(h1D); // 5-smoothing
         //if (templateNameTag == "XSBackground_ZJetsCR") {
         //    for (int k = 0; k < 5; k++) smoothAndNormaliseTemplate1D(h1D); // once again 5-smoothing
@@ -608,7 +608,7 @@ void smoothAndNormaliseTemplate1D(TH1D* &h1D, double norm){
 int normaliseHist(TH1D* &h1D, double norm){
     if (h1D->Integral()==0) return -1;
     h1D->Scale(norm/h1D->Integral());
-	
+
     return 0;
 }
 
@@ -618,7 +618,7 @@ int fillEmptyBinsHist1D(TH1D* &h1D, double floor) {
     for(int i=1; i<=nXbins; i++){
         h1D->SetBinContent(i,h1D->GetBinContent(i)+floor);
     }
-    
+
     return 0;
 }
 
@@ -674,21 +674,21 @@ void loadFakeRateHists(){
     TFile *frel = TFile::Open(fakeRatesEl);
     TFile *frmu = TFile::Open(fakeRatesMu);
     // load fake rate histogram
-//    h1DFRelEB    = (TH1D*) frel->Get(h1Name_FRel_EB);
-//    h1DFRelEB    = (TGraphErrors*) frel->Get(FR_OS_electron_EB);
-    //g1DFRelEB    = frel->Get(h1Name_FRel_EB);
+    // h1DFRelEB    = (TH1D*) frel->Get(h1Name_FRel_EB);
+    // h1DFRelEB    = (TGraphErrors*) frel->Get(FR_OS_electron_EB);
+    // g1DFRelEB    = frel->Get(h1Name_FRel_EB);
     g1DFRelEB    = (TGraph*) frel->Get(g1Name_FRel_EB);
-//    h1DFRelEE    = (TH1D*) frel->Get(h1Name_FRel_EE);
-//    h1DFRelEE    = (TGraphErrors*) frel->Get(FR_OS_electron_EE);
-    //g1DFRelEE    = frel->Get(h1Name_FRel_EE);
+    // h1DFRelEE    = (TH1D*) frel->Get(h1Name_FRel_EE);
+    // h1DFRelEE    = (TGraphErrors*) frel->Get(FR_OS_electron_EE);
+    // g1DFRelEE    = frel->Get(h1Name_FRel_EE);
     g1DFRelEE    = (TGraph*) frel->Get(g1Name_FRel_EE);
-//    h1DFRmuEB    = (TH1D*) frmu->Get(h1Name_FRmu_EB);
-    //h1DFRmuEB    = (TGraphErrors*) frmu->Get(FR_OS_muon_EB);
-    //g1DFRmuEB    = frmu->Get(h1Name_FRmu_EB);
+    // h1DFRmuEB    = (TH1D*) frmu->Get(h1Name_FRmu_EB);
+    // h1DFRmuEB    = (TGraphErrors*) frmu->Get(FR_OS_muon_EB);
+    // g1DFRmuEB    = frmu->Get(h1Name_FRmu_EB);
     g1DFRmuEB    = (TGraph*) frmu->Get(g1Name_FRmu_EB);
-//    h1DFRmuEE    = (TH1D*) frmu->Get(h1Name_FRmu_EE);
-    //h1DFRmuEE    = (TGraphErrors*) frmu->Get(FR_OS_muon_EB);
-    //g1DFRmuEE    = frmu->Get(h1Name_FRmu_EE);
+    // h1DFRmuEE    = (TH1D*) frmu->Get(h1Name_FRmu_EE);
+    // h1DFRmuEE    = (TGraphErrors*) frmu->Get(FR_OS_muon_EB);
+    // g1DFRmuEE    = frmu->Get(h1Name_FRmu_EE);
     g1DFRmuEE    = (TGraph*) frmu->Get(g1Name_FRmu_EE);
 }
 
@@ -711,11 +711,11 @@ double getFakeRateWeight(TString lepMode, TString etaRegion, double pT) {
     if (lepMode == "el" && etaRegion == "EB") {
         //fr = h1DFRelEB->GetBinContent(h1DFRelEB->FindBin(pT));
         //fr = h1DFRelEB->Eval(pT);
-        fr = g1DFRelEB->GetY()[bin]; 
+        fr = g1DFRelEB->GetY()[bin];
     } else if (lepMode == "el" && etaRegion == "EE") {
         //fr = h1DFRelEE->GetBinContent(h1DFRelEE->FindBin(pT));
         //fr = h1DFRelEE->Eval(pT);
-        fr = g1DFRelEE->GetY()[bin]; 
+        fr = g1DFRelEE->GetY()[bin];
     } else if (lepMode == "mu" && etaRegion == "EB") {
         //fr = h1DFRmuEB->GetBinContent(h1DFRmuEB->FindBin(pT));
         //fr = h1DFRmuEB->Eval(pT);
@@ -729,10 +729,10 @@ double getFakeRateWeight(TString lepMode, TString etaRegion, double pT) {
     }
     // compute the fake rate factor and return it
     frWeight = (fr / (1 - fr));
-//    cout<<"lepton mode and eta region are....."<<lepMode<<"and  "<<etaRegion<<endl; 
-//    cout<<"pT, bin, FR and FRweight are  ......."<<pT<<", "<<bin<<", "<<fr<<"   and  "<<frWeight<<endl; 
+    // cout<<"lepton mode and eta region are....."<<lepMode<<"and  "<<etaRegion<<endl;
+    // cout<<"pT, bin, FR and FRweight are  ......."<<pT<<", "<<bin<<", "<<fr<<"   and  "<<frWeight<<endl;
     return frWeight;
-    //cout<<"pt, FR and FRweight are  ......."<<pt<<", "<<fr<<"and  "<<frWeight<<endl; 
+    //cout<<"pt, FR and FRweight are  ......."<<pt<<", "<<fr<<"and  "<<frWeight<<endl;
 }
 
 //_______________________________________________________________________________________________________________________________________________

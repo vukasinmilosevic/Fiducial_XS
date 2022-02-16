@@ -21,7 +21,7 @@ from higgs_xsbr_13TeV import *
 
 ### Define function for parsing options
 def parseOptions():
-    
+
     global opt, args, runAllSteps
 
     usage = ('usage: %prog [options]\n'
@@ -34,8 +34,8 @@ def parseOptions():
     parser.add_option('',   '--asimovMass',dest='ASIMOVMASS',type='string',default='125.09', help='Asimov Mass')
     parser.add_option('',   '--modelNames',dest='MODELNAMES',type='string',default='SM_125',help='Names of models for unfolding, separated by | . Default is "SM_125"')
     parser.add_option('',   '--fixMass',  dest='FIXMASS',  type='string',default='125.09',   help='Fix mass, default is a string "125.09" or can be changed to another string, e.g."125.6" or "False"')
-    parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"') 
-    parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string') 
+    parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
+    parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--fixFrac', action='store_true', dest='FIXFRAC', default=False, help='fix the fractions of 4e and 4mu when extracting the results, default is False')
     # action options - "redo"
     parser.add_option('',   '--redoEff',       action='store_true', dest='redoEff',      default=False, help='Redo the eff. factors, default is False')
@@ -54,7 +54,7 @@ def parseOptions():
     # Calculate Systematic Uncertainties
     parser.add_option('',   '--calcSys', action='store_true', dest='SYS', default=False, help='Calculate Systematic Uncertainties (in addition to stat+sys)')
     parser.add_option('',   '--lumiscale', type='string', dest='LUMISCALE', default='1.0', help='Scale yields')
-        
+
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
@@ -79,11 +79,11 @@ def processCmd(cmd, quiet = 0):
     p = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT,bufsize=-1)
     for line in iter(p.stdout.readline, ''):
         output=output+str(line)
-        print line, 
+        print line,
     p.stdout.close()
     if p.wait() != 0:
         raise RuntimeError("%r failed, exit status: %d" % (cmd, p.returncode))
-    
+
     if (not quiet):
         print 'Output:\n   ['+output+'] \n'
     return output
@@ -103,13 +103,13 @@ def extractFiducialEfficiencies(obsName, observableBins, modelName):
     output = processCmd(cmd)
     print output
     if (not opt.OBSNAME.startswith("mass4l")):
-        cmd = 'python plot2dsigeffs.py -l -q -b --obsName='+opt.OBSNAME+' --obsBins="'+opt.OBSBINS+'"' 
+        cmd = 'python plot2dsigeffs.py -l -q -b --obsName='+opt.OBSNAME+' --obsBins="'+opt.OBSBINS+'"'
         output = processCmd(cmd)
 
 ### Extract the templates for given obs, for all bins and final states (differential)
 def extractBackgroundTemplatesAndFractions(obsName, observableBins):
     global opt
-    
+
     fractionBkg = {}; lambdajesdnBkg={}; lambdajesupBkg={}
     #if exists, from inputs_bkg_{obsName} import observableBins, fractionsBackground, jesLambdaBkgUp, jesLambdaBkgDn
     if os.path.isfile('datacardInputs/inputs_bkg_'+{0:'',1:'z4l_'}[int(opt.doZ4l)]+obsName+'.py'):
@@ -121,13 +121,13 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
             fractionBkg = _temp.fractionsBackground
             lambdajesupBkg = _temp.lambdajesupBkg
             lambdajesdnBkg = _temp.lambdajesdnBkg
-            
+
     print '[Preparing bkg shapes and fractions, for bins with boundaries ', observableBins
     # save/create/prepare directories and compile templates script
     currentDir = os.getcwd(); os.chdir('./templates/')
     cmd = 'rm main_fiducialXSTemplates; make'; processCmd(cmd)
     cmd = 'mkdir -p templatesXS/DTreeXS_'+opt.OBSNAME+'/13TeV/'; processCmd(cmd,1)
-    
+
     # extract bkg templates and bin fractions
     sZZname2e2mu = 'ZZTo2e2mu_powheg'; sZZname4mu = 'ZZTo4mu_powheg'; sZZname4e = 'ZZTo4e_powheg'
     if (opt.doZ4l):
@@ -180,8 +180,8 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
         f.write('fractionsBackground = '+json.dumps(fractionBkg)   +';\n')
         f.write('lambdajesupBkg = '     +json.dumps(lambdajesupBkg)+';\n')
         f.write('lambdajesdnBkg = '     +json.dumps(lambdajesdnBkg)+';\n')
-        
-                                                                                                
+
+
 ### Extract the XS-specific uncertainties for given obs and bin, for all final states (differential)
 def extractUncertainties(obsName, observableBinDn, observableBinUp):
     print '[Extracting uncertainties  -  range ('+observableBinDn+', '+observableBinUp+')]'
@@ -190,7 +190,7 @@ def extractUncertainties(obsName, observableBinDn, observableBinUp):
 
 ### Produce datacards for given obs and bin, for all final states
 def produceDatacards(obsName, observableBins, modelName, physicalModel):
- 
+
     print '[Producing workspace/datacards for obsName '+obsName+', bins '+str(observableBins)+']'
     fStates = ['2e2mu','4mu','4e']
     nBins = len(observableBins)
@@ -208,7 +208,7 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
                     os.system("cp xs_125.0_5bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
 
                 if ((nBins-1)==4):
-                    os.system("cp xs_125.0_4bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")    
+                    os.system("cp xs_125.0_4bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
                 os.system("sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
                 os.system("sed -i 's~_xs.Databin"+str(obsBin)+"~_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+"~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
                 if ("jet" in obsName):
@@ -222,7 +222,7 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
             if obsName=='mass4l': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusive_bin0.txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
             if obsName=='mass4lREFIT': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusiveREFIT_bin0.txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
             os.system("sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
-            os.system("sed -i 's~_xs.Databin0~_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin0~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")   
+            os.system("sed -i 's~_xs.Databin0~_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin0~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
 
 ### Create the asimov dataset and return fit results
 def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
@@ -237,15 +237,15 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
             cmd = 'combineCards.py '
             for obsBin in range(nBins-1):
                 cmd = cmd + 'hzz4l_'+fState+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt '
-            cmd = cmd + '> hzz4l_'+fState+'S_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt' 
+            cmd = cmd + '> hzz4l_'+fState+'S_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
             print cmd
             processCmd(cmd,1)
         else:
             cmd = 'cp hzz4l_'+fState+'S_13TeV_xs_'+obsName+'_bin0_'+physicalModel+'.txt hzz4l_'+fState+'S_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
-            
+
     # combine 3 final states
     cmd = 'combineCards.py hzz4l_4muS_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt hzz4l_4eS_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt hzz4l_2e2muS_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt > hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
-    print cmd 
+    print cmd
     processCmd(cmd,1)
     if (not opt.LUMISCALE=="1.0"):
         os.system('echo "    " >> hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt')
@@ -262,15 +262,15 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
         processCmd(cmd)
 
     cmd = 'cp hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root ../'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
-    print cmd 
+    print cmd
     processCmd(cmd,1)
-    
+
     os.chdir(currentDir)
-        
+
     # import acc factors
     _temp = __import__('inputs_sig_'+obsName, globals(), locals(), ['acc'], -1)
     acc = _temp.acc
-    
+
     # Run the Combine
     if (physicalModel=="v2"):
         #if (opt.FIXMASS=="False"):
@@ -309,7 +309,7 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
         print cmd
         output = processCmd(cmd)
 
-    # parse the results for all the bins and the given final state 
+    # parse the results for all the bins and the given final state
     tmp_resultsXS = {}
     for fState in fStates:
         for obsBin in range(len(observableBins)-1):
@@ -322,7 +322,7 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
         binTag = str(obsBin)
         resultsXS['AsimovData_'+obsName+'_genbin'+binTag] = {'central':0.0, 'uncerDn':0.0, 'uncerUp':0.0}
         for fState in fStates:
-            resultsXS['AsimovData_'+obsName+'_'+fState+'_genbin'+binTag] = {'central':0.0, 'uncerDn':0.0, 'uncerUp':0.0}            
+            resultsXS['AsimovData_'+obsName+'_'+fState+'_genbin'+binTag] = {'central':0.0, 'uncerDn':0.0, 'uncerUp':0.0}
         tmp_central = 0.0
         tmp_uncerDn = 0.0
         tmp_uncerUp = 0.0
@@ -332,7 +332,7 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
             tmp_uncerUp += tmp_resultsXS[modelName+'_'+fState+'_'+obsName+'_genbin'+binTag]['uncerUp']**2
             resultsXS['AsimovData_'+obsName+'_'+fState+'_genbin'+binTag]['central'] = float("{0:.5f}".format(tmp_resultsXS[modelName+'_'+fState+'_'+obsName+'_genbin'+binTag]['central']))
             resultsXS['AsimovData_'+obsName+'_'+fState+'_genbin'+binTag]['uncerDn'] = -float("{0:.5f}".format(tmp_resultsXS[modelName+'_'+fState+'_'+obsName+'_genbin'+binTag]['uncerDn']))
-            resultsXS['AsimovData_'+obsName+'_'+fState+'_genbin'+binTag]['uncerUp'] = +float("{0:.5f}".format(tmp_resultsXS[modelName+'_'+fState+'_'+obsName+'_genbin'+binTag]['uncerUp'])) 
+            resultsXS['AsimovData_'+obsName+'_'+fState+'_genbin'+binTag]['uncerUp'] = +float("{0:.5f}".format(tmp_resultsXS[modelName+'_'+fState+'_'+obsName+'_genbin'+binTag]['uncerUp']))
         resultsXS['AsimovData_'+obsName+'_genbin'+binTag]['central'] = float("{0:.5f}".format(tmp_central))
         resultsXS['AsimovData_'+obsName+'_genbin'+binTag]['uncerDn'] = -float("{0:.5f}".format(tmp_uncerDn**0.5))
         resultsXS['AsimovData_'+obsName+'_genbin'+binTag]['uncerUp'] = +float("{0:.5f}".format(tmp_uncerUp**0.5))
@@ -362,13 +362,13 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
                 tmp_uncerDn += tmp_resultsXS[modelName+'_'+fState+'_'+obsName+'_genbin'+binTag+'_statOnly']['uncerDn']**2
                 tmp_uncerUp += tmp_resultsXS[modelName+'_'+fState+'_'+obsName+'_genbin'+binTag+'_statOnly']['uncerUp']**2
                 resultsXS['AsimovData_'+obsName+'_'+fState+'_genbin'+binTag+'_statOnly']['central'] = float("{0:.5f}".format(tmp_resultsXS[modelName+'_'+fState+'_'+obsName+'_genbin'+binTag+'_statOnly']['central']))
-                resultsXS['AsimovData_'+obsName+'_'+fState+'_genbin'+binTag+'_statOnly']['uncerDn'] = -float("{0:.5f}".format(tmp_resultsXS[modelName+'_'+fState+'_'+obsName+'_genbin'+binTag+'_statOnly']['uncerDn'])) 
+                resultsXS['AsimovData_'+obsName+'_'+fState+'_genbin'+binTag+'_statOnly']['uncerDn'] = -float("{0:.5f}".format(tmp_resultsXS[modelName+'_'+fState+'_'+obsName+'_genbin'+binTag+'_statOnly']['uncerDn']))
                 resultsXS['AsimovData_'+obsName+'_'+fState+'_genbin'+binTag+'_statOnly']['uncerUp'] = +float("{0:.5f}".format(tmp_resultsXS[modelName+'_'+fState+'_'+obsName+'_genbin'+binTag+'_statOnly']['uncerUp']))
             resultsXS['AsimovData_'+obsName+'_genbin'+binTag+'_statOnly']['central'] = float("{0:.5f}".format(tmp_central))
             resultsXS['AsimovData_'+obsName+'_genbin'+binTag+'_statOnly']['uncerDn'] = -float("{0:.5f}".format(tmp_uncerDn**0.5))
             resultsXS['AsimovData_'+obsName+'_genbin'+binTag+'_statOnly']['uncerUp'] = +float("{0:.5f}".format(tmp_uncerUp**0.5))
-    
-                                                                                                 
+
+
     return resultsXS
 
 # parse the fit results from the MultiDim fit output "resultLog", for the bin and final state designated by "rTag"
@@ -417,7 +417,7 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
         cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial:differentialFiducialV3 --PO higgsMassRange=115,135 --PO nBin='+str(nBins-1)+' -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
         print cmd
         processCmd(cmd)
-                       
+
     cmd = 'cp hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root ../'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
     print cmd
     processCmd(cmd,1)
@@ -434,7 +434,7 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
             if (opt.FIXMASS=="False"):
                 cmd =  'combine -n '+obsName+' -M MultiDimFit '+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root -m 125.0 -D toy_asimov '
             else:
-                cmd =  'combine -n '+obsName+' -M MultiDimFit '+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root -m '+opt.FIXMASS+' -D toy_asimov --setParameters MH='+opt.FIXMASS  
+                cmd =  'combine -n '+obsName+' -M MultiDimFit '+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root -m '+opt.FIXMASS+' -D toy_asimov --setParameters MH='+opt.FIXMASS
             # you can add fractions to the POIs if you want the uncertainties on frac4e, frac4mu
             for bin in range(nBins-1):
                 cmd = cmd + ' -P SigmaBin'+str(bin)
@@ -443,12 +443,12 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
                 cmd = cmd + ' -P MH'
             cmd = cmd + ' --floatOtherPOIs=1 --saveWorkspace'
             if (not opt.FIXMASS=="False"):
-                cmd = cmd + ' --setParameterRanges MH='+opt.FIXMASS+','+opt.FIXMASS#+'001'            
+                cmd = cmd + ' --setParameterRanges MH='+opt.FIXMASS+','+opt.FIXMASS#+'001'
                 #cmd = cmd + ' --freezeNuisanceGroups MH '
             if (opt.UNBLIND):
                 #cmd = cmd.replace('_exp','')
                 cmd = cmd.replace('-D toy_asimov',' ')
-            print cmd 
+            print cmd
             output=processCmd(cmd)
             if (opt.FIXMASS=="False"):
                 processCmd('cp higgsCombine'+obsName+'.MultiDimFit.mH125.root '+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root',1)
@@ -462,13 +462,13 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
             # import acc factors
             _temp = __import__('inputs_sig_'+obsName, globals(), locals(), ['acc'], -1)
             acc = _temp.acc
-                        
+
             tmp_xs = {}
             tmp_xs_sm = {}
             nBins = len(observableBins)
             for fState in fStates:
                 for obsBin in range(nBins-1):
-                    fidxs_sm = 0 
+                    fidxs_sm = 0
                     fidxs_sm += higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                     #fidxs_sm += acc['ggH_HRes_125_'+fState+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                     fidxs_sm += higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+fState]*acc['VBF_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -484,7 +484,7 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
                         fidxs += higgs_xs['ZH_'+opt.FIXMASS]*higgs4l_br[opt.FIXMASS+'_'+fState]*acc['ZH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                         fidxs += higgs_xs['ttH_'+opt.FIXMASS]*higgs4l_br[opt.FIXMASS+'_'+fState]*acc['ttH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                     else: fidxs = fidxs_sm
-                    
+
                     tmp_xs_sm[fState+'_genbin'+str(obsBin)] = fidxs_sm
 
                     if (opt.FIXMASS=="False"):
@@ -516,7 +516,7 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
                 cmd = cmd + ' -P SigmaBin'+str(bin)#+' -P K1Bin'+str(bin)+' -P K2Bin'+str(bin)
 
             if (opt.FIXMASS=="False"):
-                cmd = cmd+' -P MH --floatOtherPOIs=1' 
+                cmd = cmd+' -P MH --floatOtherPOIs=1'
             else:
                 cmd = cmd+' --floatOtherPOIs=1'
 
@@ -561,7 +561,7 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
             cmd = cmd + ' -m '+opt.FIXMASS+' --setParameterRanges MH='+opt.FIXMASS+','+opt.FIXMASS#+'001'
         else:
             cmd = cmd + ' -m 125.0'
-        if (opt.UNBLIND): 
+        if (opt.UNBLIND):
             #cmd = cmd.replace('_exp','')
             cmd = cmd.replace('-D toy_asimov',' ')
         print cmd
@@ -573,7 +573,7 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
         cmd = cmd + ' --algo=singles --cl=0.68 --robustFit=1'
         print cmd
         output=processCmd(cmd)
-                                                                                            
+
     # parse the results for all the bins
     for obsBin in range(len(observableBins)-1):
         if (physicalModel=="v3"):
@@ -597,7 +597,7 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
             elif (physicalModel=="v2"):
                 for fState in fStates:
                     resultsXS[modelName+'_'+obsName+'_'+fState+'_genbin'+str(obsBin)+'_statOnly'] = parseXSResults(output, 'r'+fState+'Bin'+str(obsBin)+' :')
-    
+
     return resultsXS
 
 ### Extract model dependance uncertnaities from the fit results
@@ -625,8 +625,8 @@ def addModelIndependenceUncert(obsName, observableBins, resultsXS, asimovDataMod
                         if (diff<0) and (abs(diff) > abs(modelIndependenceUncert[DataModel + obsName + '_'+fState+'_genbin'+binTag]['uncerDn'])):
                             modelIndependenceUncert[DataModel + obsName + '_'+fState+'_genbin'+binTag]['uncerDn'] = float("{0:.4f}".format(diff))
                         if (diff>0) and (abs(diff) > abs(modelIndependenceUncert[DataModel + obsName + '_'+fState+'_genbin'+binTag]['uncerUp'])):
-                            modelIndependenceUncert[DataModel + obsName +'_'+fState+ '_genbin'+binTag]['uncerUp'] = float("{0:.4f}".format(diff))                                                                                   
-    
+                            modelIndependenceUncert[DataModel + obsName +'_'+fState+ '_genbin'+binTag]['uncerUp'] = float("{0:.4f}".format(diff))
+
     if (physicalModel=="v3"):
         for obsBin in range(len(observableBins)-1):
             modelIndependenceUncert[DataModel + obsName +'_genbin'+str(obsBin)] = {'uncerDn':0.0, 'uncerUp':0.0}
@@ -652,10 +652,10 @@ def runFiducialXS():
     # parse the arguments and options
     global opt, args, runAllSteps
     parseOptions()
-    
+
     # save working dir
     jcpDir = os.getcwd()
-    
+
     # prepare the set of bin boundaries to run over, only 1 bin in case of the inclusive measurement
     observableBins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
 
@@ -684,12 +684,12 @@ def runFiducialXS():
         print cmd
         output = processCmd(cmd)
         print output
-        asimovDataModelName = "SM_125"    
+        asimovDataModelName = "SM_125"
         asimovPhysicalModel = "v2"
         produceDatacards(obsName, observableBins, asimovDataModelName, asimovPhysicalModel)
         resultsXS = createAsimov(obsName, observableBins, asimovDataModelName, resultsXS, asimovPhysicalModel)
         print "resultsXS: \n", resultsXS
-        
+
         # plot the asimov predictions for data, signal, and backround in differential bins
         if (not obsName.startswith("mass4l")):
             cmd = 'python plotDifferentialBins.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'"'
@@ -697,10 +697,10 @@ def runFiducialXS():
             if (opt.UNBLIND): cmd = cmd + ' --unblind'
             output = processCmd(cmd)
             print output
-    
+
     ## Extract the results
-    # use constrained SM 
-    modelNames = ['SM_125','SMup_125','SMdn_125']#,'VBF_powheg_JHUgen_125']    
+    # use constrained SM
+    modelNames = ['SM_125','SMup_125','SMdn_125']#,'VBF_powheg_JHUgen_125']
     # do all models
     #if (not 'jet' in obsName):
     #    modelNames = ['SM_125','ggH_powheg_JHUgen_125', 'VBF_powheg_JHUgen_125', 'WH_powheg_JHUgen_125', 'ZH_powheg_JHUgen_125', 'ttH_powheg_JHUgen_125']
@@ -715,14 +715,14 @@ def runFiducialXS():
     #modelNames = opt.MODELNAMES
     #modelNames = modelNames.split('|')
     print "modelNames",modelNames
-    
+
     if (obsName.startswith("mass4l")): physicalModels = ["v2","v3"]
     else: physicalModels = ["v3"]
 
     if (runAllSteps or opt.resultsOnly):
         for physicalModel in physicalModels:
             for modelName in modelNames:
-                produceDatacards(obsName, observableBins, modelName, physicalModel)                         
+                produceDatacards(obsName, observableBins, modelName, physicalModel)
                 resultsXS = extractResults(obsName, observableBins, modelName, physicalModel, asimovDataModelName, asimovPhysicalModel, resultsXS)
                 print "resultsXS: \n", resultsXS
                 # plot the fit results
@@ -731,14 +731,14 @@ def runFiducialXS():
                     if (opt.UNBLIND): cmd = cmd + ' --unblind'
                     print cmd
                     output = processCmd(cmd)
-                    print output                                                
+                    print output
                 elif (physicalModel=="v2"):
-                    cmd = 'python plotAsimov_inclusive.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'"' #+' --lumiscale=str(opt.LUMISCALE)'            
+                    cmd = 'python plotAsimov_inclusive.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'"' #+' --lumiscale=str(opt.LUMISCALE)'
                     if (opt.UNBLIND): cmd = cmd + ' --unblind'
                     print cmd
                     output = processCmd(cmd)
                     print output
-        
+
             ## Calculate model dependance uncertainties
             modelIndependenceUncert = addModelIndependenceUncert(obsName, observableBins, resultsXS, asimovDataModelName,physicalModel)
             print "modelIndependenceUncert: \n", modelIndependenceUncert
@@ -749,7 +749,7 @@ def runFiducialXS():
                 f.write('asimovDataModelName = '+json.dumps(asimovDataModelName)+';\n')
                 f.write('resultsXS = '+json.dumps(resultsXS)+';\n')
                 f.write('modelIndUncert = '+json.dumps(modelIndependenceUncert))
-        
+
     # Make final differential plots
     if (runAllSteps or opt.finalplotsOnly):
 
@@ -759,7 +759,7 @@ def runFiducialXS():
         else:
             cmd = "sed -i 's~-D data_obs~-D toy_asimov~g' doLScan*.sh"
             #test VM
-	    print(cmd) 
+	    print(cmd)
             output = processCmd(cmd)
 
         if (obsName=="mass4l"):
@@ -775,7 +775,7 @@ def runFiducialXS():
         if (obsName=="pt_leadingjet_pt30_eta2p5"):
             cmd = './doLScan_ptjet12p5.sh'
         if (obsName=="rapidity4l"):
-            cmd = './doLScan_rapidity4l.sh' 
+            cmd = './doLScan_rapidity4l.sh'
 	if (obsName=="cosThetaStar"):
             cmd = './doLScan_cosThetaStar.sh'
 	if (obsName=="massZ2"):
@@ -783,7 +783,7 @@ def runFiducialXS():
         if (obsName=="massZ1"):
             cmd = './doLScan_massZ1.sh'
         output = processCmd(cmd)
-        
+
         cmd = 'python plotLHScans.py -l -q -b --obsName='+obsName
         output = processCmd(cmd)
         for modelName in modelNames:
@@ -806,7 +806,7 @@ def runFiducialXS():
             output = processCmd(cmd)
             print output
 
-        
-if __name__ == "__main__":   
-    runFiducialXS()  
+
+if __name__ == "__main__":
+    runFiducialXS()
 print "all modules successfully compiled"
