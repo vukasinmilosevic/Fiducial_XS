@@ -32,7 +32,8 @@ voms-proxy-init -voms cms
 Final step is to clone the correct verison of the code. At the moment the working version can be found on the ```CMSSW_10_X``` branch, which can be cloned via the following command:
 ```
 cd $CMSSW_BASE/src/
-git clone -b CMSSW_10_X git@github.com:vukasinmilosevic/Fiducial_XS.git
+#git clone -b CMSSW_10_X git@github.com:vukasinmilosevic/Fiducial_XS.git
+git clone -b CMSSW_10_X_Dev2 git@github.com:ram1123/Fiducial_XS.git
 ```
 
 ## 2. Running the measurement

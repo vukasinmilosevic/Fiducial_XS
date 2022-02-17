@@ -147,11 +147,12 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
         tmpObsName = obsName
         tmpSrcDir = opt.SOURCEDIR
         if (sample_tag=='ZX4l_CR'):
-#            tmpSrcDir = '/raid/raid5/dsperka/Run2/HZZ4l/SubmitArea_13TeV/Ana_ZZ4L_80X/'  #test
-#            tmpSrcDir = '/raid/raid7/dsperka/Run2/HZZ4l/SubmitArea_13TeV/liteUFHZZ4LAnalyzer/'
-#            tmpSrcDir = '/raid/raid7/lucien/Higgs/HZZ4l/NTuple/ZPlusX/ZXCR/SkimTree_ZX_Run2018Data_190221/'  #Lucien
-            #tmpSrcDir = '/raid/raid7/dsperka/Run2/HZZ4l/SubmitArea_13TeV'  #David   2018
-            tmpSrcDir ='/eos/user/v/vmilosev/Skim_2018_HZZ/WoW'
+            # tmpSrcDir = '/raid/raid5/dsperka/Run2/HZZ4l/SubmitArea_13TeV/Ana_ZZ4L_80X/'  #test
+            # tmpSrcDir = '/raid/raid7/dsperka/Run2/HZZ4l/SubmitArea_13TeV/liteUFHZZ4LAnalyzer/'
+            # tmpSrcDir = '/raid/raid7/lucien/Higgs/HZZ4l/NTuple/ZPlusX/ZXCR/SkimTree_ZX_Run2018Data_190221/'  #Lucien
+            # tmpSrcDir = '/raid/raid7/dsperka/Run2/HZZ4l/SubmitArea_13TeV'  #David   2018
+            # tmpSrcDir = '/eos/user/v/vmilosev/Skim_2018_HZZ/WoW'
+            tmpSrcDir = opt.SOURCEDIR # FIXME: if the paths for ZX CR is different then we need to update this
         fitTypeZ4l = [['none','doRatio'],['doZ4l','doZ4l']][opt.doZ4l][opt.doRatio]
         cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+tmpObsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS+'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0'
         print cmd
@@ -198,16 +199,11 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
             for obsBin in range(nBins-1):
                 # first bool = cfactor second bool = add fake H               #
                 ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, modelName, physicalModel)
-                if ((nBins-1)==7):
-                    os.system("cp xs_125.0_7bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
-                if ((nBins-1)==6):
-                    os.system("cp xs_125.0_6bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
 
-                if ((nBins-1)==5):
-                    os.system("cp xs_125.0_5bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
-
-                if ((nBins-1)==4):
-                    os.system("cp xs_125.0_4bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
+                """
+                # Explanation::
+                """
+                os.system("cp xs_125.0_"+str(nBins - 1)+"bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
                 os.system("sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
                 os.system("sed -i 's~_xs.Databin"+str(obsBin)+"~_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+"~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
                 if ("jet" in obsName):
@@ -763,25 +759,25 @@ def runFiducialXS():
 
         if (obsName=="mass4l"):
             cmd = './scripts/doLScan_mass4l.sh'
-        if (obsName=="pT4l"):
-            cmd = './scripts/doLScan_pT4l.sh'
-        if (obsName=="njets_pt30_eta4p7"):
-            cmd = './scripts/doLScan_njets.sh'
-        if (obsName=="njets_pt30_eta2p5"):
-            cmd = './scripts/doLScan_njets2p5.sh'
-        if (obsName=="pt_leadingjet_pt30_eta4p7"):
-            cmd = './scripts/doLScan_ptjet1.sh'
-        if (obsName=="pt_leadingjet_pt30_eta2p5"):
-            cmd = './scripts/doLScan_ptjet12p5.sh'
-        if (obsName=="rapidity4l"):
-            cmd = './scripts/doLScan_rapidity4l.sh'
-        if (obsName=="cosThetaStar"):
-            cmd = './scripts/doLScan_cosThetaStar.sh'
-        if (obsName=="massZ2"):
-            cmd = './scripts/doLScan_massZ2.sh'
-        if (obsName=="massZ1"):
-            cmd = './scripts/doLScan_massZ1.sh'
-        output = processCmd(cmd)
+        else:
+            for obsBin in range(0,len(observableBins)-1):
+                cmd = "combine -n "+obsName+"_SigmaBin"+str(obsBin)+" -M MultiDimFit -d SM_125_all_13TeV_xs_"+obsName+"_bin_"+physicalModel+"_exp.root -m 125.09 -D toy_asimov --setParameters MH=125.09 -P SigmaBin"+str(obsBin)+" --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin"+str(obsBin)+"=0.0,3.0 --redefineSignalPOIs SigmaBin"+str(obsBin)+" --algo=grid --points=50 --autoRange 4 "
+                if (opt.UNBLIND): cmd = cmd.replace("-D toy_asimov","-D data_obs")
+                # if (obsName=='pt_leadingjet_pt30_eta2p5' and str(obsBin)=='1'): cmd = cmd.replace('0.0,3.0','0.0,1.5')
+                # if (obsName=='pt_leadingjet_pt30_eta2p5' and str(obsBin)=='2'): cmd = cmd.replace('0.0,3.0','0.0,0.7')
+                if (obsName=='mass4l' and str(obsBin)=='0'): cmd = cmd.replace('0.0,3.0','0.0,5.0')
+                if (obsName=='pT4l' and str(obsBin)=='7'): cmd = cmd.replace('0.0,3.0','0.0,2.0')
+                if (obsName=='njets_pt30_eta2p5' or obsName=='pt_leadingjet_pt30_eta2p5' and str(obsBin)=='0'): cmd = cmd.replace('0.0,3.0','0.0,4.0')
+                if (obsName=='njets_pt30_eta2p5' or obsName=='pt_leadingjet_pt30_eta2p5' and str(obsBin)=='2'): cmd = cmd.replace('0.0,3.0','0.0,1.0')
+                if (obsName=='njets_pt30_eta2p5' or obsName=='pt_leadingjet_pt30_eta2p5' and str(obsBin)=='3'): cmd = cmd.replace('0.0,3.0','0.0,1.0')
+                if (obsName=='njets_pt30_eta2p5' or obsName=='pt_leadingjet_pt30_eta2p5' and str(obsBin)=='4'): cmd = cmd.replace('0.0,3.0','0.0,1.0')
+
+                print("\ ==> Command:\n\t{}".format(cmd))
+                output = processCmd(cmd)
+
+                cmd = "combine -n "+obsName+"_SigmaBin"+str(obsBin)+"_NoSys -M MultiDimFit -d SM_125_all_13TeV_xs_"+obsName+"_bin_"+physicalModel+"_result.root -w w --snapshotName \"MultiDimFit\" -m 125.09 -D toy_asimov --setParameters MH=125.09 -P SigmaBin"+str(obsBin)+" --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin"+str(obsBin)+"=0.0,3.0 --redefineSignalPOI SigmaBin"+str(obsBin)+" --algo=grid --points=50 --autoRange 4 --freezeParameters allConstrainedNuisances "
+                print("\ ==> Command:\n\t{}".format(cmd))
+                output = processCmd(cmd)
 
         cmd = 'python python/plotLHScans.py -l -q -b --obsName='+obsName
         output = processCmd(cmd)
