@@ -59,6 +59,12 @@ for obsName, obsBin in obsNamesBinsDict.items():
         )
         print("Command: {}".format(command))
         if (args.RunCommand): os.system(command)
+        if (not obsName.startswith("mass4l")):
+            command = 'python plot2dsigeffs.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}"'.format(
+                obsName = obsName, obsBins = obsBin
+            )
+            print("Command: {}".format(command))
+            if (args.RunCommand): os.system(command)
 
     if (args.step == 5):
         print("="*51)

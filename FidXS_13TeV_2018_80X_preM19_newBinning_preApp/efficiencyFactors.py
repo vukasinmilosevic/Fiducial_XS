@@ -24,10 +24,10 @@ def parseOptions():
     # input options
     parser.add_option('-d', '--dir',    dest='SOURCEDIR',  type='string',default='./', help='run from the SOURCEDIR as working area, skip if SOURCEDIR is an empty string')
     parser.add_option('',   '--modelName',dest='MODELNAME',type='string',default='SM', help='Name of the Higgs production or spin-parity model, default is "SM", supported: "SM", "ggH", "VBF", "WH", "ZH", "ttH", "exotic","all"')
-    parser.add_option('',   '--obsName',dest='OBSNAME',    type='string',default='',
-                        choices = [ "nJets", "massZ1", "massZ2", "pT4l", "eta4l", "njets_pt30_eta4p7",
-                                    "njets_pt30_eta2p5", "pt_leadingjet_pt30_eta4p7", "pt_leadingjet_pt30_eta2p5",
-                                    "rapidity4l", "cosThetaStar", "cosTheta1", "cosTheta2", "Phi", "Phi1"]
+    parser.add_option('',   '--obsName',dest='OBSNAME',    type='string',default='mass4l',
+                        # choices = ("mass4l", "nJets", "massZ1", "massZ2", "pT4l", "eta4l", "njets_pt30_eta4p7",
+                                    # "njets_pt30_eta2p5", "pt_leadingjet_pt30_eta4p7", "pt_leadingjet_pt30_eta2p5",
+                                    # "rapidity4l", "cosThetaqStar", "cosTheta1", "cosTheta2", "Phi", "Phi1"),
                         help='Name of the observalbe, supported: "mass4l", "pT4l", "massZ2", "rapidity4l", "cosThetaStar", "nets_reco_pt30_eta4p7"')
     parser.add_option('',   '--obsBins',dest='OBSBINS',    type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('-f', '--doFit', action="store_true", dest='DOFIT', default=False, help='doFit, default false')
