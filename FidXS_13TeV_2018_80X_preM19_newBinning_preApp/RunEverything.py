@@ -64,6 +64,11 @@ for obsName, obsBin in obsNamesBinsDict.items():
         print("="*51)
         print("Running final measurement and plotters")
         print("="*51)
+        # Copy model from model directory to combine path
+        CMSSW_BASE = os.getenv('CMSSW_BASE')
+        copyCommand = 'cp models/HZZ4L*.py {CMSSW_BASE}/src/HiggsAnalysis/CombinedLimit/python/'.format(CMSSW_BASE=CMSSW_BASE)
+        os.system(copyCommand)
+
         # command = 'nohup python -u runHZZFiducialXS.py --obsName="{obsName}" --obsBins="{obsBins}"  --calcSys --asimovMass {HiggsMass}  >& log/log_{obsName}_Run2Fid.txt &'.format(
         command = 'python -u runHZZFiducialXS.py --obsName="{obsName}" --obsBins="{obsBins}"  --calcSys --asimovMass {HiggsMass}'.format(
                 obsName = obsName, obsBins = obsBin, HiggsMass = args.HiggsMass
