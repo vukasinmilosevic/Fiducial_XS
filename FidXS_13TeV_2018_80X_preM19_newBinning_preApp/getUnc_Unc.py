@@ -2,7 +2,11 @@ import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
 from array import array
 from math import *
 from decimal import *
-from sample_shortnames import *
+from ROOT import *
+
+from python.sample_shortnames import *
+#from LoadData_Unc import *
+from python.LoadData import *
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -42,10 +46,6 @@ doPlots = opt.DOPLOTS
 
 if (not os.path.exists("plots") and doPlots):
     os.system("mkdir plots")
-
-from ROOT import *
-#from LoadData_Unc import *
-from LoadData import *
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
@@ -185,40 +185,40 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
         accerrstat=0.0
         if (Histos[processBin+"fs"].Integral()>0):
             if ("NNLOPS" in processBin):
-                print Histos[processBin+"fs"].Integral(),Histos[processBin+"fid0"].Integral()
+                print("\n{}\t{}".format(Histos[processBin+"fs"].Integral(),Histos[processBin+"fid0"].Integral()))
                 acceptance[processBin] = Histos[processBin+"fid0"].Integral()/Histos[processBin+"fs"].Integral()
                 accerrstat = sqrt(acceptance[processBin]*(1-acceptance[processBin])/fsintegral)
                 qcderrup=1.0; qcderrdn=1.0;
                 accerrup=1.0; accerrdn=1.0;
                 #for i in range(9,36):
-                for i in range(0,27):
+                for i in range(0,27): # FIXME: What is this number 27?
                     #if (i==14 or i==16 or i==23 or i==25 or i==32 or i==34): continue
                     #if (i==5 or i==7 or i==14 or i==16 or i==23 or i==25): continue
                     if (i==5 or i==7 or i==11 or i==14 or i==15 or i==16 or i==17 or i==19 or i==21 or i==22 or i==23 or i==25): continue
                     ratio = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
-                    print i,'ratio',ratio
+                    print("{:2}\tratio\t{}".format(i,ratio))
                     if (ratio>qcderrup): qcderrup = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
                     if (ratio<qcderrdn): qcderrdn = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
 
                     acci = Histos[processBin+"fidraw"+str(i)].Integral()/Histos[processBin+"fs"+str(i)].Integral()
-                    print i,"acc",acci
-                    print Histos[processBin+"fidraw"+str(i)].Integral(),Histos[processBin+"fs"+str(i)].Integral()
+                    print("{:2}\tacc  \t{}".format(i,acci))
+                    print("{}\t{}".format(Histos[processBin+"fidraw"+str(i)].Integral(),Histos[processBin+"fs"+str(i)].Integral()))
                     if (acci/acceptance[processBin]>accerrup): accerrup=acci/acceptance[processBin]
                     if (acci/acceptance[processBin]<accerrdn): accerrdn=acci/acceptance[processBin]
             else:
-                print Histos[processBin+"fs"].Integral(),Histos[processBin+"fid0"].Integral()
+                print("\n{}\t{}".format(Histos[processBin+"fs"].Integral(),Histos[processBin+"fid0"].Integral()))
                 acceptance[processBin] = Histos[processBin+"fid0"].Integral()/Histos[processBin+"fs"].Integral()
                 accerrstat = sqrt(acceptance[processBin]*(1-acceptance[processBin])/fsintegral)
                 qcderrup=1.0; qcderrdn=1.0;
                 accerrup=1.0; accerrdn=1.0;
                 for i in [1,2,3,4,6,8]:
                     ratio = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
-                    print i,'ratio',ratio
+                    print("{:2}\tratio\t{}".format(i,ratio))
                     if (ratio>qcderrup): qcderrup = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
                     if (ratio<qcderrdn): qcderrdn = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
 
                     acci = Histos[processBin+"fidraw"+str(i)].Integral()/Histos[processBin+"fs"+str(i)].Integral()
-                    print i,"acc",acci
+                    print("{:2}\tacc  \t{}".format(i,acci))
                     if (acci/acceptance[processBin]>accerrup): accerrup=acci/acceptance[processBin]
                     if (acci/acceptance[processBin]<accerrdn): accerrdn=acci/acceptance[processBin]
 
@@ -322,7 +322,9 @@ if (obs_reco.startswith("njets")):
                 qcdUncert[processBin]['uncerDn'] = sqrt(qcdUncert[processBin]['uncerDn']*qcdUncert[processBin]['uncerDn']+qcdUncert[processBinPlus1]['uncerDn']*qcdUncert[processBinPlus1]['uncerDn'])
 
 #os.system('cp accUnc_'+opt.OBSNAME+'.py accUnc_'+opt.OBSNAME+'_ORIG.py')
-with open('accUnc_'+opt.OBSNAME+'.py', 'w') as f:
+DirForUncFiles = "python"
+if not os.path.isdir(DirForUncFiles): os.mkdir(DirForUncFiles)
+with open(DirForUncFiles+'/accUnc_'+opt.OBSNAME+'.py', 'w') as f:
     f.write('acc = '+str(acceptance)+' \n')
     f.write('qcdUncert = '+str(qcdUncert)+' \n')
     f.write('pdfUncert = '+str(pdfUncert)+' \n')

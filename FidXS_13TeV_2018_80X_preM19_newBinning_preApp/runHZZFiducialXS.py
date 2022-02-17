@@ -1,4 +1,3 @@
-
 #!/usr/bin/python
 #-----------------------------------------------
 # Latest update: 2014.10.16
@@ -15,9 +14,9 @@ from ROOT import *
 # load XS-specific modules
 sys.path.append('./datacardInputs')
 
-from sample_shortnames import *
-from createXSworkspace import createXSworkspace
-from higgs_xsbr_13TeV import *
+from python.sample_shortnames import *
+from python.createXSworkspace import createXSworkspace
+from python.higgs_xsbr_13TeV import *
 
 ### Define function for parsing options
 def parseOptions():
@@ -424,7 +423,7 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
 
     os.chdir(currentDir)
 
-    cmd = 'root -l -b -q "addToyDataset.C(\\"'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root\\",\\"'+asimovModelName+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root\\",\\"toy_asimov\\",\\"'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root\\")"'
+    cmd = 'root -l -b -q "src/addToyDataset.C(\\"'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root\\",\\"'+asimovModelName+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root\\",\\"toy_asimov\\",\\"'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root\\")"'
     print cmd
     processCmd(cmd)
 
@@ -680,7 +679,7 @@ def runFiducialXS():
     if (runAllSteps):
         resultsXS = {}
         #asimovDataModelName = "ggH_powheg_JHUgen_125"
-        cmd = 'python addConstrainedModel.py -l -q -b --obsName="'+opt.OBSNAME+'" --obsBins="'+opt.OBSBINS+'"'
+        cmd = 'python python/addConstrainedModel.py -l -q -b --obsName="'+opt.OBSNAME+'" --obsBins="'+opt.OBSBINS+'"'
         print cmd
         output = processCmd(cmd)
         print output
@@ -733,7 +732,7 @@ def runFiducialXS():
                     output = processCmd(cmd)
                     print output
                 elif (physicalModel=="v2"):
-                    cmd = 'python plotAsimov_inclusive.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'"' #+' --lumiscale=str(opt.LUMISCALE)'
+                    cmd = 'python python/plotAsimov_inclusive.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'"' #+' --lumiscale=str(opt.LUMISCALE)'
                     if (opt.UNBLIND): cmd = cmd + ' --unblind'
                     print cmd
                     output = processCmd(cmd)
@@ -754,46 +753,46 @@ def runFiducialXS():
     if (runAllSteps or opt.finalplotsOnly):
 
         if (opt.UNBLIND):
-            cmd = "sed -i 's~-D toy_asimov~-D data_obs~g' doLScan*.sh"
+            cmd = "sed -i 's~-D toy_asimov~-D data_obs~g' scripts/doLScan*.sh"
             output = processCmd(cmd)
         else:
-            cmd = "sed -i 's~-D data_obs~-D toy_asimov~g' doLScan*.sh"
+            cmd = "sed -i 's~-D data_obs~-D toy_asimov~g' scripts/doLScan*.sh"
             #test VM
 	    print(cmd)
             output = processCmd(cmd)
 
-        if (obsName=="mass4l"):
-            cmd = './doLScan_mass4l.sh'
+        # if (obsName=="mass4l"):
+            # cmd = './scripts/doLScan_mass4l.sh'
         if (obsName=="pT4l"):
-            cmd = './doLScan_pT4l.sh'
+            cmd = './scripts/doLScan_pT4l.sh'
         if (obsName=="njets_pt30_eta4p7"):
-            cmd = './doLScan_njets.sh'
+            cmd = './scripts/doLScan_njets.sh'
         if (obsName=="njets_pt30_eta2p5"):
-            cmd = './doLScan_njets2p5.sh'
+            cmd = './scripts/doLScan_njets2p5.sh'
         if (obsName=="pt_leadingjet_pt30_eta4p7"):
-            cmd = './doLScan_ptjet1.sh'
+            cmd = './scripts/doLScan_ptjet1.sh'
         if (obsName=="pt_leadingjet_pt30_eta2p5"):
-            cmd = './doLScan_ptjet12p5.sh'
+            cmd = './scripts/doLScan_ptjet12p5.sh'
         if (obsName=="rapidity4l"):
-            cmd = './doLScan_rapidity4l.sh'
-	if (obsName=="cosThetaStar"):
-            cmd = './doLScan_cosThetaStar.sh'
-	if (obsName=="massZ2"):
-            cmd = './doLScan_massZ2.sh'
+            cmd = './scripts/doLScan_rapidity4l.sh'
+        if (obsName=="cosThetaStar"):
+            cmd = './scripts/doLScan_cosThetaStar.sh'
+        if (obsName=="massZ2"):
+            cmd = './scripts/doLScan_massZ2.sh'
         if (obsName=="massZ1"):
-            cmd = './doLScan_massZ1.sh'
+            cmd = './scripts/doLScan_massZ1.sh'
         output = processCmd(cmd)
 
-        cmd = 'python plotLHScans.py -l -q -b --obsName='+obsName
+        cmd = 'python python/plotLHScans.py -l -q -b --obsName='+obsName
         output = processCmd(cmd)
         for modelName in modelNames:
 
             if (not opt.FIXMASS=="False"):
-                cmd = 'python producePlots.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="'+opt.FIXMASS+'"'
+                cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="'+opt.FIXMASS+'"'
             else:
-                cmd = 'python producePlots.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'
+                cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'
 ### VUKASIN: Just until Higgs mass is properly implemented
-            cmd = 'python producePlots.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'
+            cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'
 
 
             if (opt.FIXFRAC): cmd = cmd + ' --fixFrac'

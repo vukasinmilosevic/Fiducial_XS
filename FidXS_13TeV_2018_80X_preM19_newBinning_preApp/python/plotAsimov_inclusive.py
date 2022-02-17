@@ -2,12 +2,16 @@ import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
 from array import array
 from math import *
 from decimal import *
+from ROOT import *
+
 from sample_shortnames import *
+from tdrStyle import *
+setTDRStyle()
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
     grootargs.append(opt)
-    
+
 ### Define function for parsing options
 def parseOptions():
 
@@ -16,7 +20,7 @@ def parseOptions():
     usage = ('usage: %prog [options]\n'
              + '%prog -h for help')
     parser = optparse.OptionParser(usage)
-    
+
     # input options
     parser.add_option('-d', '--dir',    dest='SOURCEDIR',  type='string',default='./', help='run from the SOURCEDIR as working area, skip if SOURCEDIR is an empty string')
     parser.add_option('',   '--asimovModel',dest='ASIMOV',type='string',default='ggH_powheg15_JHUgen_125', help='Name of the asimov data mode')
@@ -30,11 +34,11 @@ def parseOptions():
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
-    
+
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
-    
+
 # parse the arguments and options
 global opt, args, runAllSteps
 parseOptions()
@@ -42,10 +46,6 @@ sys.argv = grootargs
 
 if (not os.path.exists("plots")):
     os.system("mkdir plots")
-    
-from ROOT import *
-from tdrStyle import *
-setTDRStyle()
 
 modelName = opt.UNFOLD
 physicalModel = 'v2'
@@ -60,14 +60,14 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
 
     channel = {"4mu":"1", "4e":"2", "2e2mu":"3", "4l":"2"}
 
-    # Load some libraries                                 
+    # Load some libraries
     ROOT.gSystem.AddIncludePath("-I$CMSSW_BASE/src/ ")
     ROOT.gSystem.Load("$CMSSW_BASE/lib/slc6_amd64_gcc491/libHiggsAnalysisCombinedLimit.so")
     ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include")
     ROOT.gSystem.AddIncludePath("-Iinclude/")
-    
+
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
-    
+
     f_asimov = TFile(asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
     if (not opt.UNBLIND):
         data = f_asimov.Get("toys/toy_asimov");
@@ -97,9 +97,9 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
     n_qqzz_asimov["4l"] = 0.0
     n_zz_asimov = {}
     n_zz_asimov["4l"] = 0.0
-    
-                                                                        
-    fStates = ['4mu','4e','2e2mu']    
+
+
+    fStates = ['4mu','4e','2e2mu']
     for fState in fStates:
         trueH_asimov[fState] = w_asimov.function("n_exp_final_binch"+channel[fState]+"_proc_trueH"+fState+"Bin0")
         zjets_asimov[fState] = w_asimov.function("n_exp_final_binch"+channel[fState]+"_proc_bkg_zjets")
@@ -109,7 +109,7 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
         qqzz_asimov[fState] = w_asimov.function("n_exp_final_binch"+channel[fState]+"_proc_bkg_qqzz")
         n_trueH_asimov[fState] = trueH_asimov[fState].getVal()
         n_zjets_asimov[fState] = zjets_asimov[fState].getVal()
-        n_ggzz_asimov[fState] = ggzz_asimov[fState].getVal() 
+        n_ggzz_asimov[fState] = ggzz_asimov[fState].getVal()
         n_fakeH_asimov[fState] = fakeH_asimov[fState].getVal()
         n_out_trueH_asimov[fState] = out_trueH_asimov[fState].getVal()
         n_qqzz_asimov[fState] = qqzz_asimov[fState].getVal()
@@ -120,14 +120,14 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
         n_fakeH_asimov["4l"] += fakeH_asimov[fState].getVal()
         n_out_trueH_asimov["4l"] += out_trueH_asimov[fState].getVal()
         n_qqzz_asimov["4l"] += qqzz_asimov[fState].getVal()
-        n_zz_asimov["4l"] += n_ggzz_asimov[fState]+n_qqzz_asimov[fState]                                                                
-        
+        n_zz_asimov["4l"] += n_ggzz_asimov[fState]+n_qqzz_asimov[fState]
+
     f_modelfit = TFile(modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root','READ')
-    w_modelfit = f_modelfit.Get("w")    
+    w_modelfit = f_modelfit.Get("w")
     sim = w_modelfit.pdf("model_s")
     #sim.Print("v")
     if (fstate=="4l"): pdfi = sim.getPdf("ch2")
-    else: pdfi = sim.getPdf("ch"+channel[fstate])     
+    else: pdfi = sim.getPdf("ch"+channel[fstate])
     CMS_zz4l_mass = w_modelfit.var("CMS_zz4l_mass")
     w_modelfit.loadSnapshot("MultiDimFit")
     #pdfi.Print("v")
@@ -152,7 +152,7 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
     n_qqzz_modelfit["4l"] = 0.0
     n_zz_modelfit = {}
     n_zz_modelfit["4l"] = 0.0
-        
+
     for fState in fStates:
         trueH_modelfit[fState] = w_modelfit.function("n_exp_final_binch"+channel[fState]+"_proc_trueH"+fState+"Bin0")
         zjets_modelfit[fState] = w_modelfit.function("n_exp_final_binch"+channel[fState]+"_proc_bkg_zjets")
@@ -174,11 +174,11 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
         n_out_trueH_modelfit["4l"] += out_trueH_modelfit[fState].getVal()
         n_qqzz_modelfit["4l"] += qqzz_modelfit[fState].getVal()
         n_zz_modelfit["4l"] += n_ggzz_modelfit[fState]+n_qqzz_modelfit[fState]
-                                                    
+
     CMS_channel = w.cat("CMS_channel")
     mass = w.var("CMS_zz4l_mass").frame(RooFit.Bins(15))
     #mass = w.var("CMS_zz4l_mass").frame(RooFit.Bins(45))
-    
+
     if (fstate=="4l"):
         data.plotOn(mass,RooFit.LineColor(0),RooFit.MarkerColor(0),RooFit.LineWidth(0))
         sim.plotOn(mass,RooFit.LineColor(kRed), RooFit.ProjWData(data,True))
@@ -196,7 +196,7 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
         pdfi.plotOn(mass, RooFit.LineColor(kOrange), RooFit.Components("shapeBkg_bkg_zjets_"+sbin+",shapeBkg_bkg_ggzz_"+sbin+",shapeBkg_bkg_qqzz_"+sbin+",shapeBkg_fakeH_"+sbin), RooFit.Slice(CMS_channel,sbin),RooFit.ProjWData(RooArgSet(CMS_channel),data,True))
         pdfi.plotOn(mass, RooFit.LineColor(kAzure-3), RooFit.Components("shapeBkg_bkg_zjets_"+sbin+",shapeBkg_bkg_ggzz_"+sbin+",shapeBkg_bkg_qqzz_"+sbin), RooFit.Slice(CMS_channel,sbin),RooFit.ProjWData(RooArgSet(CMS_channel),data,True))
         pdfi.plotOn(mass, RooFit.LineColor(kGreen+3), RooFit.Components("shapeBkg_bkg_zjets_"+sbin), RooFit.Slice(CMS_channel,sbin),RooFit.ProjWData(RooArgSet(CMS_channel),data,True))
-        datahist = RooAbsData.createHistogram(data,"datahist",CMS_zz4l_mass,RooFit.Binning(15,105,140))        
+        datahist = RooAbsData.createHistogram(data,"datahist",CMS_zz4l_mass,RooFit.Binning(15,105,140))
 
     gStyle.SetOptStat(0)
 
@@ -210,7 +210,7 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
     dummy.SetLineColor(0)
     dummy.SetLineWidth(0)
     dummy.SetMarkerSize(0)
-    dummy.SetMarkerColor(0) 
+    dummy.SetMarkerColor(0)
     dummy.GetYaxis().SetTitle("Events / (2.33 GeV)")
     #dummy.GetYaxis().SetTitle("Events / (1 GeV)")
     dummy.GetXaxis().SetTitle("m_{"+fstate.replace("mu","#mu")+"} (GeV)")
@@ -227,7 +227,7 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
             dummy.SetMaximum(1.5*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate],7.0))
     dummy.SetMinimum(0.0)
     dummy.Draw()
-    
+
     dummy_data = TH1D()
     dummy_data.SetMarkerColor(kBlack)
     dummy_data.SetMarkerStyle(20)
@@ -268,13 +268,13 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
     legend.SetFillColor(0);
     legend.SetLineColor(0);
     legend.Draw()
-   
+
     '''
     legend = TLegend(.20,.7,.9,.90)
     legend.SetTextSize(0.04)
     legend.SetNColumns(2)
     if (not opt.UNBLIND):
-    #    legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")        
+    #    legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")
         legend.AddEntry(dummy_data,"Asimov Data","ep")
     else:
         legend.AddEntry(dummy_data,"Data","ep")
@@ -288,7 +288,7 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
     legend.SetLineColor(0);
     legend.Draw()
     '''
-                                                                   
+
     mass.Draw("same")
     datagraph = TGraphAsymmErrors(datahist)
     datagraph.SetMarkerSize(1.2)
@@ -324,7 +324,7 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
     latex2.DrawLatex(0.30, 0.95, "Preliminary")
     latex2.SetTextFont(42)
     latex2.SetTextSize(0.45*c.GetTopMargin())
-    #latex2.DrawLatex(0.20,0.85,"Unfolding model: "+modelName.replace("_"," ")+" GeV")   
+    #latex2.DrawLatex(0.20,0.85,"Unfolding model: "+modelName.replace("_"," ")+" GeV")
 
 
     if (not opt.UNBLIND):

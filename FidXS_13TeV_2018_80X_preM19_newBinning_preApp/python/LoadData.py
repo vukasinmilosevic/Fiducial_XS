@@ -18,7 +18,7 @@ SamplesMC_94 = [
 ###
 'GluGluHToZZTo4L_M125_2018_slimmed.root',
 'VBF_HToZZTo4L_M125_2018_slimmed.root',
-'WH_HToZZTo4L_M125_2018_slimmed.root', 
+'WH_HToZZTo4L_M125_2018_slimmed.root',
 'ZH_HToZZ_4LFilter_M125_2018_slimmed.root',
 'ttH_HToZZ_4LFilter_M125_2018_slimmed.root',
 'ggH_amcatnloFXFX_2018_slimmed.root',
@@ -33,9 +33,9 @@ SamplesData_94 = [
 ]
 
 
-RootFile = {} 
-Tree = {} 
-nEvents = {} 
+RootFile = {}
+Tree = {}
+nEvents = {}
 sumw = {}
 
 for i in range(0,len(SamplesMC_94)):
@@ -51,7 +51,7 @@ for i in range(0,len(SamplesMC_94)):
         RootFile[sample] = TFile(dirMC_94+'/'+sample+'.root',"READ")
         Tree[sample]  = RootFile[sample].Get("Ana/passedEvents")
 
-    else: 
+    else:
         RootFile[sample] = TFile.Open(dirMC_94+'/'+sample+'.root',"READ")
         Tree[sample]  = RootFile[sample].Get("Ana/passedEvents")
 
@@ -89,4 +89,4 @@ for i in range(0,len(SamplesData_94)):
     if (not Tree[sample]): print sample+' has no passedEvents tree'
     else:
         print sample,"nevents",nEvents[sample],"sumw",sumw[sample]
-    
+

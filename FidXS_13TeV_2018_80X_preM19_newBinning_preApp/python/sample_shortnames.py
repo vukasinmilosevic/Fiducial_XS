@@ -1,11 +1,11 @@
 sample_shortnames = {
-'GluGluHToZZTo4L_M125_2018_slimmed':'ggH_powheg_JHUgen_125',
-'testGGH_nnlops_GENonly_slimmed':'ggH_NNLOPS_JHUgen_125',    
-'VBF_HToZZTo4L_M125_2018_slimmed':'VBF_powheg_JHUgen_125',
-'WH_HToZZTo4L_M125_2018_slimmed':'WH_powheg_JHUgen_125',
-'ZH_HToZZ_4LFilter_M125_2018_slimmed':'ZH_powheg_JHUgen_125',
-'ttH_HToZZ_4LFilter_M125_2018_slimmed':'ttH_powheg_JHUgen_125',
-'ggH_amcatnloFXFX_2018_slimmed':'ggH_amcatnloFXFX_125',
+    'GluGluHToZZTo4L_M125_2018_slimmed' :'ggH_powheg_JHUgen_125',
+    'testGGH_nnlops_GENonly_slimmed'    :'ggH_NNLOPS_JHUgen_125',
+    'VBF_HToZZTo4L_M125_2018_slimmed'   :'VBF_powheg_JHUgen_125',
+    'WH_HToZZTo4L_M125_2018_slimmed'    :'WH_powheg_JHUgen_125',
+    'ZH_HToZZ_4LFilter_M125_2018_slimmed':'ZH_powheg_JHUgen_125',
+    'ttH_HToZZ_4LFilter_M125_2018_slimmed':'ttH_powheg_JHUgen_125',
+    'ggH_amcatnloFXFX_2018_slimmed'     :'ggH_amcatnloFXFX_125',
 }
 
 background_samples = {

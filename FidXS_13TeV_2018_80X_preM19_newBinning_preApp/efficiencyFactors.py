@@ -2,7 +2,11 @@ import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
 from array import array
 from math import *
 from decimal import *
-from sample_shortnames import *
+from ROOT import *
+
+from python.sample_shortnames import *
+from python.LoadData import *
+#LoadData(opt.SOURCEDIR)
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -44,9 +48,6 @@ doPlots = opt.DOPLOTS
 if (not os.path.exists("plots") and doPlots):
     os.system("mkdir plots")
 
-from ROOT import *
-from LoadData import *
-#LoadData(opt.SOURCEDIR)
 save = ""
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
