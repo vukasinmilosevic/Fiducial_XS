@@ -761,8 +761,8 @@ def runFiducialXS():
 	    print(cmd)
             output = processCmd(cmd)
 
-        # if (obsName=="mass4l"):
-            # cmd = './scripts/doLScan_mass4l.sh'
+        if (obsName=="mass4l"):
+            cmd = './scripts/doLScan_mass4l.sh'
         if (obsName=="pT4l"):
             cmd = './scripts/doLScan_pT4l.sh'
         if (obsName=="njets_pt30_eta4p7"):

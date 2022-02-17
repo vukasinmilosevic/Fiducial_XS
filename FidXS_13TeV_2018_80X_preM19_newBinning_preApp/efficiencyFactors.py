@@ -24,7 +24,11 @@ def parseOptions():
     # input options
     parser.add_option('-d', '--dir',    dest='SOURCEDIR',  type='string',default='./', help='run from the SOURCEDIR as working area, skip if SOURCEDIR is an empty string')
     parser.add_option('',   '--modelName',dest='MODELNAME',type='string',default='SM', help='Name of the Higgs production or spin-parity model, default is "SM", supported: "SM", "ggH", "VBF", "WH", "ZH", "ttH", "exotic","all"')
-    parser.add_option('',   '--obsName',dest='OBSNAME',    type='string',default='',   help='Name of the observalbe, supported: "mass4l", "pT4l", "massZ2", "rapidity4l", "cosThetaStar", "nets_reco_pt30_eta4p7"')
+    parser.add_option('',   '--obsName',dest='OBSNAME',    type='string',default='',
+                        choices = [ "nJets", "massZ1", "massZ2", "pT4l", "eta4l", "njets_pt30_eta4p7",
+                                    "njets_pt30_eta2p5", "pt_leadingjet_pt30_eta4p7", "pt_leadingjet_pt30_eta2p5",
+                                    "rapidity4l", "cosThetaStar", "cosTheta1", "cosTheta2", "Phi", "Phi1"]
+                        help='Name of the observalbe, supported: "mass4l", "pT4l", "massZ2", "rapidity4l", "cosThetaStar", "nets_reco_pt30_eta4p7"')
     parser.add_option('',   '--obsBins',dest='OBSBINS',    type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('-f', '--doFit', action="store_true", dest='DOFIT', default=False, help='doFit, default false')
     parser.add_option('-p', '--doPlots', action="store_true", dest='DOPLOTS', default=False, help='doPlots, default false')
@@ -420,26 +424,26 @@ def geteffs(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_b
             CMS_zz4l_mean_sig  = RooRealVar("CMS_zz4l_mean_sig","CMS_zz4l_mean_sig",0.0,-0.02,0.02);
 
             if (channel=='2e2mu'):
-                CMS_zz4l_mean = RooFormulaVar("CMS_zz4l_mean_sig","CMS_zz4l_mean_sig","(124.771931539+(0.998407660986)*(@0-125))",RooArgList(MH))
-                CMS_zz4l_sigma = RooFormulaVar("CMS_zz4l_sigma_sig","CMS_zz4l_sigma_sig","(1.42180192725+(0.0100469936221)*(@0-125))",RooArgList(MH))
-                CMS_zz4l_alpha = RooFormulaVar("CMS_zz4l_alpha","CMS_zz4l_alpha","(0.927601791812)+(0*@0)",RooArgList(MH))
-                CMS_zz4l_n = RooFormulaVar("CMS_zz4l_n","CMS_zz4l_n","(3.18098806656+(-0.0188855891779)*(@0-125))",RooArgList(MH))
-                CMS_zz4l_alpha2 = RooFormulaVar("CMS_zz4l_alpha2","CMS_zz4l_alpha2","(1.56743054428)+(0*@0)",RooArgList(MH))
-                CMS_zz4l_n2 = RooFormulaVar("CMS_zz4l_n2","CMS_zz4l_n2","(3.98349053402+(0.0517139624607)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_mean = RooFormulaVar("CMS_zz4l_mean_sig","CMS_zz4l_mean_sig","(124.260469656+(0.995095874123)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_sigma = RooFormulaVar("CMS_zz4l_sigma_sig","CMS_zz4l_sigma_sig","(1.55330758963+(0.00797274642218)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_alpha = RooFormulaVar("CMS_zz4l_alpha","CMS_zz4l_alpha","(0.947414158515+(0)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_n = RooFormulaVar("CMS_zz4l_n","CMS_zz4l_n","(3.33147279858+(-0.0438375854704)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_alpha2 = RooFormulaVar("CMS_zz4l_alpha2","CMS_zz4l_alpha2","(1.52497361611+(0)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_n2 = RooFormulaVar("CMS_zz4l_n2","CMS_zz4l_n2","(5.20522265056+(0)*(@0-125))",RooArgList(MH))
             if (channel=='4e'):
-                CMS_zz4l_mean = RooFormulaVar("CMS_zz4l_mean_sig","CMS_zz4l_mean_sig","(124.711610542+(0.994980862782)*(@0-125))",RooArgList(MH))
-                CMS_zz4l_sigma = RooFormulaVar("CMS_zz4l_sigma_sig","CMS_zz4l_sigma_sig","(1.69738413126+(0.0100692479936)*(@0-125))",RooArgList(MH))
-                CMS_zz4l_alpha = RooFormulaVar("CMS_zz4l_alpha","CMS_zz4l_alpha","(0.744232722334)+(0*@0)",RooArgList(MH))
-                CMS_zz4l_n = RooFormulaVar("CMS_zz4l_n","CMS_zz4l_n","(5.54037295934+(-0.0686672890921)*(@0-125))",RooArgList(MH))
-                CMS_zz4l_alpha2 = RooFormulaVar("CMS_zz4l_alpha2","CMS_zz4l_alpha2","(1.39075508491)+(0*@0)",RooArgList(MH))
-                CMS_zz4l_n2 = RooFormulaVar("CMS_zz4l_n2","CMS_zz4l_n2","(5.52294539756+(0.194030101663)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_mean = RooFormulaVar("CMS_zz4l_mean_sig","CMS_zz4l_mean_sig","(123.5844824+(0.985478630993)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_sigma = RooFormulaVar("CMS_zz4l_sigma_sig","CMS_zz4l_sigma_sig","(2.06515102908+(0.0170917403402)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_alpha = RooFormulaVar("CMS_zz4l_alpha","CMS_zz4l_alpha","(0.948100247167+(0)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_n = RooFormulaVar("CMS_zz4l_n","CMS_zz4l_n","(4.50639853892+(0)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_alpha2 = RooFormulaVar("CMS_zz4l_alpha2","CMS_zz4l_alpha2","(1.50095152675+(0)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_n2 = RooFormulaVar("CMS_zz4l_n2","CMS_zz4l_n2","(8.41693578742+(0.219719825966)*(@0-125))",RooArgList(MH))
             if (channel=='4mu'):
-                CMS_zz4l_mean = RooFormulaVar("CMS_zz4l_mean_sig","CMS_zz4l_mean_sig","(124.79931766+(0.997772599479)*(@0-125))",RooArgList(MH))
-                CMS_zz4l_sigma = RooFormulaVar("CMS_zz4l_sigma_sig","CMS_zz4l_sigma_sig","(1.12879491843+(0.00905588096292)*(@0-125))",RooArgList(MH))
-                CMS_zz4l_alpha = RooFormulaVar("CMS_zz4l_alpha","CMS_zz4l_alpha","(1.25651736389)+(0*@0)",RooArgList(MH))
-                CMS_zz4l_n = RooFormulaVar("CMS_zz4l_n","CMS_zz4l_n","(2.03705433186+(-0.00786186895228)*(@0-125))",RooArgList(MH))
-                CMS_zz4l_alpha2 = RooFormulaVar("CMS_zz4l_alpha2","CMS_zz4l_alpha2","(1.94273283715)+(0*@0)",RooArgList(MH))
-                CMS_zz4l_n2 = RooFormulaVar("CMS_zz4l_n2","CMS_zz4l_n2","(2.57493609201+(0.00406135415709)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_mean = RooFormulaVar("CMS_zz4l_mean_sig","CMS_zz4l_mean_sig","(124.820536957+(0.999619883119)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_sigma = RooFormulaVar("CMS_zz4l_sigma_sig","CMS_zz4l_sigma_sig","(1.09001384743+(0.00899911411679)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_alpha = RooFormulaVar("CMS_zz4l_alpha","CMS_zz4l_alpha","(1.23329827124+(0)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_n = RooFormulaVar("CMS_zz4l_n","CMS_zz4l_n","(2.04575884495+(0)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_alpha2 = RooFormulaVar("CMS_zz4l_alpha2","CMS_zz4l_alpha2","(1.84386824883+(0)*(@0-125))",RooArgList(MH))
+                CMS_zz4l_n2 = RooFormulaVar("CMS_zz4l_n2","CMS_zz4l_n2","(2.98483993137+(0)*(@0-125))",RooArgList(MH))
 
             if (channel == "4l"): signal  = RooDoubleCB("signal","signal", mass4l, CMS_zz4l_mean, CMS_zz4l_sigma, CMS_zz4l_alpha, CMS_zz4l_n, CMS_zz4l_alpha2, CMS_zz4l_n2)
             if (channel == "4e"): signal  = RooDoubleCB("signal","signal", mass4e, CMS_zz4l_mean, CMS_zz4l_sigma, CMS_zz4l_alpha, CMS_zz4l_n, CMS_zz4l_alpha2, CMS_zz4l_n2)

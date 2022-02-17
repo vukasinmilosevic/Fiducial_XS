@@ -5,11 +5,12 @@
 *.png
 *.pdf
 
-# ignore temp files
+# ignore temp files or executable files
 *.pyc
 *.log
 log*.txt
 combine*.out
+main_fiducialXSTemplates
 
 # ignore python files inside datacardInputs directory, created by scripts
 inputs_sig_*.py
