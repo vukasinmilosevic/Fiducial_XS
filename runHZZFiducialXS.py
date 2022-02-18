@@ -328,13 +328,14 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
             cmd = cmd + ' --floatOtherPOIs=0'
         print("[INFO] command:\n\t{}".format(cmd))
         cmd = cmd +' -t -1 --saveWorkspace --saveToys'
-        # cmd = cmd + ' --out combineLogs' # FIXME: redirect log files from combine script to `combineLogs` directory
+        combineOutputs = "combineOutputs"
+        if not os.path.isdir(combineOutputs): os.mkdir(combineOutputs)
+        # cmd = cmd + ' --out ' + combineOutputs # FIXME: redirect log files from combine script to `combineOutputs` directory
         #cmd += ' --X-rtd TMCSO_PseudoAsimov=1000000'
         #cmd += ' --freezeNuisanceGroups r4muBin0,r4eBin0,r2e2muBin0'
         print("[INFO] command:\n\t{}".format(cmd))
         output = processCmd(cmd)
-        if not os.path.isdir('combineLogs'): os.mkdir('combineLogs')
-        processCmd('mv higgsCombine'+obsName+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root combineLogs/'+modelName+'_all_'+obsName+'_13TeV_Asimov_'+physicalModel+'.root',1)
+        processCmd('mv higgsCombine'+obsName+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+combineOutputs+'/'+modelName+'_all_'+obsName+'_13TeV_Asimov_'+physicalModel+'.root',1)
         #cmd = cmd.replace(' --freezeNuisanceGroups r4muBin0,r4eBin0,r2e2muBin0','')
         #cmd = cmd.replace(' --X-rtd TMCSO_PseudoAsimov=1000000','')
         cmd = cmd + ' --algo=singles --cl=0.68 --robustFit=1'
@@ -729,7 +730,6 @@ def runFiducialXS():
         produceDatacards(obsName, observableBins, asimovDataModelName, asimovPhysicalModel)
         resultsXS = createAsimov(obsName, observableBins, asimovDataModelName, resultsXS, asimovPhysicalModel)
         print "resultsXS: \n", resultsXS
-    """
 
         # plot the asimov predictions for data, signal, and backround in differential bins
         if (not obsName.startswith("mass4l")):
@@ -847,7 +847,6 @@ def runFiducialXS():
             print (cmd)
             output = processCmd(cmd)
             print output
-    """
 
 
 if __name__ == "__main__":
