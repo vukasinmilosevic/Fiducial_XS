@@ -25,6 +25,7 @@ def parseOptions():
     parser.add_option('-d', '--dir',    dest='SOURCEDIR',  type='string',default='./', help='run from the SOURCEDIR as working area, skip if SOURCEDIR is an empty string')
     parser.add_option('',   '--modelName',dest='MODELNAME',type='string',default='SM', help='Name of the Higgs production or spin-parity model, default is "SM", supported: "SM", "ggH", "VBF", "WH", "ZH", "ttH", "exotic","all"')
     parser.add_option('',   '--obsName',dest='OBSNAME',    type='string',default='mass4l',
+                        # FIXME: Try to add the choices, so that it won't break if the supported obs not found.
                         # choices = ("mass4l", "nJets", "massZ1", "massZ2", "pT4l", "eta4l", "njets_pt30_eta4p7",
                                     # "njets_pt30_eta2p5", "pt_leadingjet_pt30_eta4p7", "pt_leadingjet_pt30_eta2p5",
                                     # "rapidity4l", "cosThetaqStar", "cosTheta1", "cosTheta2", "Phi", "Phi1"),
@@ -101,13 +102,7 @@ def geteffs(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_b
 
     if ("NNLOPS" in sample or "nnlops" in sample):
         print ("Will skip: "+ sample)
-    #    recoweight = "genWeight*pileupWeight*dataMCWeight"
-    #else:
-    #    recoweight = "genWeight*pileupWeight*dataMCWeight"
     recoweight = "genWeight*pileupWeight*dataMCWeight"
-    #recoweight = "genWeight"
-    #recoweight = "totalWeight"
-    #recoweight = "1.0"
 
     obs_reco_low = obs_bins[recobin]
     obs_reco_high = obs_bins[recobin+1]
@@ -125,7 +120,7 @@ def geteffs(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_b
 
     i_sample = -1
 
-    print List
+    print("Sample list: {}".format(List))
 
     for Sample in List:
         if ("NNLOPS" in Sample or "nnlops" in Sample):
@@ -214,6 +209,7 @@ def geteffs(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_b
             if (channel == "2e2mu"):
                 cutchan_gen_out  = "((GENZ_MomId[0]==25 && (GENZ_DaughtersId[0]==11 || GENZ_DaughtersId[0]==13) && GENZ_MomId[1]==25 && (GENZ_DaughtersId[1]==11 || GENZ_DaughtersId[1]==13) && GENZ_DaughtersId[0]!=GENZ_DaughtersId[1]) || (GENZ_MomId[0]==25 && (GENZ_DaughtersId[0]==11 || GENZ_DaughtersId[0]==13) && GENZ_MomId[2]==25 && (GENZ_DaughtersId[2]==11 || GENZ_DaughtersId[2]==13) && GENZ_DaughtersId[0]!=GENZ_DaughtersId[2]) || (GENZ_MomId[1]==25 && (GENZ_DaughtersId[1]==11 || GENZ_DaughtersId[1]==13) && GENZ_MomId[2]==25 && (GENZ_DaughtersId[2]==11 || GENZ_DaughtersId[2]==13) && GENZ_DaughtersId[1]!=GENZ_DaughtersId[2]))"
 
+        # FIXME: Why 10000 factor?
         if (recoweight=="totalWeight"): genweight = "10000.0*genWeight/"+str(sumw[Sample])
         else:  genweight = "genWeight"
 

@@ -132,10 +132,7 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
             Tree[Sample].Draw("GENmass4l >> "+processBin+"fs","(qcdWeights[0])*("+cutchan_gen_out+")","goff")
 
         if ("NNLOPS" in processBin):
-            #for i in range(9,36):
             for i in range(0,27):
-                #if (i==14 or i==16 or i==23 or i==25 or i==32 or i==34): continue
-                #if (i==5 or i==7 or i==14 or i==16 or i==23 or i==25): continue
                 if (i==5 or i==7 or i==11 or i==14 or i==15 or i==16 or i==17 or i==19 or i==21 or i==22 or i==23 or i==25): continue
                 Histos[processBin+"fs"+str(i)] = TH1D(processBin+"fs"+str(i), processBin+"fs"+str(i), 100, -1, 10000)
                 Histos[processBin+"fs"+str(i)].Sumw2()
@@ -190,10 +187,7 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
                 accerrstat = sqrt(acceptance[processBin]*(1-acceptance[processBin])/fsintegral)
                 qcderrup=1.0; qcderrdn=1.0;
                 accerrup=1.0; accerrdn=1.0;
-                #for i in range(9,36):
                 for i in range(0,27): # FIXME: What is this number 27?
-                    #if (i==14 or i==16 or i==23 or i==25 or i==32 or i==34): continue
-                    #if (i==5 or i==7 or i==14 or i==16 or i==23 or i==25): continue
                     if (i==5 or i==7 or i==11 or i==14 or i==15 or i==16 or i==17 or i==19 or i==21 or i==22 or i==23 or i==25): continue
                     ratio = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
                     print("{:2}\tratio\t{}".format(i,ratio))

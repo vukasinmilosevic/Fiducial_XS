@@ -152,8 +152,8 @@ void templatesXS(TString processNameTag, TString processFileName, TString sqrtsT
     useRefit = false;
 
     // produce XS 2D templates (uniform binning)
-    cout << "[preparing 2D XS templates, process: "+processNameTag+", sqrts: "+sqrtsTag+", fstate: "<<sfinalState<<"]" << "["<<PROCESSING_TYPE<<"]" << "["<<CUT_M4LLOW<<" < m4l < "<<CUT_M4LHIGH<<"]" << endl;
-    cout<<"fitType: "<<fitTypeZ4l<<" templatesXS using refit? "<<useRefit<<endl;
+    cout << "======\n[INFO] preparing 2D XS templates, process: "+processNameTag+", sqrts: "+sqrtsTag+", Final State: ["<<sfinalState<<"]" << "["<<PROCESSING_TYPE<<"]" << "["<<CUT_M4LLOW<<" < m4l < "<<CUT_M4LHIGH<<"] " << endl;
+    cout<<"[INFO] fitType: "<<fitTypeZ4l<<" templatesXS using refit? "<<useRefit<<endl;
 
     if (sfinalState == "4l") {
         getTemplateXS(processNameTag, processFileName, sqrtsTag, "2e2mu", obsName, obsBinDn, obsBinUp, fitTypeZ4l, useRefit);
@@ -432,8 +432,6 @@ int getTemplateXS(TString processNameTag, TString processFileName, TString sqrts
     TString fLocation = templatesDir+"/"+PROCESSING_TYPE+"_"+obsName+"/"+sqrtsTag+"/";
     TFile* fTemplateTree = new TFile(fLocation+"/"+templateNameTag+"_"+sfinalState+".root", fOption);
     TTree* TT = new TTree("selectedEvents","selectedEvents");
-
-
 
     //nEvents
     if ((processNameTag != "Data")&&(processNameTag != "ZJetsCR")) {

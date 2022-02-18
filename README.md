@@ -34,6 +34,8 @@ Final step is to clone the correct verison of the code. At the moment the workin
 cd $CMSSW_BASE/src/
 #git clone -b CMSSW_10_X git@github.com:vukasinmilosevic/Fiducial_XS.git
 git clone -b CMSSW_10_X_Dev2 git@github.com:ram1123/Fiducial_XS.git
+cd Fiducial_XS
+python RunEverything.py -r 0 -s 1
 ```
 
 ## 2. Running the measurement
@@ -88,3 +90,12 @@ The command to run the measurement and the plotters is:
 ```
 nohup python -u runHZZFiducialXS.py --obsName="mass4l" --obsBins="|105.0|140.0|"  --calcSys --asimovMass 125.0  >& log_mass4l_Run2Fid.txt &
 ```
+
+# Things to fix
+
+## Specific
+1. Hardcoded paths in [LoadData.py](python/LoadData.py#8)
+
+## General
+
+1. Add the `choices` for argparser whereever its possible. So, that code won't run if we provide wrong arguments.

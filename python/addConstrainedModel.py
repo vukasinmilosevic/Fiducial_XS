@@ -15,7 +15,7 @@ def parseOptions():
     usage = ('usage: %prog [options]\n'
              + '%prog -h for help')
     parser = optparse.OptionParser(usage)
-    
+
     # input options
     parser.add_option('-d', '--dir',    dest='SOURCEDIR',  type='string',default='./', help='run from the SOURCEDIR as working area, skip if SOURCEDIR is an empty string')
     parser.add_option('',   '--modelName',dest='MODELNAME',type='string',default='SM', help='Name of the Higgs production or spin-parity model, default is "SM", supported: "SM", "ggH", "VBF", "WH", "ZH", "ttH", "exotic","all"')
@@ -26,11 +26,11 @@ def parseOptions():
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
-    
+
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
-    
+
 # parse the arguments and options
 global opt, args, runAllSteps
 parseOptions()
@@ -60,7 +60,7 @@ binfrac_outfrac = _temp.binfrac_outfrac
 cfactor = _temp.cfactor
 lambdajesup = _temp.lambdajesup
 lambdajesdn = _temp.lambdajesdn
-                                                    
+
 _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs4l_br','higgs_xs'], -1)
 higgs4l_br = _temp.higgs4l_br
 higgs_xs = _temp.higgs_xs
@@ -70,7 +70,6 @@ if (obsName=="mass4l"): fStates = ['4e','4mu','2e2mu','4l']
 else: fStates = ['4e','4mu','2e2mu']
 
 for fState in fStates:
-
 
     upfactors_diag = {}
     dnfactors_diag = {}
@@ -89,7 +88,7 @@ for fState in fStates:
         WHxs_allgen=0.0
         ZHxs_allgen=0.0
         ttHxs_allgen=0.0
-        
+
         for genbin in range(len(observableBins)-1):
             ggHxs_allgen += higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             #ggHxs_allgen += acc['ggH_HRes_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
@@ -97,14 +96,14 @@ for fState in fStates:
             WHxs_allgen += higgs_xs['WH_125.0']*higgs4l_br['125.0_'+fState]*acc['WH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             ZHxs_allgen += higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+fState]*acc['ZH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             ttHxs_allgen += higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+fState]*acc['ttH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-                                                                        
+
         outin_SM = ggHxs_allgen*fout_ggH/(ggHxs_allgen+VBFxs_allgen+WHxs_allgen+ZHxs_allgen+ttHxs_allgen)
         outin_SM += VBFxs_allgen*fout_VBF/(ggHxs_allgen+VBFxs_allgen+WHxs_allgen+ZHxs_allgen+ttHxs_allgen)
         outin_SM += WHxs_allgen*fout_WH/(ggHxs_allgen+VBFxs_allgen+WHxs_allgen+ZHxs_allgen+ttHxs_allgen)
         outin_SM += ZHxs_allgen*fout_ZH/(ggHxs_allgen+VBFxs_allgen+WHxs_allgen+ZHxs_allgen+ttHxs_allgen)
         outin_SM += ttHxs_allgen*fout_ttH/(ggHxs_allgen+VBFxs_allgen+WHxs_allgen+ZHxs_allgen+ttHxs_allgen)
-        
-        for genbin in range(len(observableBins)-1):        
+
+        for genbin in range(len(observableBins)-1):
 
             ggHxs = higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             #ggHxs = acc['ggH_HRes_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
@@ -113,7 +112,7 @@ for fState in fStates:
             ZHxs = higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+fState]*acc['ZH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             ttHxs = higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+fState]*acc['ttH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
 
-            
+
             effsm = ggHxs/(ggHxs+VBFxs+WHxs+ZHxs+ttHxs)*max(eff['ggH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(recobin)],0.0)
             #effsm = ggHxs/(ggHxs+VBFxs+WHxs+ZHxs+ttHxs)*max(eff['ggH_HRes_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(recobin)],0.0)
             effsm += VBFxs/(ggHxs+VBFxs+WHxs+ZHxs+ttHxs)*max(eff['VBF_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(recobin)],0.0)
@@ -128,7 +127,7 @@ for fState in fStates:
             effDn = effsm
             outinUp = outin_SM
             outinDn = outin_SM
-            
+
             upfactors = {}
             dnfactors = {}
 
@@ -232,7 +231,7 @@ for fState in fStates:
         jesSM += VBFxs*(1.0+lambdajesup['VBF_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(recobin)])/(ggHxs+VBFxs+WHxs+ZHxs+ttHxs)
         jesSM += WHxs*(1.0+lambdajesup['WH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(recobin)])/(ggHxs+VBFxs+WHxs+ZHxs+ttHxs)
         jesSM += ZHxs*(1.0+lambdajesup['ZH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(recobin)])/(ggHxs+VBFxs+WHxs+ZHxs+ttHxs)
-        jesSM += ttHxs*(1.0+lambdajesup['ttH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(recobin)])/(ggHxs+VBFxs+WHxs+ZHxs+ttHxs)            
+        jesSM += ttHxs*(1.0+lambdajesup['ttH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(recobin)])/(ggHxs+VBFxs+WHxs+ZHxs+ttHxs)
         jesSM = jesSM-1.0
         lambdajesup['SM_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)] = jesSM
 
@@ -242,11 +241,11 @@ for fState in fStates:
         jesSMup += upfactors_diag['VBF']*VBFxs*(1.0+lambdajesup['VBF_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)])/(upfactors_diag['ggH']*ggHxs+upfactors_diag['VBF']*VBFxs+upfactors_diag['WH']*WHxs+upfactors_diag['ZH']*ZHxs+upfactors_diag['ttH']*ttHxs)
         jesSMup += upfactors_diag['WH']*WHxs*(1.0+lambdajesup['WH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)])/(upfactors_diag['ggH']*ggHxs+upfactors_diag['VBF']*VBFxs+upfactors_diag['WH']*WHxs+upfactors_diag['ZH']*ZHxs+upfactors_diag['ttH']*ttHxs)
         jesSMup += upfactors_diag['ZH']*ZHxs*(1.0+lambdajesup['ZH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)])/(upfactors_diag['ggH']*ggHxs+upfactors_diag['VBF']*VBFxs+upfactors_diag['WH']*WHxs+upfactors_diag['ZH']*ZHxs+upfactors_diag['ttH']*ttHxs)
-        jesSMup += upfactors_diag['ttH']*ttHxs*(1.0+lambdajesup['ttH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)])/(upfactors_diag['ggH']*ggHxs+upfactors_diag['VBF']*VBFxs+upfactors_diag['WH']*WHxs+upfactors_diag['ZH']*ZHxs+upfactors_diag['ttH']*ttHxs)            
+        jesSMup += upfactors_diag['ttH']*ttHxs*(1.0+lambdajesup['ttH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)])/(upfactors_diag['ggH']*ggHxs+upfactors_diag['VBF']*VBFxs+upfactors_diag['WH']*WHxs+upfactors_diag['ZH']*ZHxs+upfactors_diag['ttH']*ttHxs)
         jesSMup = jesSMup-1.0
         lambdajesup['SMup_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)] = jesSMup
-        
-    
+
+
         #print upfactors_diag
         #print dnfactors_diag
 
@@ -255,15 +254,17 @@ for fState in fStates:
         jesSMdn += dnfactors_diag['VBF']*VBFxs*(1.0+lambdajesup['VBF_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)])/(dnfactors_diag['ggH']*ggHxs+dnfactors_diag['VBF']*VBFxs+dnfactors_diag['WH']*WHxs+dnfactors_diag['ZH']*ZHxs+dnfactors_diag['ttH']*ttHxs)
         jesSMdn += dnfactors_diag['WH']*WHxs*(1.0+lambdajesup['WH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)])/(dnfactors_diag['ggH']*ggHxs+dnfactors_diag['VBF']*VBFxs+dnfactors_diag['WH']*WHxs+dnfactors_diag['ZH']*ZHxs+dnfactors_diag['ttH']*ttHxs)
         jesSMdn += dnfactors_diag['ZH']*ZHxs*(1.0+lambdajesup['ZH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)])/(dnfactors_diag['ggH']*ggHxs+dnfactors_diag['VBF']*VBFxs+dnfactors_diag['WH']*WHxs+dnfactors_diag['ZH']*ZHxs+dnfactors_diag['ttH']*ttHxs)
-        jesSMdn += dnfactors_diag['ttH']*ttHxs*(1.0+lambdajesup['ttH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)])/(dnfactors_diag['ggH']*ggHxs+dnfactors_diag['VBF']*VBFxs+dnfactors_diag['WH']*WHxs+dnfactors_diag['ZH']*ZHxs+dnfactors_diag['ttH']*ttHxs)            
+        jesSMdn += dnfactors_diag['ttH']*ttHxs*(1.0+lambdajesup['ttH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)])/(dnfactors_diag['ggH']*ggHxs+dnfactors_diag['VBF']*VBFxs+dnfactors_diag['WH']*WHxs+dnfactors_diag['ZH']*ZHxs+dnfactors_diag['ttH']*ttHxs)
         jesSMdn = jesSMdn-1.0
         lambdajesup['SMdn_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)] = jesSMdn
-        
-            
+
+
         print fState,obsName,'recobin',str(recobin),'jesSM',jesSM,'jesSMup',jesSMup,'jesSMdn',jesSMdn
 
-        
-        
+
+
+# FIXME: Why copying the .py file as _ORIG.py
+#        As I don't see any changes in the variables written to new .py file
 os.system('cp datacardInputs/inputs_sig_'+opt.OBSNAME+'.py datacardInputs/inputs_sig_'+opt.OBSNAME+'_ORIG.py')
 
 with open('datacardInputs/inputs_sig_'+opt.OBSNAME+'.py', 'w') as f:
@@ -282,4 +283,4 @@ with open('datacardInputs/inputs_sig_'+opt.OBSNAME+'.py', 'w') as f:
     f.write('lambdajesdn = '+str(lambdajesdn)+' \n')
 
 
-    
+

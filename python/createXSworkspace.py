@@ -13,18 +13,18 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     obs_bin_lowest = observableBins[0]
     obs_bin_highest = observableBins[len(observableBins)-1]
-    
+
     recobin = "recobin"+str(obsBin)
 
     doJES = 1
-    
+
     # Load some libraries
     gSystem.AddIncludePath("-I$CMSSW_BASE/src/")
     gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
     gSystem.AddIncludePath("-I$ROOFITSYS/include")
     gSystem.AddIncludePath("-Iinclude/")
 
-    RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING) 
+    RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
     #from inputs_sig import eff,inc_wrongfrac,binfrac_wrongfrac,inc_outfrac,binfrac_outfrac
     if (usecfactor):
@@ -36,10 +36,10 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         _temp = __import__('inputs_sig_'+obsName, globals(), locals(), ['acc','eff','inc_wrongfrac','binfrac_wrongfrac','outinratio','lambdajesup','lambdajesdn'], -1)
         acc = _temp.acc
         eff = _temp.eff
-        outinratio = _temp.outinratio        
+        outinratio = _temp.outinratio
 
     lambdajesup = _temp.lambdajesup
-    lambdajesdn = _temp.lambdajesdn        
+    lambdajesdn = _temp.lambdajesdn
     inc_wrongfrac = _temp.inc_wrongfrac
     binfrac_wrongfrac = _temp.binfrac_wrongfrac
 
@@ -73,7 +73,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         if (obsName=="rapidity4l" or obsName=="cosThetaStar" or obsName=="cosTheta1" or obsName=="cosTheta2" or obsName=="Phi" or obsName=="Phi1"):
             observable = RooRealVar(obsName,obsName,-1.0*float(obs_bin_highest),float(obs_bin_highest))
         else:
-            observable = RooRealVar(obsName,obsName,float(obs_bin_lowest),float(obs_bin_highest))        
+            observable = RooRealVar(obsName,obsName,float(obs_bin_lowest),float(obs_bin_highest))
         observable.Print()
 
     # luminosity
@@ -82,7 +82,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 ##    lumi = RooRealVar("lumi_13","lumi_13", 35.9)
 #    lumi = RooRealVar("lumi_13","lumi_13", 41.4)
 #    lumi = RooRealVar("lumi_13","lumi_13", 58.8)
-    lumi = RooRealVar("lumi_13","lumi_13", 59.7)
+    lumi = RooRealVar("lumi_13","lumi_13", 59.7) # FIXME: Lumi value is hardcoded
     # SM values of signal expectations (inclusive, reco level)
     ggH_norm = w.function("ggH_norm")
     qqH_norm = w.function("qqH_norm")
@@ -91,9 +91,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     ttH_norm = w.function("ttH_norm")
 
     n_allH = (ggH_norm.getVal()+qqH_norm.getVal()+WH_norm.getVal()+ZH_norm.getVal()+ttH_norm.getVal())
-    print "n_allH",n_allH
-    
-    # true signal shape 
+    print("[INFO] allH norm: {}".format(n_allH))
+
+    # true signal shape
     trueH = w.pdf("ggH")
 
     # update to 13 TeV parameterization
@@ -121,7 +121,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             CMS_zz4l_mean_sig_NoConv_3_8 = RooFormulaVar("CMS_zz4l_mean_sig_NoConv_3_8","CMS_zz4l_mean_sig_NoConv_3_8","@0",RooArgList(CMS_zz4l_mean_sig_3_8_centralValue))
 
             CMS_zz4l_sigma_sig_3_8_centralValue = RooFormulaVar("CMS_zz4l_sigma_sig_3_8_centralValue","CMS_zz4l_sigma_sig_3_8_centralValue",\
-                                                                    "(1.55330758963+(0.00797274642218)*(@0-125))*(TMath::Sqrt((1+@1)*(1+@2)))",RooArgList(MH,CMS_zz4l_sigma_m_sig,CMS_zz4l_sigma_e_sig))                                                          
+                                                                    "(1.55330758963+(0.00797274642218)*(@0-125))*(TMath::Sqrt((1+@1)*(1+@2)))",RooArgList(MH,CMS_zz4l_sigma_m_sig,CMS_zz4l_sigma_e_sig))
             CMS_zz4l_alpha_3_centralValue = RooFormulaVar("CMS_zz4l_alpha_3_centralValue","CMS_zz4l_alpha_3_centralValue","(0.947414158515+(0)*(@0-125))",RooArgList(MH))
             CMS_zz4l_n_3_8_centralValue = RooFormulaVar("CMS_zz4l_n_3_8_centralValue","CMS_zz4l_n_3_8_centralValue","(3.33147279858+(-0.0438375854704)*(@0-125))*(1+@1)",RooArgList(MH,CMS_zz4l_n_sig_3_8))
             CMS_zz4l_alpha2_3_centralValue = RooFormulaVar("CMS_zz4l_alpha2_3_centralValue","CMS_zz4l_alpha2_3_centralValue","(1.52497361611+(0)*(@0-125))",RooArgList(MH))
@@ -136,7 +136,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             CMS_zz4l_mean_sig_NoConv_2_8 = RooFormulaVar("CMS_zz4l_mean_sig_NoConv_2_8","CMS_zz4l_mean_sig_NoConv_2_8","@0",RooArgList(CMS_zz4l_mean_sig_2_8_centralValue))
             CMS_zz4l_sigma_sig_2_8_centralValue = RooFormulaVar("CMS_zz4l_sigma_sig_2_8_centralValue","CMS_zz4l_sigma_sig_2_8_centralValue", \
                                                                     "(2.06515102908+(0.0170917403402)*(@0-125))*(1+@1)",RooArgList(MH,CMS_zz4l_sigma_e_sig))
-                                                          
+
             CMS_zz4l_alpha_2_centralValue = RooFormulaVar("CMS_zz4l_alpha_2_centralValue","CMS_zz4l_alpha_2_centralValue","(0.948100247167+(0)*(@0-125))",RooArgList(MH))
             CMS_zz4l_n_2_8_centralValue = RooFormulaVar("CMS_zz4l_n_2_8_centralValue","CMS_zz4l_n_2_8_centralValue","(4.50639853892+(0)*(@0-125))*(1+@1)",RooArgList(MH,CMS_zz4l_n_sig_2_8))
             CMS_zz4l_alpha2_2_centralValue = RooFormulaVar("CMS_zz4l_alpha2_2_centralValue","CMS_zz4l_alpha2_2_centralValue","(1.50095152675+(0)*(@0-125))",RooArgList(MH))
@@ -149,37 +149,37 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
             CMS_zz4l_mean_sig_NoConv_1_8 = RooFormulaVar("CMS_zz4l_mean_sig_NoConv_1_8","CMS_zz4l_mean_sig_NoConv_1_8","@0",RooArgList(CMS_zz4l_mean_sig_1_8_centralValue))
             CMS_zz4l_sigma_sig_1_8_centralValue = RooFormulaVar("CMS_zz4l_sigma_sig_1_8_centralValue","CMS_zz4l_sigma_sig_1_8_centralValue", \
-                                                                    "(1.09001384743+(0.00899911411679)*(@0-125))*(1+@1)",RooArgList(MH,CMS_zz4l_sigma_m_sig))                                                          
+                                                                    "(1.09001384743+(0.00899911411679)*(@0-125))*(1+@1)",RooArgList(MH,CMS_zz4l_sigma_m_sig))
 
             CMS_zz4l_alpha_1_centralValue = RooFormulaVar("CMS_zz4l_alpha_1_centralValue","CMS_zz4l_alpha_1_centralValue","(1.23329827124+(0)*(@0-125))",RooArgList(MH))
             CMS_zz4l_n_1_8_centralValue = RooFormulaVar("CMS_zz4l_n_1_8_centralValue","CMS_zz4l_n_1_8_centralValue","(2.04575884495+(0)*(@0-125))*(1+@1)",RooArgList(MH,CMS_zz4l_n_sig_1_8))
             CMS_zz4l_alpha2_1_centralValue = RooFormulaVar("CMS_zz4l_alpha2_1_centralValue","CMS_zz4l_alpha2_1_centralValue","(1.84386824883+(0)*(@0-125))",RooArgList(MH))
             CMS_zz4l_n2_1_8_centralValue = RooFormulaVar("CMS_zz4l_n2_1_8_centralValue","CMS_zz4l_n2_1_8_centralValue","(2.98483993137+(0)*(@0-125))",RooArgList(MH))
 
-       
+
     # Wrong signal combination events
 
     if (channel=='4mu'):
-        #p1_1_8 = RooRealVar("CMS_fakeH_p1_1_8","p1_1_8", 150.0, 135.0, 185.) 
-        #p2_1_8 = RooRealVar("CMS_fakeH_p2_1_8","p2_1_8", 20.0, 10.0, 40.0) 
-        p1_1_8 = RooRealVar("CMS_fakeH_p1_1_8","p1_1_8",165.0, 145.0, 185.0)       
-        p3_1_8 = RooRealVar("CMS_fakeH_p3_1_8","p3_1_8",89.0, 84.0,94.0) 
-        p2_1_8 = RooFormulaVar("CMS_fakeH_p2_1_8","p2_1_8","0.72*@0-@1",RooArgList(p1_1_8,p3_1_8))         
+        #p1_1_8 = RooRealVar("CMS_fakeH_p1_1_8","p1_1_8", 150.0, 135.0, 185.)
+        #p2_1_8 = RooRealVar("CMS_fakeH_p2_1_8","p2_1_8", 20.0, 10.0, 40.0)
+        p1_1_8 = RooRealVar("CMS_fakeH_p1_1_8","p1_1_8",165.0, 145.0, 185.0)
+        p3_1_8 = RooRealVar("CMS_fakeH_p3_1_8","p3_1_8",89.0, 84.0,94.0)
+        p2_1_8 = RooFormulaVar("CMS_fakeH_p2_1_8","p2_1_8","0.72*@0-@1",RooArgList(p1_1_8,p3_1_8))
         fakeH = RooLandau("fakeH", "landau", m, p1_1_8, p2_1_8)
     if (channel=='4e'):
         #p1_2_8 = RooRealVar("CMS_fakeH_p1_2_8","p1_2_8", 150.0, 135.0, 185.)
-        #p2_2_8 = RooRealVar("CMS_fakeH_p2_2_8","p2_2_8", 20.0, 10.0, 40.0) 
-        p1_2_8 = RooRealVar("CMS_fakeH_p1_2_8","p1_2_8",165.0, 145.0, 185.0)       
-        p3_2_8 = RooRealVar("CMS_fakeH_p3_2_8","p3_2_8",89.0, 84.0,94.0) 
-        p2_2_8 = RooFormulaVar("CMS_fakeH_p2_2_8","p2_2_8","0.72*@0-@1",RooArgList(p1_2_8,p3_2_8))         
-        fakeH = RooLandau("fakeH", "landau", m, p1_2_8, p2_2_8) 
+        #p2_2_8 = RooRealVar("CMS_fakeH_p2_2_8","p2_2_8", 20.0, 10.0, 40.0)
+        p1_2_8 = RooRealVar("CMS_fakeH_p1_2_8","p1_2_8",165.0, 145.0, 185.0)
+        p3_2_8 = RooRealVar("CMS_fakeH_p3_2_8","p3_2_8",89.0, 84.0,94.0)
+        p2_2_8 = RooFormulaVar("CMS_fakeH_p2_2_8","p2_2_8","0.72*@0-@1",RooArgList(p1_2_8,p3_2_8))
+        fakeH = RooLandau("fakeH", "landau", m, p1_2_8, p2_2_8)
     if (channel=='2e2mu'):
-        #p1_3_8 = RooRealVar("CMS_fakeH_p1_3_8","p1_3_8", 150.0, 135.0, 185.) 
-        #p2_3_8 = RooRealVar("CMS_fakeH_p2_3_8","p2_3_8", 20.0, 10.0, 40.0) 
-        p1_3_8 = RooRealVar("CMS_fakeH_p1_3_8","p1_3_8",165.0, 145.0, 185.0)       
-        p3_3_8 = RooRealVar("CMS_fakeH_p3_3_8","p3_3_8",89.0, 84.0,94.0) 
-        p2_3_8 = RooFormulaVar("CMS_fakeH_p2_3_8","p2_3_8","0.72*@0-@1",RooArgList(p1_3_8,p3_3_8))         
-        fakeH = RooLandau("fakeH", "landau", m, p1_3_8, p2_3_8) 
+        #p1_3_8 = RooRealVar("CMS_fakeH_p1_3_8","p1_3_8", 150.0, 135.0, 185.)
+        #p2_3_8 = RooRealVar("CMS_fakeH_p2_3_8","p2_3_8", 20.0, 10.0, 40.0)
+        p1_3_8 = RooRealVar("CMS_fakeH_p1_3_8","p1_3_8",165.0, 145.0, 185.0)
+        p3_3_8 = RooRealVar("CMS_fakeH_p3_3_8","p3_3_8",89.0, 84.0,94.0)
+        p2_3_8 = RooFormulaVar("CMS_fakeH_p2_3_8","p2_3_8","0.72*@0-@1",RooArgList(p1_3_8,p3_3_8))
+        fakeH = RooLandau("fakeH", "landau", m, p1_3_8, p2_3_8)
     if (addfakeH):
         inc_wrongfrac_ggH=inc_wrongfrac["ggH_powheg_JHUgen_125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
         #inc_wrongfrac_ggH=inc_wrongfrac["ggH_HRes_125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
@@ -200,7 +200,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     binfrac_wrongfrac_WH=binfrac_wrongfrac["WH_powheg_JHUgen_125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     binfrac_wrongfrac_ZH=binfrac_wrongfrac["ZH_powheg_JHUgen_125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     binfrac_wrongfrac_ttH=binfrac_wrongfrac["ttH_powheg_JHUgen_125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-    
+
     if (channel=='4e'):
         n_fakeH = (0.24*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.20*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.10*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
     if (channel=='4mu'):
@@ -209,7 +209,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         n_fakeH = (0.57*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.51*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.25*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
 
     n_fakeH_var = RooRealVar("n_fakeH_var_"+recobin+"_"+channel,"n_fakeH_var_"+recobin+"_"+channel,n_fakeH);
-    
+
     fakeH_norm = RooFormulaVar("fakeH_norm","@0",RooArgList(n_fakeH_var))
 
     # Out of acceptance events
@@ -235,14 +235,14 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     #    n_out_trueH += binfrac_outfrac_ZH*inc_outfrac_ZH*(1.0-inc_wrongfrac_ZH)*ZH_norm.getVal()
     #    n_out_trueH += binfrac_outfrac_ttH*inc_outfrac_ttH*(1.0-inc_wrongfrac_ttH)*ttH_norm.getVal()
     #    n_out_trueH_var = RooRealVar("n_out_trueH_var_"+recobin+"_"+channel, "n_out_trueH_var_"+recobin+"_"+channel, n_out_trueH);
-    
-    #n_trueH = binfrac_true_ggH*(1.0-inc_outfrac_ggH)*(1.0-inc_wrongfrac_ggH)*ggH_norm.getVal() 
+
+    #n_trueH = binfrac_true_ggH*(1.0-inc_outfrac_ggH)*(1.0-inc_wrongfrac_ggH)*ggH_norm.getVal()
     #n_trueH_var = RooRealVar("n_fakeH_var_"+recobin+"_"+channel,"n_fakeH_var_"+recobin+"_"+channel,n_fakeH);
     #trueH_norm = RooFormulaVar("fakeH_norm","@0",RooArgList(n_fakeH_var))
 
     # true signal shape/norm
     trueH = w.pdf("ggH")
-    
+
     # signal shape in different recobin
     trueH_shape = {}
     fideff = {}
@@ -253,7 +253,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     JES = RooRealVar("JES","JES", 0, -5.0, 5.0)
     if (obsName == "nJets"  or ("jet" in obsName)):
         lambda_JES_sig = lambdajesup[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+""+"_"+recobin]
-        lambda_JES_sig_var = RooRealVar("lambda_sig_"+modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+""+"_"+recobin, "lambda_sig_"+modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+""+"_"+recobin, lambda_JES_sig)    
+        lambda_JES_sig_var = RooRealVar("lambda_sig_"+modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+""+"_"+recobin, "lambda_sig_"+modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+""+"_"+recobin, lambda_JES_sig)
         JES_sig_rfv = RooFormulaVar("JES_rfv_sig_"+recobin+"_"+channel,"@0*@1", RooArgList(JES, lambda_JES_sig_var) )
 
     for genbin in range(nBins-1):
@@ -261,15 +261,15 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         trueH_shape[genbin].SetName("trueH"+channel+"Bin"+str(genbin))
         if (usecfactor): fideff[genbin] = cfactor[modelName+"_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]
         else: fideff[genbin] = eff[modelName+"_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]
-	print "fideff[genbin]", fideff[genbin]
-	print "model name is ", modelName
+        print("fideff[genbin]", fideff[genbin])
+        print("model name is ", modelName)
         fideff_var[genbin] = RooRealVar("effBin"+str(genbin)+"_"+recobin+"_"+channel,"effBin"+str(genbin)+"_"+recobin+"_"+channel, fideff[genbin]);
 
         if( not (obsName=='nJets' or ("jet" in obsName)) or (not doJES)) :
             trueH_norm[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", RooArgList(fideff_var[genbin], lumi) );
         else :
-            trueH_norm[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*(1-@2)", RooArgList(fideff_var[genbin], lumi, JES_sig_rfv) ); 
- 
+            trueH_norm[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*(1-@2)", RooArgList(fideff_var[genbin], lumi, JES_sig_rfv) );
+
 
     trueH_norm_final = {}
     fracBin = {}
@@ -292,9 +292,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
                 fidxs[fState] += higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+fState]*acc['VBF_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
                 fidxs[fState] += higgs_xs['WH_125.0']*higgs4l_br['125.0_'+fState]*acc['WH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
                 fidxs[fState] += higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+fState]*acc['ZH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-                fidxs[fState] += higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+fState]*acc['ttH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]        
+                fidxs[fState] += higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+fState]*acc['ttH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             fidxs['4l'] = fidxs['4e'] + fidxs['4mu'] + fidxs['2e2mu']
-            
+
             fracSM4eBin[str(genbin)] = RooRealVar('fracSM4eBin'+str(genbin), 'fracSM4eBin'+str(genbin), fidxs['4e']/fidxs['4l'])
             fracSM4eBin[str(genbin)].setConstant(True)
             fracSM4muBin[str(genbin)] = RooRealVar('fracSM4muBin'+str(genbin), 'fracSM4muBin'+str(genbin), fidxs['4mu']/fidxs['4l'])
@@ -313,7 +313,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             fracBin['4mu'+str(genbin)] = RooRealVar("frac4muBin"+str(genbin),"frac4muBin"+str(genbin), 0.25, 0.0, 0.5) # frac 4mu
             fracBin['4e'+str(genbin)] = RooRealVar("frac4eBin"+str(genbin),"frac4eBin"+str(genbin), 0.25, 0.0, 0.5) # frac 4e
             fracBin['2e2mu'+str(genbin)] = RooFormulaVar("frac2e2muBin"+str(genbin),"1-@0-@1", RooArgList(fracBin['4e'+str(genbin)],fracBin['4mu'+str(genbin)])) # frac 2e2mu
-            fracBin['4mu'+str(genbin)].setConstant(True)            
+            fracBin['4mu'+str(genbin)].setConstant(True)
             fracBin['4e'+str(genbin)].setConstant(True)
             rBin[str(genbin)] = RooRealVar("rBin"+str(genbin),"rBin"+str(genbin), 1.0, 0.0, 10.0)
             rBin[str(genbin)].setConstant(True)
@@ -323,49 +323,51 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             else:
                 trueH_norm_final[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*@3" ,RooArgList(rBin[str(genbin)],fracBin[channel+str(genbin)],fideff_var[genbin],lumi))
         else:
-            rBin_channel[str(genbin)] = RooRealVar("r"+channel+"Bin"+str(genbin),"r"+channel+"Bin"+str(genbin), 1.0, 0.0, 10.0)                
+            rBin_channel[str(genbin)] = RooRealVar("r"+channel+"Bin"+str(genbin),"r"+channel+"Bin"+str(genbin), 1.0, 0.0, 10.0)
             rBin_channel[str(genbin)].setConstant(True)
             #trueH_norm_final[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_final_norm","@0*@1", RooArgList(rBin_channel[str(genbin)], trueH_norm[genbin]) );
             if (obsName == "nJets" or ("jet" in obsName)):
                 trueH_norm_final[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*(1-@3)", RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi,JES_sig_rfv))
             else:
                 trueH_norm_final[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2", RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi))
-                                                                                                                                                            
+
     outin = outinratio[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-    print "outin",obsBin,outin
+    print("outin",obsBin,outin)
     outin_var = RooRealVar("outfracBin_"+recobin+"_"+channel,"outfracBin_"+recobin+"_"+channel, outin);
     outin_var.setConstant(True)
     out_trueH_norm_args = RooArgList(outin_var)
-    out_trueH_norm_func = "@0*(" 
-    for i in range(nBins-1): 
-        out_trueH_norm_args.add(trueH_norm_final[i]) 
-        out_trueH_norm_func = out_trueH_norm_func+"@"+str(i+1)+"+" 
-    out_trueH_norm_func = out_trueH_norm_func.replace(str(nBins-1)+"+",str(nBins-1)+")") 
-    out_trueH_norm = RooFormulaVar("out_trueH_norm",out_trueH_norm_func,out_trueH_norm_args) 
-                                                                                              
+    out_trueH_norm_func = "@0*("
+    for i in range(nBins-1):
+        out_trueH_norm_args.add(trueH_norm_final[i])
+        out_trueH_norm_func = out_trueH_norm_func+"@"+str(i+1)+"+"
+    out_trueH_norm_func = out_trueH_norm_func.replace(str(nBins-1)+"+",str(nBins-1)+")")
+    out_trueH_norm = RooFormulaVar("out_trueH_norm",out_trueH_norm_func,out_trueH_norm_args)
+
     # Backgrounds
     #ggZZ = w.pdf("bkg_ggzz")
     #qqZZ = w.pdf("bkg_qqzz")
     #zjets = w.pdf("bkg_zjetsB")
-    
+
     # fraction for bkgs and for signal in each gen bin
-    bkg_sample_tags = {'qqzz':{'2e2mu':'ZZTo2e2mu_powheg', '4e':'ZZTo4e_powheg', '4mu':'ZZTo4mu_powheg'},'ggzz':{'2e2mu':'ggZZ_2e2mu_MCFM67', '4e':'ggZZ_4e_MCFM67', '4mu':'ggZZ_4mu_MCFM67'},'zjets':{'2e2mu':'ZX4l_CR', '4e':'ZX4l_CR', '4mu':'ZX4l_CR'}} 
+    bkg_sample_tags = { 'qqzz':{'2e2mu':'ZZTo2e2mu_powheg', '4e':'ZZTo4e_powheg', '4mu':'ZZTo4mu_powheg'},
+                        'ggzz':{'2e2mu':'ggZZ_2e2mu_MCFM67', '4e':'ggZZ_4e_MCFM67', '4mu':'ggZZ_4mu_MCFM67'},
+                        'zjets':{'2e2mu':'ZX4l_CR', '4e':'ZX4l_CR', '4mu':'ZX4l_CR'}}
     frac_qqzz = fractionsBackground[bkg_sample_tags['qqzz'][channel]+'_'+channel+'_'+obsName+'_'+recobin]
     frac_qqzz_var  = RooRealVar("frac_qqzz_"+recobin+"_"+channel,"frac_qqzz_"+recobin+"_"+channel, frac_qqzz);
 
     frac_ggzz = fractionsBackground[bkg_sample_tags['ggzz'][channel]+'_'+channel+'_'+obsName+'_'+recobin]
     frac_ggzz_var = RooRealVar("frac_ggzz_"+recobin+"_"+channel,"frac_ggzz_"+recobin+"_"+channel, frac_ggzz);
 
-    print fractionsBackground
+    print (fractionsBackground)
     frac_zjets = fractionsBackground[bkg_sample_tags['zjets'][channel]+"_AllChans_"+obsName+'_'+recobin]
     frac_zjets_var = RooRealVar("frac_zjet_"+recobin+"_"+channel,"frac_zjet_"+recobin+"_"+channel, frac_zjets);
 
-    print obsBin,"frac_qqzz",frac_qqzz,"frac_ggzz",frac_ggzz,"frac_zjets",frac_zjets
+    print (obsBin,"frac_qqzz",frac_qqzz,"frac_ggzz",frac_ggzz,"frac_zjets",frac_zjets)
 
     if (obsName=="nJets" or ("jet" in obsName)):
         #######
         lambda_JES_qqzz = 0.0 #lambda_qqzz_jes[modelName+"_"+channel+"_nJets_"+recobin]
-        lambda_JES_qqzz_var = RooRealVar("lambda_qqzz_"+recobin+"_"+channel,"lambda_"+recobin+"_"+channel, lambda_JES_qqzz)           
+        lambda_JES_qqzz_var = RooRealVar("lambda_qqzz_"+recobin+"_"+channel,"lambda_"+recobin+"_"+channel, lambda_JES_qqzz)
         JES_qqzz_rfv = RooFormulaVar("JES_rfv_qqzz_"+recobin+"_"+channel,"@0*@1", RooArgList(JES, lambda_JES_qqzz_var) )
 
         ####
@@ -397,27 +399,29 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     qqzzTempFile = TFile(template_qqzzName,"READ")
     qqzzTemplate = qqzzTempFile.Get("m4l_"+obsName+"_"+obsBin_low+"_"+obsBin_high)
-    print 'qqZZ bins',qqzzTemplate.GetNbinsX(),qqzzTemplate.GetBinLowEdge(1),qqzzTemplate.GetBinLowEdge(qqzzTemplate.GetNbinsX()+1)
+    print('[INFO] qqZZ bins: {}, {}, {}'.format(qqzzTemplate.GetNbinsX(),qqzzTemplate.GetBinLowEdge(1),qqzzTemplate.GetBinLowEdge(qqzzTemplate.GetNbinsX()+1)))
 
     ggzzTempFile = TFile(template_ggzzName,"READ")
     ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+obsBin_low+"_"+obsBin_high)
-    print 'ggZZ bins',ggzzTemplate.GetNbinsX(),ggzzTemplate.GetBinLowEdge(1),ggzzTemplate.GetBinLowEdge(ggzzTemplate.GetNbinsX()+1)
+    print('[INFO] ggZZ bins: {}, {}, {}'.format(ggzzTemplate.GetNbinsX(),ggzzTemplate.GetBinLowEdge(1),ggzzTemplate.GetBinLowEdge(ggzzTemplate.GetNbinsX()+1)))
 
     zjetsTempFile = TFile(template_zjetsName,"READ")
     zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+obsBin_low+"_"+obsBin_high)
-    print 'zjets bins',zjetsTemplate.GetNbinsX(),zjetsTemplate.GetBinLowEdge(1),zjetsTemplate.GetBinLowEdge(zjetsTemplate.GetNbinsX()+1)
+    print('[INFO] zjets bins: {}, {}, {}'.format(zjetsTemplate.GetNbinsX(),zjetsTemplate.GetBinLowEdge(1),zjetsTemplate.GetBinLowEdge(zjetsTemplate.GetNbinsX()+1)))
 
-    binscale = 3
+    binscale = 3 # FIXME: Why number 3 hardcoded?
     qqzzTemplateNew = TH1F("qqzzTemplateNew","qqzzTemplateNew",binscale*qqzzTemplate.GetNbinsX(),qqzzTemplate.GetBinLowEdge(1),qqzzTemplate.GetBinLowEdge(qqzzTemplate.GetNbinsX()+1))
-    for i in range(1,qqzzTemplate.GetNbinsX()+1):        
+    for i in range(1,qqzzTemplate.GetNbinsX()+1):
         for j in range(binscale):
             qqzzTemplateNew.SetBinContent((i-1)*binscale+j+1,qqzzTemplate.GetBinContent(i)/binscale)
     ggzzTemplateNew = TH1F("ggzzTemplateNew","ggzzTemplateNew",binscale*ggzzTemplate.GetNbinsX(),ggzzTemplate.GetBinLowEdge(1),ggzzTemplate.GetBinLowEdge(ggzzTemplate.GetNbinsX()+1))
-    for i in range(1,ggzzTemplate.GetNbinsX()+1):        
+
+    for i in range(1,ggzzTemplate.GetNbinsX()+1):
         for j in range(binscale):
             ggzzTemplateNew.SetBinContent((i-1)*binscale+j+1,ggzzTemplate.GetBinContent(i)/binscale)
     zjetsTemplateNew = TH1F("zjetsTemplateNew","zjetsTemplateNew",binscale*zjetsTemplate.GetNbinsX(),zjetsTemplate.GetBinLowEdge(1),zjetsTemplate.GetBinLowEdge(zjetsTemplate.GetNbinsX()+1))
-    for i in range(1,zjetsTemplate.GetNbinsX()+1):        
+
+    for i in range(1,zjetsTemplate.GetNbinsX()+1):
         for j in range(binscale):
             zjetsTemplateNew.SetBinContent((i-1)*binscale+j+1,zjetsTemplate.GetBinContent(i)/binscale)
 
@@ -446,20 +450,20 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
        qqzz_norm = RooFormulaVar("bkg_qqzz_norm", "@0*(1-@1)", RooArgList(frac_qqzz_var, JES_qqzz_rfv) )
        ggzz_norm = RooFormulaVar("bkg_ggzz_norm", "@0*(1-@1)", RooArgList(frac_ggzz_var, JES_ggzz_rfv) )
        zjets_norm = RooFormulaVar("bkg_zjets_norm", "@0*(1-@1)", RooArgList(frac_zjets_var, JES_zjets_rfv) )
-     
+
 
     #legacy_data = w.data("data_obs").reduce(RooArgSet(m))
     #for event in range(legacy_data.numEntries()):
     #     row = legacy_data.get(event)
-    #     row.Print("v") 
+    #     row.Print("v")
     #legacy_data.Print("v")
 
-    if (obsName=="mass4lREFIT"):  data_obs_file = TFile('data_13TeV_refit.root')
-    else:  data_obs_file = TFile('data_13TeV.root')
+    if (obsName=="mass4lREFIT"):  data_obs_file = TFile('Inputs/data_13TeV_refit.root')
+    else:  data_obs_file = TFile('Inputs/data_13TeV.root') #FIXME: Want to keep this in Input directory or at the same place where all ntuples are stored
     data_obs_tree = data_obs_file.Get('passedEvents')
 
-    
-    print obsName,obsBin_low,obsBin_high
+
+    print (obsName,obsBin_low,obsBin_high)
     if (obsName == "nJets"): obsName = "njets_reco_pt30_eta4p7"
     if (channel=='4mu'):
         if (obsName.startswith("mass4l")): data_obs = RooDataSet("data_obs","data_obs",data_obs_tree,RooArgSet(m,mass4mu),"(mass4mu>105.0 && mass4mu<140.0)")
@@ -472,7 +476,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     if (channel=='2e2mu'):
         if (obsName.startswith("mass4l")): data_obs = RooDataSet("data_obs","data_obs",data_obs_tree,RooArgSet(m,mass2e2mu),"(mass2e2mu>105.0 && mass2e2mu<140.0)")
         elif (obsName.startswith("abs")):  data_obs = RooDataSet("data_obs","data_obs",data_obs_tree,RooArgSet(m,mass2e2mu,observable),"(mass2e2mu>105.0 && mass2e2mu<140.0 && "+obsName+">="+obsBin_low+" && "+obsName+"<"+obsBin_high+")")
-        else: data_obs = RooDataSet("data_obs","data_obs",data_obs_tree,RooArgSet(m,mass2e2mu,observable),"(mass2e2mu>105.0 && mass2e2mu<140.0 && abs("+obsName+")>="+obsBin_low+" && abs("+obsName+")<"+obsBin_high+")") 
+        else: data_obs = RooDataSet("data_obs","data_obs",data_obs_tree,RooArgSet(m,mass2e2mu,observable),"(mass2e2mu>105.0 && mass2e2mu<140.0 && abs("+obsName+")>="+obsBin_low+" && abs("+obsName+")<"+obsBin_high+")")
     #for event in range(data_obs.numEntries()):
     #    row = data_obs.get(event)
     #    row.Print("v")
@@ -483,7 +487,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     CMS_zz4l_mean_e_err_2_8 = RooRealVar("CMS_zz4l_mean_e_err_2_8","CMS_zz4l_mean_e_err_2_8",0.003,0.003,0.003)
     CMS_zz4l_mean_m_err_3_8 = RooRealVar("CMS_zz4l_mean_m_err_3_8","CMS_zz4l_mean_m_err_3_8",0.0004,0.0004,0.0004)
     CMS_zz4l_mean_e_err_3_8 = RooRealVar("CMS_zz4l_mean_e_err_3_8","CMS_zz4l_mean_e_err_3_8",0.003,0.003,0.003)
-    
+
     wout = RooWorkspace("w","w")
 
     if (channel=='2e2mu'):
@@ -514,22 +518,24 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         getattr(wout,'import')(CMS_zz4l_alpha2_1_centralValue,RooFit.RecycleConflictNodes())
         getattr(wout,'import')(CMS_zz4l_n2_1_8_centralValue,RooFit.RecycleConflictNodes())
         getattr(wout,'import')(CMS_zz4l_mean_m_err_1_8,RooFit.RecycleConflictNodes())
-                
+
     for genbin in range(nBins-1):
+        # For Silence issue we should shift to ROOT 6.18
+        # Reference: https://root-forum.cern.ch/t/rooworkspace-import-roofit-silence-does-not-work-when-importing-datasets/32591/2
         getattr(wout,'import')(trueH_shape[genbin],RooFit.RecycleConflictNodes(),RooFit.Silence())
         getattr(wout,'import')(trueH_norm[genbin],RooFit.RecycleConflictNodes(),RooFit.Silence())
 
     if (not usecfactor):
-        out_trueH.SetName("out_trueH")  
-        getattr(wout,'import')(out_trueH,RooFit.RecycleConflictNodes(),RooFit.Silence()) 
-        getattr(wout,'import')(out_trueH_norm,RooFit.RecycleConflictNodes(),RooFit.Silence()) 
-    
-    getattr(wout,'import')(fakeH,RooFit.Silence()) 
+        out_trueH.SetName("out_trueH")
+        getattr(wout,'import')(out_trueH,RooFit.RecycleConflictNodes(),RooFit.Silence())
+        getattr(wout,'import')(out_trueH_norm,RooFit.RecycleConflictNodes(),RooFit.Silence())
+
+    getattr(wout,'import')(fakeH,RooFit.Silence())
     getattr(wout,'import')(fakeH_norm,RooFit.Silence())
-    
+
     #print "trueH norm: ",n_trueH,"fakeH norm:",n_fakeH
     qqzzTemplatePdf.SetName("bkg_qqzz")
-    qqzzTemplatePdf.Print("v")    
+    qqzzTemplatePdf.Print("v")
     getattr(wout,'import')(qqzzTemplatePdf,RooFit.RecycleConflictNodes(), RooFit.Silence())
     getattr(wout,'import')(qqzz_norm,RooFit.Silence())
 
@@ -557,8 +563,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         else:
             fout = TFile("xs_125.0/hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".NoFakeH.root","RECREATE")
 
-    print "write ws to fout"
-    fout.WriteTObject(wout) 
+    print ("write ws to fout")
+    fout.WriteTObject(wout)
     fout.Close()
 
     return data_obs.numEntries()
