@@ -68,7 +68,10 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
 
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
-    f_asimov = TFile(asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
+    combineOutputs = "combineOutputs"
+
+    print('[INFO] Filename: {}'.format(asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ'))
+    f_asimov = TFile(combineOutputs+'/'+asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
     if (not opt.UNBLIND):
         data = f_asimov.Get("toys/toy_asimov");
     #data.Print("v");
