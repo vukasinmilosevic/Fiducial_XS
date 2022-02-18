@@ -35,8 +35,38 @@ cd $CMSSW_BASE/src/
 #git clone -b CMSSW_10_X git@github.com:vukasinmilosevic/Fiducial_XS.git
 git clone -b CMSSW_10_X_Dev2 git@github.com:ram1123/Fiducial_XS.git
 cd Fiducial_XS
-python RunEverything.py -r 0 -s 1
 ```
+
+Now, all steps can be run using script `RunEverything.py`. All available options are:
+
+```
+usage: RunEverything.py [-h] [-s {1,2,3,4,5}] [-c CHANNELS [CHANNELS ...]]
+                        [-p NTUPLEDIR] [-m HIGGSMASS] [-r {0,1}]
+
+Input arguments
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s {1,2,3,4,5}        Which step to run
+  -c CHANNELS [CHANNELS ...]
+                        list of channels
+  -p NTUPLEDIR          Path of ntuples
+  -m HIGGSMASS          Higgs mass
+  -r {0,1}              if 1 then it will run the commands else it will just
+                        print the commands
+```
+
+Command to run:
+
+```bash
+python RunEverything.py -r 1 -s 1 # step-1
+python RunEverything.py -r 1 -s 2 # step-2
+python RunEverything.py -r 1 -s 3 # step-3
+python RunEverything.py -r 1 -s 4 # step-4
+python RunEverything.py -r 1 -s 5 # step-5
+```
+
+# Detailed instructions
 
 ## 2. Running the measurement
 

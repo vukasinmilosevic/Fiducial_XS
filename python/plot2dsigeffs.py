@@ -4,6 +4,10 @@ from math import *
 from decimal import *
 from sample_shortnames import *
 
+from ROOT import *
+from tdrStyle import *
+setTDRStyle()
+
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
     grootargs.append(opt)
@@ -36,14 +40,12 @@ sys.argv = grootargs
 if (not os.path.exists("plots")):
     os.system("mkdir plots")
 
-from ROOT import *
-from tdrStyle import *
-setTDRStyle()
-
 ROOT.gStyle.SetPaintTextFormat("1.2f")
 #ROOT.gStyle.SetPalette(55)
 ROOT.gStyle.SetNumberContours(99)
 
+# FIXME: We can send obsname and its label at one place
+#        Its used in few macros. So to be consistent we can add it in some module and call here.
 obsName = opt.OBSNAME
 if (obsName=='pT4l'):
     label = 'p_{T}(H)'
@@ -111,32 +113,31 @@ print a_bins
 for model in modelNames:
     for fState in fStates:
         eff2d = TH2D("eff2d", label, len(obs_bins)-1, a_bins, len(obs_bins)-1, a_bins)
-        folding2d = TH2D("folding2d", label, len(obs_bins)-1, a_bins, len(obs_bins)-1, a_bins)
-        eff2d4l = TH2D("eff2d4l", label, len(obs_bins)-1, a_bins, len(obs_bins)-1, a_bins)
+        # FIXME: ensure if we don't need folding2D and eff2D4l histograms
+        # folding2d = TH2D("folding2d", label, len(obs_bins)-1, a_bins, len(obs_bins)-1, a_bins)
+        # eff2d4l = TH2D("eff2d4l", label, len(obs_bins)-1, a_bins, len(obs_bins)-1, a_bins)
         for x in range(0,len(obs_bins)-1):
             for y in range(0,len(obs_bins)-1):
-                #eff2d.GetXaxis().SetBinLabel(x+1,str(x))
-                #eff2d.GetYaxis().SetBinLabel(y+1,str(y))
+                # eff2d.GetXaxis().SetBinLabel(x+1,str(x))
+                # eff2d.GetYaxis().SetBinLabel(y+1,str(y))
                 bin = eff2d.GetBin(x+1,y+1)
-		if eff[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]>0:
+                if eff[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]>0:
                     eff2d.SetBinContent(bin,eff[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]), eff2d.SetBinError(bin,deff[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])
-#		elif eff[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]<=0:
-#		    eff2d.SetBinContent(bin,0), eff2d.SetBinError(bin,0)
-		else: eff2d.SetBinContent(bin,0), eff2d.SetBinError(bin,0)
-#                if (not model.startswith('SM') and eff[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]!=0):
-#		    eff2d.SetBinError(bin,deff[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])
-#		elif (not model.startswith('SM') and eff[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]==0):
-#		    eff2d.SetBinError(bin,0)
-#                else: eff2d.SetBinError(bin,deff['ggH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])
-                #folding2d.GetXaxis().SetBinLabel(x+1,str(x))
-                #folding2d.GetYaxis().SetBinLabel(y+1,str(y))
-                #folding2d.SetBinContent(bin,folding[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])
-                #if (not model.startswith('SM')): folding2d.SetBinError(bin,dfolding[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])
-                #eff2d4l.GetXaxis().SetBinLabel(x+1,str(x))
-                #eff2d4l.GetYaxis().SetBinLabel(y+1,str(y))
-                #eff2d4l.SetBinContent(bin,effanyreco[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]*folding[model+'_4l_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])
-                #deff2d4l = sqrt((effanyreco[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]*dfolding[model+'_4l_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])**2+(folding[model+'_4l_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]*deffanyreco[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])**2)
-                #eff2d4l.SetBinError(bin,deff2d4l)
+                else: eff2d.SetBinContent(bin,0), eff2d.SetBinError(bin,0)
+                # if (not model.startswith('SM') and eff[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]!=0):
+                # eff2d.SetBinError(bin,deff[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])
+                # elif (not model.startswith('SM') and eff[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]==0):
+                # eff2d.SetBinError(bin,0)
+                # else: eff2d.SetBinError(bin,deff['ggH_powheg_JHUgen_125_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])
+                # folding2d.GetXaxis().SetBinLabel(x+1,str(x))
+                # folding2d.GetYaxis().SetBinLabel(y+1,str(y))
+                # folding2d.SetBinContent(bin,folding[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])
+                # if (not model.startswith('SM')): folding2d.SetBinError(bin,dfolding[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])
+                # eff2d4l.GetXaxis().SetBinLabel(x+1,str(x))
+                # eff2d4l.GetYaxis().SetBinLabel(y+1,str(y))
+                # eff2d4l.SetBinContent(bin,effanyreco[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]*folding[model+'_4l_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])
+                # deff2d4l = sqrt((effanyreco[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]*dfolding[model+'_4l_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])**2+(folding[model+'_4l_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)]*deffanyreco[model+'_'+fState+'_'+obsName+'_genbin'+str(x)+'_recobin'+str(y)])**2)
+                # eff2d4l.SetBinError(bin,deff2d4l)
         c=TCanvas("c","c",1000,800)
         c.cd()
         c.SetTopMargin(0.10)
@@ -165,61 +166,61 @@ for model in modelNames:
         c.SaveAs("plots/eff2d_"+model+"_"+obsName+"_"+fState+".png")
         c.SaveAs("plots/eff2d_"+model+"_"+obsName+"_"+fState+".pdf")
         del c
-        c=TCanvas("c","c",1000,800)
-        c.cd()
-        c.SetTopMargin(0.10)
-        c.SetRightMargin(0.20)
-        folding2d.GetXaxis().SetTitle(label+' (gen.)')
-        folding2d.GetYaxis().SetTitle(label+' (reco.)')
-        folding2d.GetZaxis().SetTitle('P^{ij} ('+fState.replace('mu','#mu')+')')
-        folding2d.GetZaxis().SetRangeUser(0.0,1.0)
-        folding2d.Draw("colzTEXT0E")
-        latex2 = TLatex()
-        latex2.SetNDC()
-        latex2.SetTextSize(0.5*c.GetTopMargin())
-        latex2.SetTextFont(42)
-        latex2.SetTextAlign(31) # align right
-        latex2.SetTextSize(0.5*c.GetTopMargin())
-        latex2.SetTextFont(62)
-        latex2.SetTextAlign(11) # align right
-        latex2.DrawLatex(0.18, 0.92, "CMS")
-        latex2.SetTextSize(0.4*c.GetTopMargin())
-        latex2.SetTextFont(52)
-        latex2.SetTextAlign(11)
-        latex2.DrawLatex(0.27, 0.92, "Preliminary")
-        latex2.SetTextFont(42)
-        latex2.DrawLatex(0.43, 0.92, model.replace("_"," ")+" GeV (#sqrt{s} = 8 TeV)")
-        #c.SaveAs("plots/folding2d_"+model+"_"+obsName+"_"+fState+".png")
-        #c.SaveAs("plots/folding2d_"+model+"_"+obsName+"_"+fState+".pdf")
-        del c
-        c=TCanvas("c","c",1000,800)
-        c.cd()
-        c.SetTopMargin(0.10)
-        c.SetRightMargin(0.20)
-        eff2d4l.GetXaxis().SetTitle(label+' (gen.)')
-        eff2d4l.GetYaxis().SetTitle(label+' (reco.)')
-        eff2d4l.GetZaxis().SetTitle('P^{ij}(4l)#epsilon^{i} ('+fState.replace('mu','#mu')+')')
-        eff2d4l.GetZaxis().SetRangeUser(0.0,1.0)
-        eff2d4l.Draw("colzTEXT0E")
-        latex2 = TLatex()
-        latex2.SetNDC()
-        latex2.SetTextSize(0.5*c.GetTopMargin())
-        latex2.SetTextFont(42)
-        latex2.SetTextAlign(31) # align right
-        latex2.SetTextSize(0.5*c.GetTopMargin())
-        latex2.SetTextFont(62)
-        latex2.SetTextAlign(11) # align right
-        latex2.DrawLatex(0.18, 0.92, "CMS")
-        latex2.SetTextSize(0.4*c.GetTopMargin())
-        latex2.SetTextFont(52)
-        latex2.SetTextAlign(11)
-        latex2.DrawLatex(0.27, 0.92, "Preliminary")
-        latex2.SetTextFont(42)
-        latex2.DrawLatex(0.43, 0.92, model.replace("_"," ")+" GeV (#sqrt{s} = 8 TeV)")
-        #c.SaveAs("plots/eff2d4l_"+model+"_"+obsName+"_"+fState+".png")
-        #c.SaveAs("plots/eff2d4l_"+model+"_"+obsName+"_"+fState+".pdf")
-        del c
+        # c=TCanvas("c","c",1000,800)
+        # c.cd()
+        # c.SetTopMargin(0.10)
+        # c.SetRightMargin(0.20)
+        # folding2d.GetXaxis().SetTitle(label+' (gen.)')
+        # folding2d.GetYaxis().SetTitle(label+' (reco.)')
+        # folding2d.GetZaxis().SetTitle('P^{ij} ('+fState.replace('mu','#mu')+')')
+        # folding2d.GetZaxis().SetRangeUser(0.0,1.0)
+        # folding2d.Draw("colzTEXT0E")
+        # latex2 = TLatex()
+        # latex2.SetNDC()
+        # latex2.SetTextSize(0.5*c.GetTopMargin())
+        # latex2.SetTextFont(42)
+        # latex2.SetTextAlign(31) # align right
+        # latex2.SetTextSize(0.5*c.GetTopMargin())
+        # latex2.SetTextFont(62)
+        # latex2.SetTextAlign(11) # align right
+        # latex2.DrawLatex(0.18, 0.92, "CMS")
+        # latex2.SetTextSize(0.4*c.GetTopMargin())
+        # latex2.SetTextFont(52)
+        # latex2.SetTextAlign(11)
+        # latex2.DrawLatex(0.27, 0.92, "Preliminary")
+        # latex2.SetTextFont(42)
+        # latex2.DrawLatex(0.43, 0.92, model.replace("_"," ")+" GeV (#sqrt{s} = 8 TeV)")
+        # c.SaveAs("plots/folding2d_"+model+"_"+obsName+"_"+fState+".png")
+        # c.SaveAs("plots/folding2d_"+model+"_"+obsName+"_"+fState+".pdf")
+        # del c
+        # c=TCanvas("c","c",1000,800)
+        # c.cd()
+        # c.SetTopMargin(0.10)
+        # c.SetRightMargin(0.20)
+        # eff2d4l.GetXaxis().SetTitle(label+' (gen.)')
+        # eff2d4l.GetYaxis().SetTitle(label+' (reco.)')
+        # eff2d4l.GetZaxis().SetTitle('P^{ij}(4l)#epsilon^{i} ('+fState.replace('mu','#mu')+')')
+        # eff2d4l.GetZaxis().SetRangeUser(0.0,1.0)
+        # eff2d4l.Draw("colzTEXT0E")
+        # latex2 = TLatex()
+        # latex2.SetNDC()
+        # latex2.SetTextSize(0.5*c.GetTopMargin())
+        # latex2.SetTextFont(42)
+        # latex2.SetTextAlign(31) # align right
+        # latex2.SetTextSize(0.5*c.GetTopMargin())
+        # latex2.SetTextFont(62)
+        # latex2.SetTextAlign(11) # align right
+        # latex2.DrawLatex(0.18, 0.92, "CMS")
+        # latex2.SetTextSize(0.4*c.GetTopMargin())
+        # latex2.SetTextFont(52)
+        # latex2.SetTextAlign(11)
+        # latex2.DrawLatex(0.27, 0.92, "Preliminary")
+        # latex2.SetTextFont(42)
+        # latex2.DrawLatex(0.43, 0.92, model.replace("_"," ")+" GeV (#sqrt{s} = 8 TeV)")
+        # c.SaveAs("plots/eff2d4l_"+model+"_"+obsName+"_"+fState+".png")
+        # c.SaveAs("plots/eff2d4l_"+model+"_"+obsName+"_"+fState+".pdf")
+        # del c
         del eff2d
-        del folding2d
-        del eff2d4l
+        # del folding2d
+        # del eff2d4l
 

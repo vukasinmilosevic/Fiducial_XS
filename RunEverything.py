@@ -17,6 +17,7 @@ if not os.path.isdir('datacardInputs'): os.mkdir('datacardInputs')
 if not os.path.isdir('log'): os.mkdir('log')
 
 for obsName, obsBin in obsNamesBinsDict.items():
+    print("="*51)
     print("==> Obs: {:25}  {}".format(obsName,obsBin))
     if (args.step == 1):
         print("="*51)
@@ -37,6 +38,13 @@ for obsName, obsBin in obsNamesBinsDict.items():
         print("Running collect inputs")
         print("="*51)
         collect(obsName)
+        print("="*51)
+        if (not obsName.startswith("mass4l")):
+            command = 'python python/plot2dsigeffs.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}"'.format(
+                obsName = obsName, obsBins = obsBin
+            )
+            print("Command: {}".format(command))
+            if (args.RunCommand): os.system(command)
 
     if (args.step == 3):
         print("="*51)
@@ -59,12 +67,6 @@ for obsName, obsBin in obsNamesBinsDict.items():
         )
         print("Command: {}".format(command))
         if (args.RunCommand): os.system(command)
-        if (not obsName.startswith("mass4l")):
-            command = 'python plot2dsigeffs.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}"'.format(
-                obsName = obsName, obsBins = obsBin
-            )
-            print("Command: {}".format(command))
-            if (args.RunCommand): os.system(command)
 
     if (args.step == 5):
         print("="*51)
