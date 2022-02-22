@@ -2,7 +2,11 @@ import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
 from array import array
 from math import *
 from decimal import *
+from ROOT import *
+from tdrStyle import *
 from sample_shortnames import *
+
+setTDRStyle()
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -32,10 +36,6 @@ def parseOptions():
 global opt, args, runAllSteps
 parseOptions()
 sys.argv = grootargs
-
-from ROOT import *
-from tdrStyle import *
-setTDRStyle()
 
 observables = [opt.OBSNAME]
 

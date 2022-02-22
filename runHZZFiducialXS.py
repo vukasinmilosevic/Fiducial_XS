@@ -345,7 +345,6 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
         #cmd += ' --X-rtd TMCSO_PseudoAsimov=1000000'
         #cmd += ' --freezeNuisanceGroups r4muBin0,r4eBin0,r2e2muBin0'
         output = processCmd(cmd, get_linenumber())
-        print("Current working directory: {0}".format(os.getcwd()))
         processCmd('mv higgsCombine'+obsName+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+"xs_125.0"+'/'+modelName+'_all_'+obsName+'_13TeV_Asimov_'+physicalModel+'.root', get_linenumber())
         #cmd = cmd.replace(' --freezeNuisanceGroups r4muBin0,r4eBin0,r2e2muBin0','')
         #cmd = cmd.replace(' --X-rtd TMCSO_PseudoAsimov=1000000','')
@@ -395,8 +394,6 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
         print("="*51)
         lsCMD = 'echo "ls *.root";ls *.root'
         processCmd(lsCMD, get_linenumber())
-        # print('[DEBUG] mv higgsCombine'+obsName+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+"xs_125.0"+'/')
-        # processCmd('mv higgsCombine'+obsName+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+"xs_125.0"+'/')
         processCmd('mv higgsCombine'+obsName+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+"xs_125.0"+'/', get_linenumber())
 
 
@@ -471,8 +468,6 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
         processCmd(cmd, get_linenumber())
 
     cmd = 'mv hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root '+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
-    # print("{}\n[DEBUG]#{} move command".format("="*51,get_linenumber()))
-    # os.system(cmd)
     processCmd(cmd, get_linenumber(),1)
 
     os.chdir(currentDir)
@@ -754,7 +749,6 @@ def runFiducialXS():
 
     ## Extract the results
     # use constrained SM
-    print("[DEBUG]#{} model name: {}".format(get_linenumber(),opt.MODELNAMES))
     modelNames = opt.MODELNAMES
     modelNames = modelNames.split(',')
     print("[DEBUG]#{} model name: {}".format(get_linenumber(),modelNames))
@@ -825,8 +819,8 @@ def runFiducialXS():
 
         cmd = 'python python/plotLHScans.py -l -q -b --obsName='+obsName
         output = processCmd(cmd, get_linenumber())
+    """
         for modelName in modelNames:
-
             if (not opt.FIXMASS=="False"):
                 cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="'+opt.FIXMASS+'"'
             else:
@@ -842,6 +836,7 @@ def runFiducialXS():
             cmd = cmd + ' --setLog'
             output = processCmd(cmd, get_linenumber())
             print (output)
+    """
 
 if __name__ == "__main__":
     runFiducialXS()
