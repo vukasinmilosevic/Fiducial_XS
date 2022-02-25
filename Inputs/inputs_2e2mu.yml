@@ -1,6 +1,6 @@
 Processes:
   0:
-    Name: trueH4eBin
+    Name: trueH2e2muBin
     Rate: '1.0'
   1:
     Name: out_trueH

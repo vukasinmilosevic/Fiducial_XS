@@ -7,7 +7,7 @@ import os
 parser = argparse.ArgumentParser(description='Main input options')
 parser.add_argument( '-c', dest='channel', default="4l", help='Final state channle chosen for the template')
 parser.add_argument( '-b', dest='nbins', default=1, help='nBins for the chosen variable')
-parser.add_argument( '-o', dest='observation', default=0, help='Observation in the given bin')
+parser.add_argument( '-o', dest='observation', default=2, help='Observation in the given bin')
 parser.add_argument( '-p', dest='path', default="", help='Path to the folder in which to store the datacards')
 
 args = parser.parse_args()
@@ -67,12 +67,11 @@ def DataCardMaker(process_names, process_rate, nbins, current_bin, channel, obse
 
             f.write("------------"+"\n")
 
-            f.write("## mass window [105.0,140.0]")
             f.write("bin "+bin_name+"_recobin{}".format(current_bin)+"\n")
             f.write("observation {}".format(observation)+"\n")
 
             f.write("------------"+"\n")
-
+            f.write("## mass window [105.0,140.0]\n")
             f.write("bin " + (bin_name+"_recobin{} ").format(current_bin)*(nbins + nprocesses - 1) +"\n")
 
             tmp_line = "process "
