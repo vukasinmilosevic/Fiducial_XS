@@ -1,6 +1,6 @@
 
 =========================================
-FiducialXS Readme Page
+FiducialXS ReadMe Page
 =========================================
 Instructions to run the BBBF differential xs code for CMSSW_10_X releases (xBF team, 2022)
 =========================================
