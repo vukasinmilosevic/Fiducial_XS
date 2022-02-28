@@ -1,5 +1,8 @@
+
 =========================================
-Instructions to run the BBBF differential xs code for CMSSW_10_X releases
+FiducialXS Readme Page
+=========================================
+Instructions to run the BBBF differential xs code for CMSSW_10_X releases (xBF team, 2022)
 =========================================
 
 Detailed documentation regarding the framework can be found in the dedicated `ReadTheDocs <https://fiducialxs.readthedocs.io/en/latest/?badge=latest>`_ page.
