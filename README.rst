@@ -4,8 +4,9 @@ FiducialXS README Page
 =========================================
 Instructions to run the xBF team's framework for differential cross-section measurements for CMSSW_10_X releases.
 =========================================
+
 Versions:
-^^^^^^^^^
+
 .. image:: https://img.shields.io/static/v1?label=CMSSW%20version&message=10_2_X&color=brightgreen
 .. image:: https://img.shields.io/static/v1?label=Combine%20version&message=8_2_0&color=brightgreen
 .. image:: https://readthedocs.org/projects/fiducialxs/badge/?version=latest
