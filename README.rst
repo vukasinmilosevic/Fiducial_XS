@@ -1,5 +1,6 @@
+=========================================
 Instructions to run the BBBF differential xs code for CMSSW_10_X releases
-======================================
+=========================================
 
 Detailed documentation regarding the framework can be found in the dedicated ReadTheDocs page:
 https://fiducialxs.readthedocs.io/en/latest/?badge=latest
@@ -7,21 +8,23 @@ https://fiducialxs.readthedocs.io/en/latest/?badge=latest
 .. image:: https://img.shields.io/static/v1?label=CMSSW%20version&message=10_2_X&color=brightgreen
 .. image:: https://readthedocs.org/projects/fiducialxs/badge/?version=latest
 
-## 1. CMSSW and cobmine release setup
-
+1. CMSSW and cobmine release setup
+=========================================
 Taken from Combine official instructions: https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/
 
 CC7 release CMSSW_10_2_X - recommended version
 Setting up the environment (once):
 
-```
+# Equivalent
+
 export SCRAM_ARCH=slc7_amd64_gcc700
 cmsrel CMSSW_10_2_13
 cd CMSSW_10_2_13/src
 cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
-```
+
+# Equivalent
 
 Update to a recommended tag - currently the recommended tag is v8.2.0: see release notes
 
