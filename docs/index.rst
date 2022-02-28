@@ -6,7 +6,7 @@
 The xBF group's Fiducial XS Primer
 ======================================
 
-This page serves as a collection of examples and detailed explinations for the process of differential cross-section measurements in the H:math:`\rightarrow`ZZ:math:`\rightarrow`4l channlel. 
+This page serves as a collection of examples and detailed explinations for the process of differential cross-section measurements in the H :math:`\rightarrow` ZZ :math:`\rightarrow` 4l channlel. 
 
 [TBC]
 ------------------
