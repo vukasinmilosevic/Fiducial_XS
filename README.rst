@@ -12,15 +12,14 @@ Detailed documentation regarding the framework can be found in the dedicated `Re
 Taken from Combine official instructions: https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/
 
 CC7 release CMSSW_10_2_X - recommended version
-Setting up the environment (once):
+Setting up the environment (once)::
 
-.. code-block::
-export SCRAM_ARCH=slc7_amd64_gcc700
-cmsrel CMSSW_10_2_13
-cd CMSSW_10_2_13/src
-cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
+  export SCRAM_ARCH=slc7_amd64_gcc700
+  cmsrel CMSSW_10_2_13
+  cd CMSSW_10_2_13/src
+  cmsenv
+  git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+  cd HiggsAnalysis/CombinedLimit
 
 Update to a recommended tag - currently the recommended tag is v8.2.0: see release notes
 
