@@ -3,10 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Documantation for the Fiducial XS framework
+A Primer for the Fiducial XS framework
 ======================================
 
-This page will provide examples for the analysis currently being prepared under the HIG-21-009 CMS code. 
+This page provide examples and detailed explinations for the entire process of differential cross-section measurements in the H :math:`\rightarrow` ZZ
 
 .. toctree::
    :maxdepth: 2
