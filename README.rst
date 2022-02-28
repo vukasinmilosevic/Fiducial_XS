@@ -8,6 +8,7 @@ Instructions to run the xBF team's framework for differential cross-section meas
 Detailed documentation regarding the framework can be found in the dedicated `ReadTheDocs <https://fiducialxs.readthedocs.io/en/latest/?badge=latest>`_ page.
 
 .. image:: https://img.shields.io/static/v1?label=CMSSW%20version&message=10_2_X&color=brightgreen
+.. image:: https://img.shields.io/static/v1?label=Combine%20version&message=8_2_0&color=brightgreen
 .. image:: https://readthedocs.org/projects/fiducialxs/badge/?version=latest
 
 1. Setup the correct CMSSW and Combine releases
