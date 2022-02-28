@@ -3,8 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to FiducialXS's documentation!
+Documantation for the Fiducial XS framework
 ======================================
+
+This page will provide examples for the analysis currently being prepared under the HIG-21-009 CMS code. 
 
 .. toctree::
    :maxdepth: 2
