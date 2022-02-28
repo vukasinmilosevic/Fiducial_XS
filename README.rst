@@ -7,9 +7,9 @@ Detailed documentation regarding the framework can be found in the dedicated `Re
 .. image:: https://img.shields.io/static/v1?label=CMSSW%20version&message=10_2_X&color=brightgreen
 .. image:: https://readthedocs.org/projects/fiducialxs/badge/?version=latest
 
-1. CMSSW and cobmine release setup
+1. Setup the correct CMSSW and Combine releases
 =========================================
-These are formed from from `Combine official instructions <https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/>`_.
+These are formed from from the `official Combine framework instructions <https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/>`_.
 
 CC7 release CMSSW_10_2_X - recommended version
 Setting up the environment (once): ::
@@ -39,6 +39,11 @@ Final step is to clone the correct verison of the code. At the moment the workin
   git clone -b CMSSW_10_X git@github.com:vukasinmilosevic/Fiducial_XS.git
   cd Fiducial_XS
 
+2. Running the measurement
+=========================================
+
+2.1 Using the ``RunEverythin.py`` script:
+-----------------------------------------
 
 Now, all steps can be run using script `RunEverything.py`. The available options are: ::
 
