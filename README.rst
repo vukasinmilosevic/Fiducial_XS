@@ -133,7 +133,7 @@ Things to fix
 -------------------
 Specific
 ^^^^^^^^^^^^^^^^^^^
-1. Hardcoded paths in `LoadData.py <https://github.com/vukasinmilosevic/Fiducial_XS/edit/CMSSW_10_X_VM_docs/python/LoadData.py#8/`_
+1. Hardcoded paths in `LoadData.py <https://github.com/vukasinmilosevic/Fiducial_XS/edit/CMSSW_10_X_VM_docs/python/LoadData.py#8/>`_
 
 General
 ^^^^^^^^^^^^^^^^^^
