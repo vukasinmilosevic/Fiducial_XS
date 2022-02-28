@@ -94,14 +94,15 @@ Running the plotter: ::
   #python -u plot2dsigeffs.py -l -q -b --obsName="pT4l" --obsBins="|0|10|20|30|45|80|120|200|13000|"
 
 
-2.2.2. Running the uncertainties step ::
+2.2.2. Running the uncertainties step
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+::
   python -u getUnc_Unc.py --obsName="mass4l" --obsBins="|105.0|140.0|" >& unc_mass4l.log &
   
 
-2.2.3 Running the background template maker ::
+2.2.3 Running the background template maker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+::
 
   python -u runHZZFiducialXS.py --dir="/eos/home-v/vmilosev/Skim_2018_HZZ/WoW/" --obsName="mass4l" --obsBins="|105.0|140.0|" --redoTemplates --templatesOnly
 
