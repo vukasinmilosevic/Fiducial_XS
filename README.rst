@@ -9,7 +9,8 @@ Detailed documentation regarding the framework can be found in the dedicated `Re
 
 1. CMSSW and cobmine release setup
 =========================================
-Taken from Combine official instructions: https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/
+These are formed from from `Combine official instructions <https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/>`_. 
+.. |caution| image:: warning.png
 
 CC7 release CMSSW_10_2_X - recommended version
 Setting up the environment (once)::
