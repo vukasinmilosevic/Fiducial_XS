@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'FiducialXS'
-copyright = '2022, Vukasin Milosevic & Ram Sharma'
-author = 'xBF Working Group (CMS Collaboration, CERN)'
+copyright = '2022, xBF Working Group (CMS Collaboration, CERN)'
+author = 'Vukasin Milosevic & Ram Sharma'
 
 # The full version, including alpha/beta/rc tags
 release = '0.0.1'
