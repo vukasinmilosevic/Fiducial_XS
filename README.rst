@@ -9,11 +9,10 @@ Detailed documentation regarding the framework can be found in the dedicated `Re
 
 1. CMSSW and cobmine release setup
 =========================================
-These are formed from from `Combine official instructions <https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/>`_. 
-.. |caution| image:: warning.png
+These are formed from from `Combine official instructions <https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/>`_.
 
 CC7 release CMSSW_10_2_X - recommended version
-Setting up the environment (once)::
+Setting up the environment (once): ::
 
   export SCRAM_ARCH=slc7_amd64_gcc700
   cmsrel CMSSW_10_2_13
@@ -22,58 +21,55 @@ Setting up the environment (once)::
   git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
   cd HiggsAnalysis/CombinedLimit
 
-Update to a recommended tag - currently the recommended tag is v8.2.0: see release notes
+Update to a recommended tag - currently the recommended tag is v8.2.0: see release notes: ::
 
-```
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v8.2.0
-scramv1 b clean; scramv1 b # always make a clean build
-```
-Depending on where the data/mc is stored, one might need:
 
-```
-voms-proxy-init -voms cms
-```
-Final step is to clone the correct verison of the code. At the moment the working version can be found on the ```CMSSW_10_X``` branch, which can be cloned via the following command:
-```
-cd $CMSSW_BASE/src/
-#git clone -b CMSSW_10_X git@github.com:vukasinmilosevic/Fiducial_XS.git
-git clone -b CMSSW_10_X_Dev2 git@github.com:ram1123/Fiducial_XS.git
-cd Fiducial_XS
-```
+  cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+  git fetch origin
+  git checkout v8.2.0
+  scramv1 b clean; scramv1 b # always make a clean build
 
-Now, all steps can be run using script `RunEverything.py`. All available options are:
+Depending on where the data/mc is stored, one might need: ::
 
-```
-usage: RunEverything.py [-h] [-s {1,2,3,4,5}] [-c CHANNELS [CHANNELS ...]]
+  voms-proxy-init -voms cms
+
+Final step is to clone the correct verison of the code. At the moment the working version can be found on the ```CMSSW_10_X``` branch, which can be cloned via the following command: ::
+
+  cd $CMSSW_BASE/src/
+  git clone -b CMSSW_10_X git@github.com:vukasinmilosevic/Fiducial_XS.git
+  cd Fiducial_XS
+
+
+Now, all steps can be run using script `RunEverything.py`. The available options are: ::
+
+
+  usage: RunEverything.py [-h] [-s {1,2,3,4,5}] [-c CHANNELS [CHANNELS ...]]
                         [-p NTUPLEDIR] [-m HIGGSMASS] [-r {0,1}]
 
-Input arguments
+  Input arguments
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -s {1,2,3,4,5}        Which step to run
-  -c CHANNELS [CHANNELS ...]
-                        list of channels
-  -p NTUPLEDIR          Path of ntuples
-  -m HIGGSMASS          Higgs mass
-  -r {0,1}              if 1 then it will run the commands else it will just
-                        print the commands
-```
+  optional arguments:
+    -h, --help            show this help message and exit
+    -s {1,2,3,4,5}        Which step to run
+    -c CHANNELS [CHANNELS ...]
+                          list of channels
+    -p NTUPLEDIR          Path of ntuples
+    -m HIGGSMASS          Higgs mass
+    -r {0,1}              if 1 then it will run the commands else it will just
+                          print the commands
 
-Command to run:
+Commands to run: ::
 
-```bash
-python RunEverything.py -r 1 -s 1 # step-1
-python RunEverything.py -r 1 -s 2 # step-2
-python RunEverything.py -r 1 -s 3 # step-3
-python RunEverything.py -r 1 -s 4 # step-4
-python RunEverything.py -r 1 -s 5 # step-5
-```
 
-# Detailed instructions
+  python RunEverything.py -r 1 -s 1 # step-1
+  python RunEverything.py -r 1 -s 2 # step-2
+  python RunEverything.py -r 1 -s 3 # step-3
+  python RunEverything.py -r 1 -s 4 # step-4
+  python RunEverything.py -r 1 -s 5 # step-5
 
+
+Detailed instructions
+----------------------
 ## 2. Running the measurement
 
 ### 2.1 Running the efficiencies step
