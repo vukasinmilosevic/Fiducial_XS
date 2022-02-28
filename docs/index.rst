@@ -3,10 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-A Primer for the Fiducial XS framework
+The xBF group's Fiducial XS Primer
 ======================================
 
-This page provide examples and detailed explinations for the entire process of differential cross-section measurements in the H :math:`\rightarrow` ZZ
+This page serves as a collection of examples and detailed explinations for the process of differential cross-section measurements in the H:math:`\rightarrow`ZZ:math:`\rightarrow`4l channlel. 
+
+[TBC]
+------------------
 
 .. toctree::
    :maxdepth: 2
