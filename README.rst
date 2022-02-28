@@ -1,9 +1,10 @@
 Instructions to run the BBBF differential xs code for CMSSW_10_X releases
 ======================================
 
-Detailed documentation regarding the framework can be found https://fiducialxs.readthedocs.io/en/latest/?badge=latest
+Detailed documentation regarding the framework can be found in the dedicated ReadTheDocs page:
+https://fiducialxs.readthedocs.io/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/static/v1?label=CMSSW%20version&message=10_X&color=brightgreen
+.. image:: https://img.shields.io/static/v1?label=CMSSW%20version&message=10_2_X&color=brightgreen
 .. image:: https://readthedocs.org/projects/fiducialxs/badge/?version=latest
 
 ## 1. CMSSW and cobmine release setup
