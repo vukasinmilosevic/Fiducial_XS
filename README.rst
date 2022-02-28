@@ -42,7 +42,7 @@ Final step is to clone the correct verison of the code. At the moment the workin
 2. Running the measurement
 =========================================
 
-2.1 Using the ``RunEverythin.py`` script:
+2.1 Using the `RunEverything.py` script:
 -----------------------------------------
 
 Now, all steps can be run using script `RunEverything.py`. The available options are: ::
