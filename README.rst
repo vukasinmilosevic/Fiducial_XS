@@ -15,7 +15,7 @@ Framework/documentation:
 .. image:: https://readthedocs.org/projects/fiducialxs/badge/?version=latest
 
 Detailed documentation regarding the framework can be found in the dedicated `ReadTheDocs <https://fiducialxs.readthedocs.io/en/latest/?badge=latest>`_ page.
-This ``README`` file and the official documentation are written in ``.rst`` (ReStructured Text Markup syntax) in order to better explore the options given by ``sphinx/ReadTheDocs``.
+This ``README`` file and the official documentation are written in ``.rst`` (ReStructured Text Markup syntax) in order to better explore the options given by ``sphinx`` and ``ReadTheDocs``.
 For more details about the Markup syntax, please consult the `ReStructuredText Primer <https://docutils.sourceforge.io/docs/user/rst/quickstart.html>`_.
 
 
