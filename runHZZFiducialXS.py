@@ -230,7 +230,7 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
     for fState in fStates:
         print ("INFO::: VM Creating datacards for nBins = {}".format(nBins))
         if (not obsName.startswith("mass4l")):
-            os.system("python python/datacard_maker.py -c {} -b {}".format(fState, nBins))
+            os.system("python python/datacard_maker.py -c {} -b {}".format(fState, nBins - 1))
             for obsBin in range(nBins-1):
                 # first bool = cfactor second bool = add fake H               #
                 ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, modelName, physicalModel)
@@ -770,7 +770,7 @@ def runFiducialXS():
 
         # plot the asimov predictions for data, signal, and backround in differential bins
         if (not obsName.startswith("mass4l")):
-            cmd = 'python plotDifferentialBins.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'"'
+            cmd = 'python python/plotDifferentialBins.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'"'
             print("="*51)
             print("[INFO]: {}#{} command:\n\t{}".format(os.path.basename(__file__),get_linenumber(),cmd))
             if (opt.UNBLIND): cmd = cmd + ' --unblind'
