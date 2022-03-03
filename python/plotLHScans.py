@@ -2,7 +2,11 @@ import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
 from array import array
 from math import *
 from decimal import *
+from ROOT import *
+from tdrStyle import *
 from sample_shortnames import *
+
+setTDRStyle()
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -32,10 +36,6 @@ def parseOptions():
 global opt, args, runAllSteps
 parseOptions()
 sys.argv = grootargs
-
-from ROOT import *
-from tdrStyle import *
-setTDRStyle()
 
 observables = [opt.OBSNAME]
 
@@ -363,6 +363,7 @@ for obsName in observables:
         latex2.DrawLatex(0.37,0.78, "#sigma_{fid.} = "+str(round(bestfit,3))+" ^{+"+str(cl68upstat)+"}_{-"+str(cl68dnstat)+"} (stat.) ^{+"+str(sysup)+"}_{-"+str(sysdn)+"} (sys.)")
 
 
+        # FIXME: We can generalize the following if/else by only one line for `resultsXS` and `resultsXS_statsOnly` based on SigmaBin0 last string #QUICKFIX
         if (obsName=="mass4l"):
             if (obsbin=="SigmaBin0"):
                 resultsXS['SM_125_mass4l_genbin0'] = {"uncerDn": -1.0*cl68dn, "uncerUp": cl68up, "central": bestfit}
@@ -460,8 +461,6 @@ for obsName in observables:
             if (obsbin=="SigmaBin4"):
                 resultsXS['SM_125_'+obsName+'_genbin4'] = {"uncerDn": -1.0*cl68dn, "uncerUp": cl68up, "central": bestfit}
                 resultsXS['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat, "uncerUp": cl68upstat, "central": bestfit}
-
-
 
         c.SaveAs("plots/lhscan_"+obsName+"_"+obsbin+".pdf")
         c.SaveAs("plots/lhscan_"+obsName+"_"+obsbin+".png")

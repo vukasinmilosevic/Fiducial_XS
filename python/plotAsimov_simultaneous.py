@@ -4,6 +4,8 @@ from math import *
 from decimal import *
 from sample_shortnames import *
 
+combineOutputs = "combineOutputs"
+
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
     grootargs.append(opt)
@@ -72,8 +74,7 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
 
     print (asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root')
     # FIXME: Improve the directory naming/pointer of hardcoded directory
-    f_asimov = TFile("combineOutputs/"+asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
-    #f_asimov = TFile(asimovDataModel+'_all_13TeV_xs_'+obsName+'_bin_v3_exp.root','READ')
+    f_asimov = TFile(combineOutputs+'/'+asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
 
     if (not opt.UNBLIND):
         data = f_asimov.Get("toys/toy_asimov");
@@ -142,7 +143,7 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
 
     print (modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root')
     # FIXME: Improve the directory naming/pointer of hardcoded directory
-    f_modelfit = TFile(modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root','READ')
+    f_modelfit = TFile(combineOutputs+"/"+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root','READ')
     w_modelfit = f_modelfit.Get("w")
     sim = w_modelfit.pdf("model_s")
     #sim.Print("v")

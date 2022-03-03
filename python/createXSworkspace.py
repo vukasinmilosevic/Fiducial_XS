@@ -1,6 +1,17 @@
 # this script is called once for each reco bin (obsBin)
 # in each reco bin there are (nBins) signals (one for each gen bin)
 
+# FIXME: Commented RooFit.Silence() and RooFit.RecycleConflictNodes()
+# RooFit.RecycleConflictNodes(): https://root.cern.ch/doc/master/classRooWorkspace.html
+#           If any of the function objects to be imported already exist in the name space,
+#           connect the imported expression to the already existing nodes.
+#           Attention:
+#           Use with care! If function definitions do not match,
+#           this alters the definition of your function upon import
+
+# For Silence issue we should shift to ROOT 6.18
+#       Reference: https://root-forum.cern.ch/t/rooworkspace-import-roofit-silence-does-not-work-when-importing-datasets/32591/2
+
 from ROOT import *
 
 import os,sys
@@ -48,7 +59,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     fractionsBackground = _temp.fractionsBackground
 
     # Load the legacy f
-    #workspace_in = TFile("125.0/hzz4l_"+channel+"S_8TeV.input.root","READ")
+    # FIXME: We should move this to inputs directory. With better name "Workspace_Template_From8TeV_Analysis.root"
     f_in = TFile("125.0/hzz4l_"+channel+"S_8TeV.input.root","READ")
     w = f_in.Get("w")
     #w.Print()
@@ -77,12 +88,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         observable.Print()
 
     # luminosity
-    #lumi = RooRealVar("lumi_13","lumi_13", 10.0)
-    #lumi = RooRealVar("lumi_13","lumi_13", 12.9)
-##    lumi = RooRealVar("lumi_13","lumi_13", 35.9)
-#    lumi = RooRealVar("lumi_13","lumi_13", 41.4)
-#    lumi = RooRealVar("lumi_13","lumi_13", 58.8)
     lumi = RooRealVar("lumi_13","lumi_13", 59.7) # FIXME: Lumi value is hardcoded
+
     # SM values of signal expectations (inclusive, reco level)
     ggH_norm = w.function("ggH_norm")
     qqH_norm = w.function("qqH_norm")
@@ -524,35 +531,35 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     for genbin in range(nBins-1):
         # For Silence issue we should shift to ROOT 6.18
         # Reference: https://root-forum.cern.ch/t/rooworkspace-import-roofit-silence-does-not-work-when-importing-datasets/32591/2
-        getattr(wout,'import')(trueH_shape[genbin],RooFit.RecycleConflictNodes(),RooFit.Silence())
-        getattr(wout,'import')(trueH_norm[genbin],RooFit.RecycleConflictNodes(),RooFit.Silence())
+        getattr(wout,'import')(trueH_shape[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
+        getattr(wout,'import')(trueH_norm[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
 
     if (not usecfactor):
         out_trueH.SetName("out_trueH")
-        getattr(wout,'import')(out_trueH,RooFit.RecycleConflictNodes(),RooFit.Silence())
-        getattr(wout,'import')(out_trueH_norm,RooFit.RecycleConflictNodes(),RooFit.Silence())
+        getattr(wout,'import')(out_trueH,RooFit.RecycleConflictNodes()) # RooFit.Silence()
+        getattr(wout,'import')(out_trueH_norm,RooFit.RecycleConflictNodes()) # RooFit.Silence()
 
-    getattr(wout,'import')(fakeH,RooFit.Silence())
-    getattr(wout,'import')(fakeH_norm,RooFit.Silence())
+    getattr(wout,'import')(fakeH) # RooFit.Silence()
+    getattr(wout,'import')(fakeH_norm) # RooFit.Silence()
 
     #print "trueH norm: ",n_trueH,"fakeH norm:",n_fakeH
     qqzzTemplatePdf.SetName("bkg_qqzz")
     qqzzTemplatePdf.Print("v")
-    getattr(wout,'import')(qqzzTemplatePdf,RooFit.RecycleConflictNodes(), RooFit.Silence())
-    getattr(wout,'import')(qqzz_norm,RooFit.Silence())
+    getattr(wout,'import')(qqzzTemplatePdf,RooFit.RecycleConflictNodes()) # RooFit.Silence()
+    getattr(wout,'import')(qqzz_norm) # RooFit.Silence()
 
     ggzzTemplatePdf.SetName("bkg_ggzz")
     ggzzTemplatePdf.Print("v")
     getattr(wout,'import')(ggzzTemplatePdf,RooFit.RecycleConflictNodes())
-    getattr(wout,'import')(ggzz_norm,RooFit.Silence())
+    getattr(wout,'import')(ggzz_norm) # RooFit.Silence()
 
     zjetsTemplatePdf.SetName("bkg_zjets")
     zjetsTemplatePdf.Print("v")
-    getattr(wout,'import')(zjetsTemplatePdf, RooFit.RecycleConflictNodes(), RooFit.Silence())
-    getattr(wout,'import')(zjets_norm,RooFit.Silence())
+    getattr(wout,'import')(zjetsTemplatePdf, RooFit.RecycleConflictNodes()) # RooFit.Silence()
+    getattr(wout,'import')(zjets_norm) # RooFit.Silence()
 
     ## data
-    getattr(wout,'import')(data_obs.reduce(RooArgSet(m)),RooFit.Silence())
+    getattr(wout,'import')(data_obs.reduce(RooArgSet(m))) # RooFit.Silence()
 
     if (addfakeH):
         if (usecfactor):

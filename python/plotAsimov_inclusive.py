@@ -8,6 +8,9 @@ from sample_shortnames import *
 from tdrStyle import *
 setTDRStyle()
 
+# combineOutputs = "xs_125.0"
+combineOutputs = "combineOutputs"
+
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
     grootargs.append(opt)
@@ -68,8 +71,6 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
 
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
-    combineOutputs = "combineOutputs"
-
     print('[INFO] Filename: {}'.format(asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ'))
     f_asimov = TFile(combineOutputs+'/'+asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
     if (not opt.UNBLIND):
@@ -125,7 +126,7 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
         n_qqzz_asimov["4l"] += qqzz_asimov[fState].getVal()
         n_zz_asimov["4l"] += n_ggzz_asimov[fState]+n_qqzz_asimov[fState]
 
-    f_modelfit = TFile(modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root','READ')
+    f_modelfit = TFile(combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root','READ')
     w_modelfit = f_modelfit.Get("w")
     sim = w_modelfit.pdf("model_s")
     #sim.Print("v")
