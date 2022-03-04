@@ -109,6 +109,13 @@ def processCmd(cmd, lineNumber, quiet = 0):
 
 ### Extract the all efficiency factors (inclusive/differential, all bins, all final states)
 def extractFiducialEfficiencies(obsName, observableBins, modelName):
+    """Extract efficiencies and plot the 2D signal efficiency
+
+    Args:
+        obsName (str): name of the observable
+        observableBins (array): Array containing the bin boundaries
+        modelName (str): Name of model. For example SM_125, SMup_125, etc.
+    """
 
     #from inputs_bkg_{obsName} import fractionsBackground and observableBins
     if (not opt.redoEff):
@@ -128,7 +135,7 @@ def extractFiducialEfficiencies(obsName, observableBins, modelName):
 def extractBackgroundTemplatesAndFractions(obsName, observableBins):
     global opt
 
-    print("[INFO]\n\tObs Name: {},\n\tBins: {}".format(obsName, observableBins))
+    print("[INFO] Obs Name: {:15}\tBins: {}".format(obsName, observableBins))
 
     fractionBkg = {}; lambdajesdnBkg={}; lambdajesupBkg={}
     #if exists, from inputs_bkg_{obsName} import observableBins, fractionsBackground, jesLambdaBkgUp, jesLambdaBkgDn
@@ -227,19 +234,28 @@ def extractUncertainties(obsName, observableBinDn, observableBinUp):
 
 ### Produce datacards for given obs and bin, for all final states
 def produceDatacards(obsName, observableBins, modelName, physicalModel):
+    """Produce workspace/datacards for the given observable and bins
+
+    Args:
+        obsName (str): Name of observable
+        observableBins (array): Array having bin boundaries
+        modelName (str): Name of model. For example: SM_125
+        physicalModel (str): version of model, for example: v2
+    """
 
     print ('[INFO] Producing workspace/datacards for obsName - '+obsName+', bins - '+str(observableBins)+']')
     fStates = ['2e2mu','4mu','4e']
     nBins = len(observableBins)
     for fState in fStates:
-        print ("INFO::: VM Creating datacards for nBins = {}".format(nBins))
+        # print ("INFO::: VM Creating datacards for nBins = {}".format(nBins))
+        print('[INFO] VM Creating datacards for:\n\tobsName: {obsName}\n\tfState: {fState}\n\tnBins: {nBins}\n\tobservableBins: {observableBins}\n\tmodelName: {modelName}\n\tphysicalModel: {physicalModel}'.format(
+                obsName = obsName , fState = fState , nBins = nBins , observableBins = observableBins , modelName = modelName , physicalModel = physicalModel
+                ))
         if (not obsName.startswith("mass4l")):
             os.system("python python/datacard_maker.py -c {} -b {}".format(fState, nBins - 1))
             for obsBin in range(nBins-1):
                 # first bool = cfactor second bool = add fake H               #
                 ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, modelName, physicalModel)
-                # print("TEST")
-                # FIXME: Here we can introduce the some nice script to create datacard instead of copying
                 os.system("cp xs_125.0_"+str(nBins - 1)+"bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
                 os.system("sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
                 os.system("sed -i 's~_xs.Databin"+str(obsBin)+"~_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+"~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
@@ -251,9 +267,6 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
 
         else:
             os.system("python python/datacard_maker.py -c {} -b {}".format(fState, 1))
-            print('[INFO] Variables:\n\tobsName: {obsName}\n\tfState: {fState}\n\tnBins: {nBins}\n\tobservableBins: {observableBins}\n\tmodelName: {modelName}\n\tphysicalModel: {physicalModel}'.format(
-                obsName = obsName , fState = fState , nBins = nBins , observableBins = observableBins , modelName = modelName , physicalModel = physicalModel
-            ))
             ndata = createXSworkspace(obsName,fState, nBins, 0, observableBins, False, True, modelName, physicalModel)
             if obsName=='mass4l': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusive_bin0.txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
             if obsName=='mass4lREFIT': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusiveREFIT_bin0.txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
@@ -262,6 +275,15 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
 
 ### Create the asimov dataset and return fit results
 def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
+    """Create the Asimov dataset and return the fit results.
+
+    Args:
+        obsName (str): Name of observable
+        observableBins (array): Array having bin boundaries
+        modelName (str): Name of model
+        resultsXS (_type_): _description_
+        physicalModel (_type_): _description_
+    """
     print ('[Producing/merging workspaces and datacards for obsName '+obsName+' using '+modelName+']')
 
     # Run combineCards and text2workspace
@@ -719,6 +741,7 @@ def runFiducialXS():
     ### Run for the given observable
     obsName = opt.OBSNAME
     print('\n[INFO] Running fiducial XS computation for - {} - bin boundaries: {}'.format(obsName, observableBins))
+
     # FIXME: Now we are extracing efficiencies separately. So, don't need below part.
     #        confirm and delete this
     ## Extract the efficiency factors for all reco/gen bins and final states
@@ -734,11 +757,12 @@ def runFiducialXS():
 
     ## Prepare templates for all reco bins and final states
     print("Options:\n\trunAllSteps: {}\n\topt.templatesOnly {}\n".format(runAllSteps,opt.templatesOnly))
+
     # FIXME: Understand why in step 4; runAllSteps is False, while in step 5 its True
     if (runAllSteps or opt.templatesOnly):
         extractBackgroundTemplatesAndFractions(obsName, observableBins)
 
-
+    print("\n[INFO] runAllSteps: {runAllSteps}".format(runAllSteps=runAllSteps))
     ## Create the asimov dataset
     if (runAllSteps):
         print('='*51)
@@ -747,12 +771,12 @@ def runFiducialXS():
         #asimovDataModelName = "ggH_powheg_JHUgen_125"
         cmd = 'python python/addConstrainedModel.py -l -q -b --obsName="'+opt.OBSNAME+'" --obsBins="'+opt.OBSBINS+'"'
         output = processCmd(cmd, get_linenumber())
-        print (output)
-        asimovDataModelName = "SM_125"
-        asimovPhysicalModel = "v2"
-        print("{}\n[DEBUG]: {}#{} command:\n".format("="*51,os.path.basename(__file__),get_linenumber()))
+        asimovDataModelName = "SM_125" # FIXME: Is it fine if the model name is hardcoded here. Since model (ASIMOVMODEL) is also an input argument
+        asimovPhysicalModel = "v2" # FIXME: Same above message.
+
+        print("{}\n[DEBUG]: {}#{} command:\n".format("="*51,os.path.basename(__file__),get_linenumber())) # Just print filename and line number; Added for debug
         produceDatacards(obsName, observableBins, asimovDataModelName, asimovPhysicalModel)
-        print("{}\n[DEBUG]: {}#{} command:\n".format("="*51,os.path.basename(__file__),get_linenumber()))
+        print("{}\n[DEBUG]: {}#{} command:\n".format("="*51,os.path.basename(__file__),get_linenumber())) # Just print filename and line number; Added for debug
         resultsXS = createAsimov(obsName, observableBins, asimovDataModelName, resultsXS, asimovPhysicalModel)
         print("resultsXS: \n", resultsXS)
 
@@ -814,11 +838,12 @@ def runFiducialXS():
 
         if (obsName=="mass4l"):
             cmd = './scripts/doLScan_mass4l.sh'
-            output = processCmd(cmd, get_linenumber(), 1)
+            output = processCmd(cmd, get_linenumber())
         else:
             for obsBin in range(0,len(observableBins)-1):
                 cmd = "combine -n "+obsName+"_SigmaBin"+str(obsBin)+" -M MultiDimFit -d "+combineOutputs+"/SM_125_all_13TeV_xs_"+obsName+"_bin_"+physicalModel+"_exp.root -m 125.09 -D toy_asimov --setParameters MH=125.09 -P SigmaBin"+str(obsBin)+" --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin"+str(obsBin)+"=0.0,3.0 --redefineSignalPOIs SigmaBin"+str(obsBin)+" --algo=grid --points=50 --autoRange 4 "
                 if (opt.UNBLIND): cmd = cmd.replace("-D toy_asimov","-D data_obs")
+                print("combine command: ",cmd)
 
                 # FIXME: Along with observables in the YAML file we can also add this custom sigmaBin range???
                 # if (obsName=='pt_leadingjet_pt30_eta2p5' and str(obsBin)=='1'): cmd = cmd.replace('0.0,3.0','0.0,1.5')
@@ -856,4 +881,5 @@ def runFiducialXS():
 
 if __name__ == "__main__":
     runFiducialXS()
+
 print ("all modules successfully compiled")

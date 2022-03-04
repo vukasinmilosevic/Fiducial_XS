@@ -411,7 +411,7 @@ def geteffs(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_b
             mass = ""
             for i in range(len(mh)):
                 if mh[i].startswith("1"): mass = mh[i]
-            if (mass=="125p6"): mass="125.6"
+            if (mass=="125p6"): mass="125.6" # FIXME: hardcoded higgs mass
 
             massHiggs = ast.literal_eval(mass)
 
