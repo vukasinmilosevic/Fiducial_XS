@@ -315,7 +315,6 @@ if (obs_reco.startswith("njets")):
                 qcdUncert[processBin]['uncerUp'] = sqrt(qcdUncert[processBin]['uncerUp']*qcdUncert[processBin]['uncerUp']+qcdUncert[processBinPlus1]['uncerUp']*qcdUncert[processBinPlus1]['uncerUp'])
                 qcdUncert[processBin]['uncerDn'] = sqrt(qcdUncert[processBin]['uncerDn']*qcdUncert[processBin]['uncerDn']+qcdUncert[processBinPlus1]['uncerDn']*qcdUncert[processBinPlus1]['uncerDn'])
 
-#os.system('cp accUnc_'+opt.OBSNAME+'.py accUnc_'+opt.OBSNAME+'_ORIG.py')
 DirForUncFiles = "python"
 if not os.path.isdir(DirForUncFiles): os.mkdir(DirForUncFiles)
 with open(DirForUncFiles+'/accUnc_'+opt.OBSNAME+'.py', 'w') as f:

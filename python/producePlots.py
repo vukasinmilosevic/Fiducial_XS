@@ -50,10 +50,10 @@ setTDRStyle()
 
 datamodel = opt.UNFOLD
 
-sys.path.append('./datacardInputs')
-#sys.path.append('./hres_histat_newbaseline_bugfix3')
-#sys.path.append('./lhscan_may18')
-
+# NOTE: Removed all hardcoded instances of directory `datacardInputs`
+#       instead added variable `datacardInputs`.
+datacardInputs = "datacardInputs"
+sys.path.append('./'+datacardInputs)
 
 def plotXS(obsName, obs_bins):
 

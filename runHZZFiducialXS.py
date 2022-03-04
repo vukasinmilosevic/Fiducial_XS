@@ -16,8 +16,13 @@ def get_linenumber():
     cf = currentframe()
     return cf.f_back.f_lineno
 
-# load XS-specific modules
-sys.path.append('./datacardInputs')
+# NOTE: Removed all hardcoded instances of directory `datacardInputs`
+#       instead added variable `datacardInputs`.
+datacardInputs = "datacardInputs"
+
+# NOTE: append the directory `datacardInputs`, as .py files inside is going to load using import.
+#       load XS-specific modules
+sys.path.append('./'+datacardInputs)
 
 from python.sample_shortnames import *
 from python.createXSworkspace import createXSworkspace
@@ -78,7 +83,7 @@ def parseOptions():
     #        The directory `combineOutputs` is used to keep the generated workspaces
     if not os.path.isdir(combineOutputs): os.mkdir(combineOutputs)
     #dirToExist = ['templates','datacardInputs','125.6','xs_125.6']
-    dirToExist = ['templates','datacardInputs','125.0',combineOutputs]
+    dirToExist = ['templates', datacardInputs, '125.0', combineOutputs]
     for dir in dirToExist:
         if not os.path.isdir(os.getcwd()+'/'+dir+'/'):
             parser.error(os.getcwd()+'/'+dir+'/ is not a directory. Exiting...')
@@ -139,7 +144,7 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
 
     fractionBkg = {}; lambdajesdnBkg={}; lambdajesupBkg={}
     #if exists, from inputs_bkg_{obsName} import observableBins, fractionsBackground, jesLambdaBkgUp, jesLambdaBkgDn
-    if os.path.isfile('datacardInputs/inputs_bkg_'+{0:'',1:'z4l_'}[int(opt.doZ4l)]+obsName+'.py'):
+    if os.path.isfile(datacardInputs+'+'/inputs_bkg_'+{0:'',1:'z4l_'}[int(opt.doZ4l)]+obsName+'.py'):
         _temp = __import__('inputs_bkg_'+{0:'',1:'z4l_'}[int(opt.doZ4l)]+obsName, globals(), locals(), ['observableBins','fractionsBackground','lambdajesupBkg','lambdajesdnBkg'], -1)
         if (hasattr(_temp,'observableBins') and _temp.observableBins == observableBins and not opt.redoTemplates):
             print ('[Fractions already exist for the given binning. Skipping templates/shapes... ]')
@@ -213,7 +218,7 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
                     lambdajesdnBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = tmpFrac_dn/tmpFrac - 1
 
     os.chdir(currentDir)
-    with open('datacardInputs/inputs_bkg_'+{0:'',1:'z4l_'}[int(opt.doZ4l)]+obsName+'.py', 'w') as f:
+    with open(datacardInputs+'/inputs_bkg_'+{0:'',1:'z4l_'}[int(opt.doZ4l)]+obsName+'.py', 'w') as f:
         f.write('observableBins = '     +json.dumps(observableBins)+';\n')
         f.write('fractionsBackground = '+json.dumps(fractionBkg)   +';\n')
         f.write('lambdajesupBkg = '     +json.dumps(lambdajesupBkg)+';\n')

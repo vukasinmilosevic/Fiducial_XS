@@ -15,7 +15,11 @@
 from ROOT import *
 
 import os,sys
-sys.path.append('./datacardInputs')
+
+# NOTE: Removed all hardcoded instances of directory `datacardInputs`
+#       instead added variable `datacardInputs`.
+datacardInputs = "datacardInputs"
+sys.path.append('./'+datacardInputs)
 
 WorkspacePath = "xs_125.0" # FIXME: Possibilty to improve name and position of directory
 

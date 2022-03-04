@@ -6,9 +6,11 @@ from ROOT import *
 
 from python.sample_shortnames import *
 from python.LoadData import *
-#LoadData(opt.SOURCEDIR)
 
-if not os.path.isdir('datacardInputs'): os.mkdir('datacardInputs')
+# NOTE: Removed all hardcoded instances of directory `datacardInputs`
+#       instead added variable `datacardInputs`.
+datacardInputs = "datacardInputs"
+if not os.path.isdir(datacardInputs): os.mkdir(datacardInputs)
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -711,7 +713,7 @@ ext=''
 if (not opt.CHAN==''):
     ext='_'+opt.CHAN
 
-with open('datacardInputs/inputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
+with open(datacardInputs+'/inputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
     f.write('acc = '+str(acceptance)+' \n')
     f.write('dacc = '+str(dacceptance)+' \n')
     f.write('acc_4l = '+str(acceptance_4l)+' \n')
@@ -728,7 +730,7 @@ with open('datacardInputs/inputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
     f.write('lambdajesup = '+str(lambdajesup)+' \n')
     f.write('lambdajesdn = '+str(lambdajesdn)+' \n')
 
-with open('datacardInputs/moreinputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
+with open(datacardInputs+'/moreinputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
     f.write('CB_mean = '+str(CB_mean_post)+' \n')
     #f.write('CB_dmean = '+str(CB_dmean_post)+' \n')
     f.write('CB_sigma = '+str(CB_sigma_post)+' \n')

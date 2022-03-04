@@ -1,6 +1,9 @@
 import os, sys
 
-sys.path.append('./datacardInputs')
+# NOTE: Removed all hardcoded instances of directory `datacardInputs`
+#       instead added variable `datacardInputs`.
+datacardInputs = "datacardInputs"
+sys.path.append('./'+datacardInputs)
 
 def collect(obsName):
 
@@ -27,7 +30,7 @@ def collect(obsName):
 		cfactor.update(_tmp.cfactor);
 		lambdajesup.update(_tmp.lambdajesup); lambdajesdn.update(_tmp.lambdajesdn);
 
-	with open('datacardInputs/inputs_sig_'+obsName+'.py', 'w') as f:
+	with open(datacardInputs+'/inputs_sig_'+obsName+'.py', 'w') as f:
 		f.write('acc = '+str(acc)+' \n')
 		f.write('dacc = '+str(dacc)+' \n')
 		f.write('acc_4l = '+str(acc_4l)+' \n')

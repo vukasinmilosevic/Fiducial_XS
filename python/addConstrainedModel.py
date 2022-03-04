@@ -36,8 +36,11 @@ global opt, args, runAllSteps
 parseOptions()
 sys.argv = grootargs
 
+# NOTE: Removed all hardcoded instances of directory `datacardInputs`
+#       instead added variable `datacardInputs`.
+datacardInputs = "datacardInputs"
 
-sys.path.append('./datacardInputs')
+sys.path.append('./'+datacardInputs)
 obsName = opt.OBSNAME
 
 observableBins = opt.OBSBINS
@@ -261,13 +264,7 @@ for fState in fStates:
 
         print fState,obsName,'recobin',str(recobin),'jesSM',jesSM,'jesSMup',jesSMup,'jesSMdn',jesSMdn
 
-
-
-# FIXME: Why copying the .py file as _ORIG.py
-#        As I don't see any changes in the variables written to new .py file
-os.system('cp datacardInputs/inputs_sig_'+opt.OBSNAME+'.py datacardInputs/inputs_sig_'+opt.OBSNAME+'_ORIG.py')
-
-with open('datacardInputs/inputs_sig_'+opt.OBSNAME+'.py', 'w') as f:
+with open(datacardInputs+'/inputs_sig_'+opt.OBSNAME+'.py', 'w') as f:
     f.write('acc = '+str(acc)+' \n')
     f.write('dacc = '+str(dacc)+' \n')
     f.write('eff = '+str(eff)+' \n')

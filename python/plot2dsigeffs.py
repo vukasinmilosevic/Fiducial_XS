@@ -88,8 +88,11 @@ if float(obs_bins[len(obs_bins)-1])>199:
 if (opt.OBSNAME=="nJets" or opt.OBSNAME.startswith("njets")):
     obs_bins[len(obs_bins)-1]='4'
 
+# NOTE: Removed all hardcoded instances of directory `datacardInputs`
+#       instead added variable `datacardInputs`.
+datacardInputs = "datacardInputs"
+sys.path.append('./'+datacardInputs)
 
-sys.path.append('./datacardInputs')
 _temp = __import__('inputs_sig_'+obsName, globals(), locals(), ['eff','deff'], -1)
 eff = _temp.eff
 deff = _temp.deff
