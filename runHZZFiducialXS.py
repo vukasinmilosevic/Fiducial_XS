@@ -25,7 +25,7 @@ from python.higgs_xsbr_13TeV import *
 
 # Name of Directory where we will redirect the combine outputs
 # FIXME: Later we try to generalise and keep all these variables at one central place.
-combineOutputs = "combineOutputs"
+combineOutputs = "xs_125.0"
 
 ### Define function for parsing options
 def parseOptions():
@@ -75,10 +75,10 @@ def parseOptions():
         sys.exit()
 
     # FIXME: Check why we need these directories
-    #        The directory `xs_125.0` is used to keep the generated workspaces
-    if not os.path.isdir('xs_125.0'): os.mkdir('xs_125.0')
+    #        The directory `combineOutputs` is used to keep the generated workspaces
+    if not os.path.isdir(combineOutputs): os.mkdir(combineOutputs)
     #dirToExist = ['templates','datacardInputs','125.6','xs_125.6']
-    dirToExist = ['templates','datacardInputs','125.0','xs_125.0']
+    dirToExist = ['templates','datacardInputs','125.0',combineOutputs]
     for dir in dirToExist:
         if not os.path.isdir(os.getcwd()+'/'+dir+'/'):
             parser.error(os.getcwd()+'/'+dir+'/ is not a directory. Exiting...')
@@ -256,22 +256,22 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
             for obsBin in range(nBins-1):
                 # first bool = cfactor second bool = add fake H               #
                 ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, modelName, physicalModel)
-                os.system("cp xs_125.0_"+str(nBins - 1)+"bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
-                os.system("sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
-                os.system("sed -i 's~_xs.Databin"+str(obsBin)+"~_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+"~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
+                os.system("cp xs_125.0_"+str(nBins - 1)+"bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
+                os.system("sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
+                os.system("sed -i 's~_xs.Databin"+str(obsBin)+"~_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+"~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
                 if ("jet" in obsName):
-                    os.system("sed -i 's~\#JES param~JES param~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
+                    os.system("sed -i 's~\#JES param~JES param~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
 
-                os.system("sed -i 's~0.0 0.2~0.0 0.2 [-1,1]~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
+                os.system("sed -i 's~0.0 0.2~0.0 0.2 [-1,1]~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
 
 
         else:
             os.system("python python/datacard_maker.py -c {} -b {}".format(fState, 1))
             ndata = createXSworkspace(obsName,fState, nBins, 0, observableBins, False, True, modelName, physicalModel)
-            if obsName=='mass4l': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusive_bin0.txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
-            if obsName=='mass4lREFIT': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusiveREFIT_bin0.txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
-            os.system("sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
-            os.system("sed -i 's~_xs.Databin0~_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin0~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
+            if obsName=='mass4l': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusive_bin0.txt "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
+            if obsName=='mass4lREFIT': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusiveREFIT_bin0.txt "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
+            os.system("sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
+            os.system("sed -i 's~_xs.Databin0~_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin0~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
 
 ### Create the asimov dataset and return fit results
 def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
@@ -287,7 +287,7 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
     print ('[Producing/merging workspaces and datacards for obsName '+obsName+' using '+modelName+']')
 
     # Run combineCards and text2workspace
-    currentDir = os.getcwd(); os.chdir('./xs_125.0/') # FIXME: Hardcoded directory
+    currentDir = os.getcwd(); os.chdir('./'+combineOutputs+'/') # FIXME: Hardcoded directory
     fStates = ['2e2mu','4mu','4e']
     nBins = len(observableBins)
     print('[INFO] nBins: {}'.format(nBins))
@@ -335,7 +335,7 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
     # Run the Combine
     if (physicalModel=="v2"):
         #if (opt.FIXMASS=="False"):
-        cmd =  'combine -n '+obsName+' -M MultiDimFit  '+'xs_125.0'+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root -m '+opt.ASIMOVMASS+' --setParameters '
+        cmd =  'combine -n '+obsName+' -M MultiDimFit  '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root -m '+opt.ASIMOVMASS+' --setParameters '
         print("="*51)
         print("[INFO]: {}#{} command:\n\t{}".format(os.path.basename(__file__),get_linenumber(),cmd))
         #else:
@@ -377,7 +377,6 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
         output = processCmd(cmd, get_linenumber())
         lsCMD = "ls *.root"
         processCmd(lsCMD, get_linenumber())
-        # FIXME: hardcoded directory `xs_125.0`
         processCmd('mv higgsCombine'+obsName+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+combineOutputs+'/', get_linenumber())
 
     # parse the results for all the bins and the given final state
@@ -421,7 +420,6 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
         print("="*51)
         lsCMD = 'echo "ls *.root";ls *.root'
         processCmd(lsCMD, get_linenumber())
-        # FIXME: hardcoded directory `xs_125.0`
         processCmd('mv higgsCombine'+obsName+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+combineOutputs+'/', get_linenumber())
 
 
@@ -470,7 +468,7 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
     # Run combineCards and text2workspace
     print ('[Producing/merging workspaces and datacards for obsName '+obsName+']')
 
-    currentDir = os.getcwd(); os.chdir('./xs_125.0/')
+    currentDir = os.getcwd(); os.chdir(combineOutputs)
     fStates = ['2e2mu','4mu','4e']
     nBins = len(observableBins)
     for fState in fStates:
@@ -500,18 +498,15 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
 
     os.chdir(currentDir)
 
-    # FIXME: hardcoded directory `xs_125.0`
-    cmd = 'root -l -b -q "src/addToyDataset.C(\\"'+'xs_125.0'+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root\\",\\"'+combineOutputs+'/'+asimovModelName+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root\\",\\"toy_asimov\\",\\"'+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root\\")"'
+    cmd = 'root -l -b -q "src/addToyDataset.C(\\"'+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root\\",\\"'+combineOutputs+'/'+asimovModelName+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root\\",\\"toy_asimov\\",\\"'+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root\\")"'
     processCmd(cmd, get_linenumber())
 
     # Run the Combine
     if (physicalModel=="v3"):
         if (not opt.FIXFRAC):
             if (opt.FIXMASS=="False"):
-                # FIXME: hardcoded directory `xs_125.0`
                 cmd =  'combine -n '+obsName+' -M MultiDimFit '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root -m 125.0 -D toy_asimov '
             else:
-                # FIXME: hardcoded directory `xs_125.0`
                 cmd =  'combine -n '+obsName+' -M MultiDimFit '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root -m '+opt.FIXMASS+' -D toy_asimov --setParameters MH='+opt.FIXMASS
             # you can add fractions to the POIs if you want the uncertainties on frac4e, frac4mu
             for bin in range(nBins-1):
@@ -528,10 +523,8 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
                 cmd = cmd.replace('-D toy_asimov',' ')
             output=processCmd(cmd, get_linenumber())
             if (opt.FIXMASS=="False"):
-                # FIXME: hardcoded directory `xs_125.0`
                 processCmd('mv higgsCombine'+obsName+'.MultiDimFit.mH125.root '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root', get_linenumber(), 1)
             else:
-                # FIXME: hardcoded directory `xs_125.0`
                 processCmd('mv higgsCombine'+obsName+'.MultiDimFit.mH'+opt.FIXMASS.replace('.0.root','.root')+'.root '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root', get_linenumber(), 1)
             cmd = cmd + ' --algo=singles --cl=0.68 --robustFit=1'
             output=processCmd(cmd, get_linenumber())
@@ -571,10 +564,8 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
                         tmp_xs[fState+'_genbin'+str(obsBin)] = fidxs
 
             if (opt.FIXMASS=="False"):
-                # FIXME: hardcoded directory `xs_125.0`
                 cmd =  'combine -n '+obsName+' -M MultiDimFit '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root -m 125.0 -D toy_asimov  --setParameters '
             else:
-                # FIXME: hardcoded directory `xs_125.0`
                 cmd =  'combine -n '+obsName+' -M MultiDimFit '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root -m '+opt.FIXMASS+' -D toy_asimov --setParameters MH='+opt.FIXMASS+','
             for obsBin in range(nBins-1):
                 fidxs4e = tmp_xs['4e_genbin'+str(obsBin)]
@@ -633,7 +624,6 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
             output=processCmd(cmd, get_linenumber())
 
     if (physicalModel=="v2"):
-        # FIXME: hardcoded directory `xs_125.0`
         cmd =  'combine -n '+obsName+' -M MultiDimFit '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root -D toy_asimov --saveWorkspace'
         if (not opt.FIXMASS=="False"):
             cmd = cmd + ' -m '+opt.FIXMASS+' --setParameterRanges MH='+opt.FIXMASS+','+opt.FIXMASS#+'001'
@@ -644,11 +634,9 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
             cmd = cmd.replace('-D toy_asimov',' ')
         output=processCmd(cmd, get_linenumber())
         if (opt.FIXMASS=="False"):
-            # FIXME: hardcoded directory `xs_125.0`
             processCmd('mv higgsCombine'+obsName+'.MultiDimFit.mH125.root '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root', get_linenumber(), 1)
         else:
             # FIXME: seems like `opt.FIXMASS.rstrip('.0')` this part may do something wrong later.
-            # FIXME: hardcoded directory `xs_125.0`
             processCmd('mv higgsCombine'+obsName+'.MultiDimFit.mH'+opt.FIXMASS.rstrip('.0')+'.root '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root', get_linenumber(), 1)
         cmd = cmd + ' --algo=singles --cl=0.68 --robustFit=1'
         output=processCmd(cmd, get_linenumber())
@@ -663,7 +651,6 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
 
     # load best fit snapshot and run combine with no systematics for stat only uncertainty
     if (opt.SYS):
-        # FIXME: hardcoded directory `xs_125.0`
         cmd = cmd.replace(combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_exp.root','-d '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root -w w --snapshotName "MultiDimFit"')
        #VM Test:  cmd = cmd + ' --freezeNuisanceGroups CMS_fakeH_p1_1_8,CMS_fakeH_p1_2_8,CMS_fakeH_p1_3_8,CMS_fakeH_p3_1_8,CMS_fakeH_p3_2_8,CMS_fakeH_p3_3_8 --freezeParameters allConstrainedNuisances'
         cmd = cmd + ' --freezeParameters allConstrainedNuisances'

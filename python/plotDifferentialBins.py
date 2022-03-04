@@ -8,6 +8,8 @@ from ROOT import *
 from tdrStyle import *
 setTDRStyle()
 
+combineOutputs = "xs_125.0"
+
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
     grootargs.append(opt)
@@ -72,7 +74,7 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
     # FIXME: Improve the directory naming/pointer of hardcoded directory
-    f_asimov = TFile("combineOutputs/"+asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
+    f_asimov = TFile(combineOutputs+"/"+asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
     if (not opt.UNBLIND):
         data = f_asimov.Get("toys/toy_asimov");
     #data.Print("v");

@@ -8,8 +8,7 @@ from sample_shortnames import *
 from tdrStyle import *
 setTDRStyle()
 
-# combineOutputs = "xs_125.0"
-combineOutputs = "combineOutputs"
+combineOutputs = "xs_125.0"
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):

@@ -1,4 +1,5 @@
-combineOutputs="combineOutputs"
+combineOutputs="xs_125.0"
+
 # These commands for observed data
 # with systematics
 # FIXME: Check if --points=500 improves results/not? If not, keep it to default value which is 50

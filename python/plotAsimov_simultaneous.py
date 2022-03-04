@@ -4,7 +4,7 @@ from math import *
 from decimal import *
 from sample_shortnames import *
 
-combineOutputs = "combineOutputs"
+combineOutputs = "xs_125.0"
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
