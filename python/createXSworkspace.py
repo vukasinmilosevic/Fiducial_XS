@@ -21,7 +21,7 @@ import os,sys
 datacardInputs = "datacardInputs"
 sys.path.append('./'+datacardInputs)
 
-WorkspacePath = "xs_125.0" # FIXME: Possibilty to improve name and position of directory
+combineOutputs = "xs_125.0" # FIXME: Possibilty to improve name and position of directory
 
 def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfactor, addfakeH, modelName, physicalModel):
     """Create workspace
@@ -581,14 +581,14 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     if (addfakeH):
         if (usecfactor):
-            fout = TFile(WorkspacePath+"/hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".Cfactor.root","RECREATE")
+            fout = TFile(combineOutputs+"/hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".Cfactor.root","RECREATE")
         else:
-            fout = TFile(WorkspacePath+"/hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".root","RECREATE")
+            fout = TFile(combineOutputs+"/hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".root","RECREATE")
     else:
         if (usecfactor):
-            fout = TFile(WorkspacePath+"/hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".Cfactor.NoFakeH.root","RECREATE")
+            fout = TFile(combineOutputs+"/hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".Cfactor.NoFakeH.root","RECREATE")
         else:
-            fout = TFile(WorkspacePath+"/hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".NoFakeH.root","RECREATE")
+            fout = TFile(combineOutputs+"/hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".NoFakeH.root","RECREATE")
 
     print ("write ws to fout")
     fout.WriteTObject(wout)

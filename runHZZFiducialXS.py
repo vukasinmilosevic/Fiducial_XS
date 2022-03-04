@@ -20,6 +20,10 @@ def get_linenumber():
 #       instead added variable `datacardInputs`.
 datacardInputs = "datacardInputs"
 
+# Name of Directory where we will redirect the combine outputs
+# FIXME: Later we try to generalise and keep all these variables at one central place.
+combineOutputs = "xs_125.0"
+
 # NOTE: append the directory `datacardInputs`, as .py files inside is going to load using import.
 #       load XS-specific modules
 sys.path.append('./'+datacardInputs)
@@ -27,10 +31,6 @@ sys.path.append('./'+datacardInputs)
 from python.sample_shortnames import *
 from python.createXSworkspace import createXSworkspace
 from python.higgs_xsbr_13TeV import *
-
-# Name of Directory where we will redirect the combine outputs
-# FIXME: Later we try to generalise and keep all these variables at one central place.
-combineOutputs = "xs_125.0"
 
 ### Define function for parsing options
 def parseOptions():
@@ -829,8 +829,46 @@ def runFiducialXS():
             output = processCmd(cmd, get_linenumber())
 
         if (obsName=="mass4l"):
-            cmd = './scripts/doLScan_mass4l.sh'
+
+            # These commands for observed data
+            # with systematics
+            # FIXME: Check if --points=500 improves results/not? If not, keep it to default value which is 50
+            # FIXME: hardcoded higgs mass value
+            cmd = 'combine -n mass4l_SigmaBin0 -M MultiDimFit '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v3_exp.root -m 125.09 -D toy_asimov --setParameters MH=125.09 -P SigmaBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin0=0.0,5.0 --redefineSignalPOI SigmaBin0 --algo=grid --points=500'
             output = processCmd(cmd, get_linenumber())
+
+            # no systematics
+            cmd = 'combine -n mass4l_SigmaBin0_NoSys -M MultiDimFit -d '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v3_result.root -w w --snapshotName "MultiDimFit" -m 125.09 -D toy_asimov --setParameters MH=125.09 -P SigmaBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin0=0.0,5.0 --redefineSignalPOI SigmaBin0 --algo=grid --points=500  --freezeParameters allConstrainedNuisances'
+            output = processCmd(cmd, get_linenumber())
+
+            #### These commands for observed data
+            # 4e
+            # with systematics
+            cmd = 'combine -n mass4l_r4eBin0 -M MultiDimFit '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_exp.root -m 125.09 -D toy_asimov --setParameters MH=125.09 -P r4eBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r4eBin0=0.0,5.0 --redefineSignalPOI r4eBin0 --algo=grid --points=500'
+            output = processCmd(cmd, get_linenumber())
+
+            # no systematics
+            cmd = 'combine -n mass4l_r4eBin0_NoSys -M MultiDimFit -d '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_result.root -w w --snapshotName "MultiDimFit" -m 125.09 -D toy_asimov --setParameters MH=125.09 -P r4eBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r4eBin0=0.0,5.0 --redefineSignalPOI r4eBin0 --algo=grid --points=500  --freezeParameters allConstrainedNuisances'
+            output = processCmd(cmd, get_linenumber())
+
+            # 4mu
+            # with systematics
+            cmd = 'combine -n mass4l_r4muBin0 -M MultiDimFit '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_exp.root -m 125.09 -D toy_asimov --setParameters MH=125.09 -P r4muBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r4muBin0=0.0,5.0 --redefineSignalPOI r4muBin0 --algo=grid --points=500'
+            output = processCmd(cmd, get_linenumber())
+
+            # no systematics
+            cmd = 'combine -n mass4l_r4muBin0_NoSys -M MultiDimFit -d '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_result.root -w w --snapshotName "MultiDimFit" -m 125.09 -D toy_asimov --setParameters MH=125.09 -P r4muBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r4muBin0=0.0,5.0 --redefineSignalPOI r4muBin0 --algo=grid --points=500  --freezeParameters allConstrainedNuisances'
+            output = processCmd(cmd, get_linenumber())
+
+            # 2e2mu
+            # with systematics
+            cmd = 'combine -n mass4l_r2e2muBin0 -M MultiDimFit '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_exp.root -m 125.09 -D toy_asimov --setParameters MH=125.09 -P r2e2muBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r2e2muBin0=0.0,5.0 --redefineSignalPOI r2e2muBin0 --algo=grid --points=500'
+            output = processCmd(cmd, get_linenumber())
+
+            # no systematics
+            cmd = 'combine -n mass4l_r2e2muBin0_NoSys -M MultiDimFit -d '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_result.root -w w --snapshotName "MultiDimFit" -m 125.09 -D toy_asimov --setParameters MH=125.09 -P r2e2muBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r2e2muBin0=0.0,5.0 --redefineSignalPOI r2e2muBin0 --algo=grid --points=500  --freezeParameters allConstrainedNuisances'
+            output = processCmd(cmd, get_linenumber())
+
         else:
             for obsBin in range(0,len(observableBins)-1):
                 cmd = "combine -n "+obsName+"_SigmaBin"+str(obsBin)+" -M MultiDimFit -d "+combineOutputs+"/SM_125_all_13TeV_xs_"+obsName+"_bin_"+physicalModel+"_exp.root -m 125.09 -D toy_asimov --setParameters MH=125.09 -P SigmaBin"+str(obsBin)+" --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin"+str(obsBin)+"=0.0,3.0 --redefineSignalPOIs SigmaBin"+str(obsBin)+" --algo=grid --points=50 --autoRange 4 "
