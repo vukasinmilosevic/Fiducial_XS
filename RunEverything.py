@@ -23,7 +23,6 @@ parser.add_argument( '-r', dest='RunCommand', default=0, type=int, choices=[0, 1
 
 args = parser.parse_args()
 
-if not os.path.isdir('datacardInputs'): os.mkdir('datacardInputs')
 if not os.path.isdir('log'): os.mkdir('log')
 
 for obsName, obsBin in obsNamesBinsDict.items():

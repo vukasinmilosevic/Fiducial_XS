@@ -8,6 +8,8 @@ from python.sample_shortnames import *
 from python.LoadData import *
 #LoadData(opt.SOURCEDIR)
 
+if not os.path.isdir('datacardInputs'): os.mkdir('datacardInputs')
+
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
     grootargs.append(opt)
@@ -632,6 +634,7 @@ obs_reco_high = 140.0
 obs_gen_low = 105.0
 obs_gen_high = 140.0
 
+# FIXME: This part we can define at one central place, probably in yaml file
 if (opt.OBSNAME == "massZ1"):
     obs_reco = "massZ1"
 #    obs_gen = "GENmZ1"
