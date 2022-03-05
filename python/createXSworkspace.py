@@ -12,16 +12,16 @@
 # For Silence issue we should shift to ROOT 6.18
 #       Reference: https://root-forum.cern.ch/t/rooworkspace-import-roofit-silence-does-not-work-when-importing-datasets/32591/2
 
+import sys
+import os
+
 from ROOT import *
 
-import os,sys
+# adding folder Inputs to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/Inputs')
+from Input_Info import *
 
-# NOTE: Removed all hardcoded instances of directory `datacardInputs`
-#       instead added variable `datacardInputs`.
-datacardInputs = "datacardInputs"
 sys.path.append('./'+datacardInputs)
-
-combineOutputs = "xs_125.0" # FIXME: Possibilty to improve name and position of directory
 
 def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfactor, addfakeH, modelName, physicalModel):
     """Create workspace

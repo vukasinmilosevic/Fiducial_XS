@@ -1,12 +1,21 @@
-import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
+import optparse
+import os
+import sys
 from array import array
-from math import *
 from decimal import *
-from sample_shortnames import *
+from math import *
 
 from ROOT import *
 from tdrStyle import *
 setTDRStyle()
+
+# adding folder Inputs to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/Inputs')
+from Input_Info import *
+
+# adding folder python to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/python')
+from sample_shortnames import *
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -88,9 +97,6 @@ if float(obs_bins[len(obs_bins)-1])>199:
 if (opt.OBSNAME=="nJets" or opt.OBSNAME.startswith("njets")):
     obs_bins[len(obs_bins)-1]='4'
 
-# NOTE: Removed all hardcoded instances of directory `datacardInputs`
-#       instead added variable `datacardInputs`.
-datacardInputs = "datacardInputs"
 sys.path.append('./'+datacardInputs)
 
 _temp = __import__('inputs_sig_'+obsName, globals(), locals(), ['eff','deff'], -1)

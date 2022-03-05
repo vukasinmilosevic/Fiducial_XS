@@ -1,7 +1,16 @@
-import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
+import optparse
+import os
+import sys
 from array import array
-from math import *
 from decimal import *
+from math import *
+
+# adding folder Inputs to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/Inputs')
+from Input_Info import *
+
+# adding folder python to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/python')
 from sample_shortnames import *
 
 grootargs = []
@@ -46,13 +55,11 @@ if (not os.path.exists("plots")):
 from ROOT import *
 
 from tdrStyle import *
+
 setTDRStyle()
 
 datamodel = opt.UNFOLD
 
-# NOTE: Removed all hardcoded instances of directory `datacardInputs`
-#       instead added variable `datacardInputs`.
-datacardInputs = "datacardInputs"
 sys.path.append('./'+datacardInputs)
 
 def plotXS(obsName, obs_bins):

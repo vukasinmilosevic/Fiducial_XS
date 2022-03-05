@@ -1,12 +1,15 @@
-import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
-from array import array
-from math import *
+import optparse
+import os
+import sys
 from decimal import *
+from math import *
+
 from ROOT import *
 
-from python.sample_shortnames import *
-#from LoadData_Unc import *
-from python.LoadData import *
+# adding folder python to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/python')
+from LoadData import *
+from sample_shortnames import *
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):

@@ -1,8 +1,11 @@
+import sys
 import os
 import argparse
 
-from python.collectInputs import collect
-from python.obsList import obsNamesBinsDict
+# adding folder python to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/python')
+from collectInputs import collect
+from obsList import obsNamesBinsDict
 
 # Kept for record of models (copied from runHZZFiducialXS.py)
 # modelNames = "SM_125,SMup_125,SMdn_125" #,'VBF_powheg_JHUgen_125']

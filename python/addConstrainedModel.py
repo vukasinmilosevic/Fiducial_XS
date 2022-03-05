@@ -1,7 +1,12 @@
-import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
-from array import array
-from math import *
+import optparse
+import os
+import sys
 from decimal import *
+from math import *
+
+# adding folder Inputs to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/Inputs')
+from Input_Info import *
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -35,10 +40,6 @@ def parseOptions():
 global opt, args, runAllSteps
 parseOptions()
 sys.argv = grootargs
-
-# NOTE: Removed all hardcoded instances of directory `datacardInputs`
-#       instead added variable `datacardInputs`.
-datacardInputs = "datacardInputs"
 
 sys.path.append('./'+datacardInputs)
 obsName = opt.OBSNAME

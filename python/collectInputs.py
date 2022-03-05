@@ -1,8 +1,10 @@
-import os, sys
+import sys
+import os
 
-# NOTE: Removed all hardcoded instances of directory `datacardInputs`
-#       instead added variable `datacardInputs`.
-datacardInputs = "datacardInputs"
+# adding folder Inputs to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/Inputs')
+from Input_Info import *
+
 sys.path.append('./'+datacardInputs)
 
 def collect(obsName):

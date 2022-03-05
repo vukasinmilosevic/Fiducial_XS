@@ -1,14 +1,21 @@
-import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
+import optparse
+import os
+import sys
 from array import array
-from math import *
 from decimal import *
-from sample_shortnames import *
+from math import *
 
 from ROOT import *
 from tdrStyle import *
 setTDRStyle()
 
-combineOutputs = "xs_125.0"
+# adding folder python to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/python')
+from sample_shortnames import *
+
+# adding folder Inputs to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/Inputs')
+from Input_Info import *
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):

@@ -1,10 +1,20 @@
-import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
-from array import array
-from math import *
+import optparse
+import os
+import sys
 from decimal import *
-from sample_shortnames import *
+from math import *
 
-combineOutputs = "xs_125.0"
+from ROOT import *
+from tdrStyle import *
+setTDRStyle()
+
+# adding folder Inputs to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/Inputs')
+from Input_Info import *
+
+# adding folder python to the system path
+sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/python')
+from sample_shortnames import *
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -43,11 +53,6 @@ sys.argv = grootargs
 
 if (not os.path.exists("plots")):
     os.system("mkdir plots")
-
-from ROOT import *
-from tdrStyle import *
-setTDRStyle()
-
 
 modelName = opt.UNFOLD
 physicalModel = 'v3'
