@@ -13,12 +13,8 @@ from subprocess import *
 
 from ROOT import *
 
-# adding folder Inputs to the system path
-sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/Inputs')
+# INFO: Following items are imported from either python directory or Inputs
 from Input_Info import *
-
-# adding folder python to the system path
-sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/python')
 from createXSworkspace import createXSworkspace
 from higgs_xsbr_13TeV import *
 from sample_shortnames import *
@@ -68,6 +64,7 @@ def parseOptions():
     # Calculate Systematic Uncertainties
     parser.add_option('',   '--calcSys', action='store_true', dest='SYS', default=False, help='Calculate Systematic Uncertainties (in addition to stat+sys)')
     parser.add_option('',   '--lumiscale', type='string', dest='LUMISCALE', default='1.0', help='Scale yields')
+    parser.add_option('',   '--inYAMLFile', dest='inYAMLFile', type='string', default="Inputs/observables_list.yml", help='Input YAML file having observable names and bin information')
 
     # store options and arguments as global variables
     global opt, args
@@ -92,6 +89,19 @@ def parseOptions():
 
 ### Define function for processing of os command
 def processCmd(cmd, lineNumber, quiet = 0):
+    """This function is defined for processing of os command
+
+    Args:
+        cmd (str): The command to be run on the terminal
+        lineNumber (int): The line number from where this function was invoked
+        quiet (int, optional): Want to run the command in quite mode (Don't print anything) or print everything. Defaults to 0.
+
+    Raises:
+        RuntimeError: If the command failed then exit the program with exit code
+
+    Returns:
+        str: The full output of the command
+    """
     output = '\n'
     print("="*51)
     print("[INFO]: Current working directory: {0}".format(os.getcwd()))
@@ -160,8 +170,6 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
     # FIXME: directory name hardcoded
     currentDir = os.getcwd(); os.chdir('./templates/')
 
-    # cmd = 'rm main_fiducialXSTemplates; make'; processCmd(cmd, get_linenumber())
-    if os.path.isfile('main_fiducialXSTemplates'): os.system('rm main_fiducialXSTemplates')
     print("==> Compile the package main_fiducialXSTemplates...")
     cmd = 'make'; processCmd(cmd, get_linenumber())
     DirectoryToCreate = 'templatesXS/DTreeXS_'+opt.OBSNAME+'/13TeV/'
@@ -775,9 +783,10 @@ def runFiducialXS():
 
         # plot the asimov predictions for data, signal, and backround in differential bins
         if (not obsName.startswith("mass4l")):
-            cmd = 'python python/plotDifferentialBins.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'"'
+            cmd = 'python python/plotDifferentialBins.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --inYAMLFile="'+opt.inYAMLFile+'"'
             if (opt.UNBLIND): cmd = cmd + ' --unblind'
             output = processCmd(cmd, get_linenumber())
+            sys.exit()
             print(output)
 
     ## Extract the results

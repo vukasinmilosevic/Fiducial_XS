@@ -1,8 +1,7 @@
 import sys
 import os
 
-# adding folder Inputs to the system path
-sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/Inputs')
+# INFO: Following items are imported from either python directory or Inputs
 from Input_Info import *
 
 sys.path.append('./'+datacardInputs)

@@ -4,16 +4,9 @@ import sys
 from decimal import *
 from math import *
 
-from ROOT import *
-from tdrStyle import *
-setTDRStyle()
 
-# adding folder Inputs to the system path
-sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/Inputs')
+# INFO: Following items are imported from either python directory or Inputs
 from Input_Info import *
-
-# adding folder python to the system path
-sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/python')
 from sample_shortnames import *
 
 grootargs = []
@@ -50,6 +43,11 @@ def parseOptions():
 global opt, args, runAllSteps
 parseOptions()
 sys.argv = grootargs
+
+# Don't move the root import before `sys.argv = grootargs`. Reference: https://root-forum.cern.ch/t/python-options-and-root-options/4641/3
+from ROOT import *
+from tdrStyle import *
+setTDRStyle()
 
 if (not os.path.exists("plots")):
     os.system("mkdir plots")

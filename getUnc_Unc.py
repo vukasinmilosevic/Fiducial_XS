@@ -4,12 +4,10 @@ import sys
 from decimal import *
 from math import *
 
-from ROOT import *
-
-# adding folder python to the system path
-sys.path.insert(0, os.getenv('CMSSW_BASE')+'/src/Fiducial_XS/python')
+# INFO: Following items are imported from either python directory or Inputs
 from LoadData import *
 from sample_shortnames import *
+from Utils import *
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -44,6 +42,9 @@ global opt, args, runAllSteps
 parseOptions()
 sys.argv = grootargs
 
+# Don't move the root import before `sys.argv = grootargs`. Reference: https://root-forum.cern.ch/t/python-options-and-root-options/4641/3
+from ROOT import *
+
 doFit = opt.DOFIT
 doPlots = opt.DOPLOTS
 
@@ -76,7 +77,7 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
 
     i_sample = -1
 
-    print List
+    print(List)
 
     for Sample in List:
         if (not Sample in Tree): continue
@@ -227,8 +228,8 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
             pdfUncert[processBin] = {"uncerDn":abs(pdferr-1.0),"uncerUp":abs(pdferr-1.0)}
 
 
-            print processBin,acceptance[processBin],accerrstat,qcderrup,qcderrdn,pdferr
-            print "accerrup",accerrup,"accerrdn",accerrdn
+            print(processBin,acceptance[processBin],accerrstat,qcderrup,qcderrdn,pdferr)
+            print("accerrup",accerrup,"accerrdn",accerrdn)
 
 m4l_bins = 35
 m4l_low = 105.0
@@ -242,53 +243,21 @@ obs_reco_high = 140.0
 obs_gen_low = 105.0
 obs_gen_high = 140.0
 
-if (opt.OBSNAME == "massZ1"):
-    obs_reco = "massZ1"
-    obs_gen = "GENmZ1"
-if (opt.OBSNAME == "massZ2"):
-    obs_reco = "massZ2"
-    obs_gen = "GENmZ2"
-if (opt.OBSNAME == "pT4l"):
-    obs_reco = "pT4l"
-    obs_gen = "GENpT4l"
-if (opt.OBSNAME == "eta4l"):
-    obs_reco = "eta4l"
-    obs_gen = "GENeta4l"
-if (opt.OBSNAME == "njets_pt30_eta4p7"):
-    obs_reco = "njets_pt30_eta4p7"
-    obs_gen = "GENnjets_pt30_eta4p7"
-if (opt.OBSNAME == "njets_pt30_eta2p5"):
-    obs_reco = "njets_pt30_eta2p5"
-    obs_gen = "GENnjets_pt30_eta2p5"
-if (opt.OBSNAME == "pt_leadingjet_pt30_eta4p7"):
-    obs_reco = "pt_leadingjet_pt30_eta4p7"
-    obs_gen = "GENpt_leadingjet_pt30_eta4p7"
-if (opt.OBSNAME == "pt_leadingjet_pt30_eta2p5"):
-    obs_reco = "pt_leadingjet_pt30_eta2p5"
-    obs_gen = "GENpt_leadingjet_pt30_eta2p5"
+obs_reco = opt.OBSNAME
+obs_gen = "GEN"+opt.OBSNAME
+
+# variables measured in absolute values
 if (opt.OBSNAME == "rapidity4l"):
     obs_reco = "abs(rapidity4l)"
     obs_gen = "abs(GENrapidity4l)"
-if (opt.OBSNAME == "cosThetaStar"):
-    obs_reco = "abs(cosThetaStar)"
-    obs_gen = "abs(GENcosThetaStar)"
-if (opt.OBSNAME == "cosTheta1"):
-    obs_reco = "abs(cosTheta1)"
-    obs_gen = "abs(GENcosTheta1)"
-if (opt.OBSNAME == "cosTheta2"):
-    obs_reco = "abs(cosTheta2)"
-    obs_gen = "abs(GENcosTheta2)"
-if (opt.OBSNAME == "Phi"):
-    obs_reco = "abs(Phi)"
-    obs_gen = "abs(GENPhi)"
-if (opt.OBSNAME == "Phi1"):
-    obs_reco = "abs(Phi1)"
-    obs_gen = "abs(GENPhi1)"
+
+print("[INFO] obs_reco is : {}".format(obs_reco))
+print("[INFO] obs_gen is  : {}".format(obs_gen))
 
 #obs_bins = {0:(opt.OBSBINS.split("|")[1:((len(opt.OBSBINS)-1)/2)]),1:['0','inf']}[opt.OBSNAME=='inclusive']
 obs_bins = opt.OBSBINS.split("|")
 if (not (obs_bins[0] == '' and obs_bins[len(obs_bins)-1]=='')):
-    print 'BINS OPTION MUST START AND END WITH A |'
+    print('BINS OPTION MUST START AND END WITH A |')
 obs_bins.pop()
 obs_bins.pop(0)
 
