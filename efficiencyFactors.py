@@ -863,7 +863,7 @@ if not (opt.OBSNAME2 == ''):
     more_output_file_name = datacardInputs+'/moreinputs_sig_'+opt.OBSNAME+'_vs_'+opt.OBSNAME2+ext+'.py'
 
 
-with open(datacardInputs+'/moreinputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
+with open(more_output_file_name, 'w') as f:
     f.write('CB_mean = '+str(CB_mean_post)+' \n')
     #f.write('CB_dmean = '+str(CB_dmean_post)+' \n')
     f.write('CB_sigma = '+str(CB_sigma_post)+' \n')
