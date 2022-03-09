@@ -76,10 +76,117 @@ Observables:
 
     njets_pt30_eta2p5:
      bins: "|0.0|1.0|2.0|3.0|4.0|10.0|"
-     label: "N(jets) |#eta|<2.5"
+     label: "N(jets) p_{T}>30 GeV |#eta|<2.5"
      unit: ""
      gen: "GENnjets_pt30_eta2p5"
 
+    pt_leadingjet_pt30_eta4p7:
+     bins: "|-2.0|30.0|55.0|95.0|200.0|13000.0|"
+     label: "p_{T}(jet) |#eta|<4.7"
+     unit: "GeV"
+     gen: "GENpt_leadingjet_pt30_eta4p7"
+
+    njets_pt30_eta4p7:
+     bins: "|0.0|1.0|2.0|3.0|4.0|10.0|"
+     label: "N(jets) p_{T}>30 GeV |#eta|<4.7"
+     unit: ""
+     gen: "GENnjets_pt30_eta4p7"
+
+   pTj2:
+    bins: "|0/1-jet|30|40|65|90|Inf|"
+    label: "p_{T}(jet2) |#eta|<4.7"
+    unit: "GeV"
+    gen: "GENpTj2"
+
+   pT4lj:
+    bins: "|0-Jet|0|30|60|110|Inf|"
+    label: "p_{T}(Hj) p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+    unit: "GeV"
+    gen: "GENpT4lj"
+
+   pT4ljj:
+    bins: "|0|20|40|60|110|Inf|"
+    label: "p_{T}(Hjj) p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+    unit: "GeV"
+    gen: "GENpT4ljj"
+
+   mass4lj:
+    bins: "|0-Jet|110|180|220|300|400|600|3000|"
+    label: "m_{Hj} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+    unit: "GeV"
+    gen: "GENmass4lj"
+
+   #mass4ljj:
+   # bins: "||"
+   # label: ""
+   # unit: ""
+   # gen: "GENmass4ljj"
+
+   mj1j2:
+    bins: "|0/1-jet|0|120|300|Inf|"
+    label: "m_{j1j2} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+    unit: "GeV"
+    gen: "GENmj1j2"
+
+   dEtaj1j2:
+    bins: "|0/1-jet|0|0.7|1.6|3|Inf|"
+    label: "#Delta#eta_{j1j2} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+    unit: ""
+    gen: "GENdEtaj1j2"
+
+   dPhij1j2:
+    bins: "|-TMath::Pi()|-TMath::Pi()/2|0|TMath::Pi()/2|TMath::Pi()|"
+    label: "#Delta#phi_{j1j2} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+    unit: ""
+    gen: "GENdPhij1j2"
+
+    D_0m:
+     bins: "|0|0.4|0.5|0.6|0.7|0.8|0.9|1.0|"
+     label: "D_{0-}^{dec}"
+     unit: ""
+     gen: "GEND_0m"
+
+    D_cp:
+     bins: "|-0.75|-0.25|-0.1|0|0.1|0.25|0.75|"
+     label: "D_{cp}^{dec}"
+     unit: ""
+     gen: "GEND_cp"
+
+    D_0hp:
+     bins: "|0|0.35|0.4|0.45|0.55|0.65|0.75|1|"
+     label: "D_{0+}^{dec}"
+     unit: ""
+     gen: "GEND_0hp"
+
+    D_int:
+     bins: "|0|0.7|0.8|0.9|0.95|1|"
+     label: "D_{int}^{dec}"
+     unit: ""
+     gen: "GEND_0int"
+
+    D_L1:
+     bins: "|0|0.45|0.5|0.6|0.7|1|"
+     label: "D_{#Lambda1}^{dec}"
+     unit: ""
+     gen: "GEND_L1"
+
+    D_L1Zg:
+     bins: "|0|0.35|0.45|0.5|0.55|0.65|1.0|"
+     label: "D_{#Lambda1}^{Z#gamma,dec}"
+     unit: ""
+     gen: "GEND_L1Zg"
+
+    TauC_Inc_0j_EnergyWgt:
+     bins: "|0-jet(TC<150GeV)|15|20|30|50|80|Inf|"
+     label: "TCjmax"
+     unit: ""
+     gen: "GEN_TauC_Inc_0j_EnergyWgt"
+
+    TauB_Inc_0j_pTWgt:
+     bins: "|0-jet(TB<30GeV)|30|70|130|250|400|Inf|"
+     label: "TBjmax"
+     unit: ""
+     gen: "GEN_TauB_Inc_0j_pTWgt"
 
   # Copied the 2D values from here: https://github.com/tjavaid/DDXS/blob/d3f9cadc5967d713e077fbbd8a89cb14f7e39fb0/doAllEffs_channels_DXS.sh
   2D_Observables:
@@ -101,3 +208,34 @@ Observables:
         bins: "|50.0|74.0|88.0|94.0|106.0|"
       massZ2:
         bins: "|32|65|"
+
+    4:
+      pt_leadingjet_pt30_eta4p7:
+        bins: "|Njets < 2|30|60|350|"
+      pTj2:
+        bins: "|Njets < 2|30|60|350|"
+
+    5:
+      rapidity4l:
+        bins: "|0|0.5|1|2.5|"
+      pT4l:
+        bins: "|0|40|80|150|Inf|0|45|120|Inf|0|45|120|Inf|"
+
+    6:
+      njets_pt30_eta4p7:
+        bins: "|0|1|>=2|"
+      pT4l:
+        bins: "|0|15|30|Inf|0|60|80|120|Inf|0|100|170|250|Inf|"
+
+    7:
+      pT4l:
+        bins: "|Njets < 1|0|85|350|"
+      pT4lj:
+        bins: "|Njets < 1|0|30|45|350|"
+
+    8:
+      TauC_Inc_0j_EnergyWgt:
+        bins: "|0|15|25|40|Inf|"
+      pT4l:
+        bins: "|0|15|30|45|70|120|200|Inf"
+
