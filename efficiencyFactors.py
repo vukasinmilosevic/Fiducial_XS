@@ -12,6 +12,7 @@ from Input_Info import *
 from LoadData import *
 from sample_shortnames import *
 from Utils import *
+from read_bins import *
 
 if not os.path.isdir(datacardInputs):
     os.mkdir(datacardInputs)
@@ -39,8 +40,6 @@ def parseOptions():
                                     # "rapidity4l", "cosThetaqStar", "cosTheta1", "cosTheta2", "Phi", "Phi1"),
                         help='Name of the observalbe, supported: "mass4l", "pT4l", "massZ2", "rapidity4l", "cosThetaStar", "nets_reco_pt30_eta4p7"')
     parser.add_option('',   '--obsBins',dest='OBSBINS',    type='string',default='',   help='Bin boundaries for the first observable for the double diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
-    parser.add_option('',   '--obsName2',dest='OBSNAME2',    type='string',default='', help='Name of the second observalbe for the double differential measurement.')
-    parser.add_option('',   '--obsBins2',dest='OBSBINS2',    type='string',default='',   help='Bin boundaries for the second observable for the double diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('-f', '--doFit', action="store_true", dest='DOFIT', default=False, help='doFit, default false')
     parser.add_option('-p', '--doPlots', action="store_true", dest='DOPLOTS', default=False, help='doPlots, default false')
     parser.add_option('-c', '--channel', dest="CHAN", type='string', default='', help='only do one channel')
@@ -110,7 +109,7 @@ deffanyreco = {}
 folding = {}
 dfolding = {}
 
-def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_reco2 = '', obs_gen2 = '', obs_bins2 = [], recobin2 = -1, genbin2 = -1):
+def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_reco2 = '', obs_gen2 = ''):
     gSystem.AddIncludePath("-I$CMSSW_BASE/src/ ")
     gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
     gSystem.AddIncludePath("-I$ROOFITSYS/include")
@@ -121,14 +120,15 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
     
     recoweight = "genWeight*pileupWeight*dataMCWeight"
 
-    obs_reco_low = obs_bins[recobin]
-    obs_reco_high = obs_bins[recobin+1]
 
-    obs_gen_low = obs_bins[genbin]
-    obs_gen_high = obs_bins[genbin+1]
+    obs_reco_low = -1
+    obs_reco_high = -1
 
-    obs_gen_lowest = obs_bins[0]
-    obs_gen_highest = obs_bins[len(obs_bins)-1]
+    obs_gen_low = -1
+    obs_gen_high = -1
+
+    obs_gen_lowest = -1
+    obs_gen_highest = -1
 
 
     obs_reco2_low = -1
@@ -140,22 +140,54 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
     obs_gen2_lowest = -1
     obs_gen2_highest = -1
 
+
     # Adding a check if the chosen mode is double differential
     # FIX ME: Should not use opt.OBSNAME/2 in a function, this is a parsed parameter and a function should not use it
 
-    if not(opt.OBSNAME2 == ''):
+    if (obs_reco2 == ''):
+        border_msg("The option of performing a 1D differential measurement has been selected.")
+
+        obs_reco_low = obs_bins[recobin]
+        obs_reco_high = obs_bins[recobin+1]
+
+        obs_gen_low = obs_bins[genbin]
+        obs_gen_high = obs_bins[genbin+1]
+
+        obs_gen_lowest = obs_bins[0]
+        obs_gen_highest = obs_bins[len(obs_bins)-1]
+
+
+    else:
+
         border_msg("The option of performing a double differential measurement has been selected.")
-        obs_reco2_low = obs_bins2[recobin2]
-        obs_reco2_high = obs_bins2[recobin2+1]
 
-        obs_gen2_low = obs_bins2[genbin2]
-        obs_gen2_high = obs_bins2[genbin2+1]
+        obs_reco_low = obs_bins[recobin][0][0]
+        obs_reco_high = obs_bins[recobin][0][1]
 
-        obs_gen2_lowest = obs_bins2[0]
-        obs_gen2_highest = obs_bins2[len(obs_bins2)-1]
+        obs_gen_low = obs_bins[genbin][0][0]
+        obs_gen_high = obs_bins[genbin][0][1]
+
+        obs1_boundaries = [boundary for bin in obs_bins for boundary in bin[0]]
+        obs1_boundaries_float = [float(i) for i in obs1_boundaries]
+
+        obs_gen_lowest = str(min(obs1_boundaries_float))
+        obs_gen_highest = str(max(obs1_boundaries_float))
+
+
+        obs_reco2_low = obs_bins[recobin][1][0]
+        obs_reco2_high = obs_bins[recobin][1][1]
+
+        obs_gen2_low = obs_bins[genbin][1][0]
+        obs_gen2_high = obs_bins[genbin][1][1]
+
+        obs2_boundaries = [boundary for bin in obs_bins for boundary in bin[1]]
+        obs2_boundaries_float = [float(i) for i in obs2_boundaries]
+
+        obs_gen2_lowest = str(min(obs2_boundaries_float))
+        obs_gen2_highest = str(max(obs2_boundaries_float))
 
         print("General information about the variable 2:")
-        print ("Chosen Bin is: {}, Low reco bin value is: {}, High reco bin value is: {}, Lowest value is: {}, Highest value is: {}".format(recobin2, obs_reco2_low, obs_reco2_high, obs_gen2_lowest, obs_gen2_highest))
+        print ("Chosen Bin is: {}, Low reco bin value is: {}, High reco bin value is: {}, Lowest value is: {}, Highest value is: {}".format(recobin, obs_reco2_low, obs_reco2_high, obs_gen2_lowest, obs_gen2_highest))
 
 
     if (obs_reco.startswith("mass4l")):
@@ -169,8 +201,8 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
 
     for Sample in SampleList:
 
-        if not(opt.OBSNAME2 == ''):
-            border_msg("Sample: "+Sample+"\t Observable 1: "+str(obs_reco)+"\trecobin: "+str(recobin)+"\tgenbin: "+str(genbin)+"\t Observable 2: "+str(obs_reco2)+"\trecobin2: "+str(recobin2)+"\tgenbin2: "+str(genbin2))
+        if not(obs_reco2 == ''):
+            border_msg("Sample: "+Sample+"\t Observable 1: "+str(obs_reco)+"\t Observable 2: "+str(obs_reco2)+"\trecobin: "+str(recobin)+"\tgenbin: "+str(genbin))
         else:
             border_msg("Sample: "+Sample+"\t Observable: "+str(obs_reco)+"\trecobin: "+str(recobin)+"\tgenbin: "+str(genbin))
 
@@ -189,11 +221,11 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
         shortname = sample_shortnames[Sample]
         processBin = shortname+'_'+channel+'_'+opt.OBSNAME+'_genbin'+str(genbin)+'_recobin'+str(recobin)
 
-        if not (opt.OBSNAME2 == ''):
-            processBin = shortname+'_'+channel+'_'+opt.OBSNAME+'_genbin'+str(genbin)+'_recobin'+str(recobin) + '_' + opt.OBSNAME2+'_genbin'+str(genbin2)+'_recobin'+str(recobin2)
+        if not (obs_reco2 == ''):
+            processBin = shortname+'_'+channel+'_'+opt.OBSNAME.replace(" ","_")+'_genbin'+str(genbin)+'_recobin'+str(recobin)
 
         ### FIXME: Why is this part here?
-        if ((not "jet" in opt.OBSNAME) and abs(genbin-recobin)>1):
+        if ((not "jet" in opt.OBSNAME) and abs(genbin-recobin)>1 and obs_reco2 == ''):
             acceptance[processBin] = 0.0
             dacceptance[processBin] = 0.0
             acceptance_4l[processBin] = 0.0
@@ -223,7 +255,7 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
 
         # Double differential measurement addition for the reco observable cut
 
-        if not (opt.OBSNAME2 == ''):
+        if not (obs_reco2 == ''):
             cutobs_reco += " && ("+obs_reco2+">="+str(obs_reco2_low)+" && "+obs_reco2+"<"+str(obs_reco2_high)+")"
 
         # Generator observable cut - important to keep it in the desired bin range
@@ -232,17 +264,17 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
 
         # Double differential measurement addition for the generator observable cut
 
-        if not (opt.OBSNAME2 == ''):
+        if not (obs_reco2 == ''):
             cutobs_gen += " && ("+obs_gen2+">="+str(obs_gen2_low)+" && "+obs_gen2+"<"+str(obs_gen2_high)+")"
 
         # Reco observable cut - if using the _jesup/down variations
 
-        if (("jet" in opt.OBSNAME) or ("Jet" in opt.OBSNAME)):
+        if (("jet" in obs_reco.lower()) or ("jet" in obs_reco2.lower())):
             cutobs_reco_jesup = "("+obs_reco+"_jesup"+">="+str(obs_reco_low)+" && "+obs_reco+"_jesup"+"<"+str(obs_reco_high)+")"
             cutobs_reco_jesdn = "("+obs_reco+"_jesdn"+">="+str(obs_reco_low)+" && "+obs_reco+"_jesdn"+"<"+str(obs_reco_high)+")"
 
             # Double differential measurement addition: Reco observable cut - if using the _jesup/down variations
-            if not (opt.OBSNAME2 == ''):
+            if not (obs_reco2 == ''):
                 cutobs_reco_jesup += " && ("+obs_reco2+"_jesup"+">="+str(obs_reco2_low)+" && "+obs_reco2+"_jesup"+"<"+str(obs_reco2_high)+")"
                 cutobs_reco_jesdn += " && ("+obs_reco2+"_jesdn"+">="+str(obs_reco2_low)+" && "+obs_reco2+"_jesdn"+"<"+str(obs_reco2_high)+")"
 
@@ -254,7 +286,7 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
         # Double differential measurement addition: Generator level selection on the out of the fiducial range - i.e. outside of the deisred bin, but still within the high/low range for the observed variable.
         ### FIXME: For now implementing how it was agreed with LLR, but this should be understood
 
-        if not (opt.OBSNAME2 == ''):
+        if not (obs_reco2 == ''):
             cutobs_gen_otherfid += "|| (("+obs_gen2+"<"+str(obs_gen2_low)+" && "+obs_gen2+">="+str(obs_gen2_lowest)+") || ("+obs_gen2+">="+str(obs_gen2_high)+" && "+obs_gen2+"<="+str(obs_gen2_highest)+"))"
 
 
@@ -427,16 +459,27 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
             # print "effrecotofid     denominator========", Histos[processBin+"fid"].Integral()
             effrecotofid[processBin] = Histos[processBin+"recoh4lfid"].Integral()/Histos[processBin+"fid"].Integral()
             print("inside sqrt deff num", effrecotofid[processBin]*(1-effrecotofid[processBin]), "inside sqrt deff den", Histos[processBin+"fid"].Integral())
-
+        else:
+            #BUG: NEED TO ADD A DEFAULT VALUE, CRASHES THE CODE IF HIT
+            effrecotofid[processBin] = -1.0
 
         print("TESTING:_________")
         print(effrecotofid[processBin])
         print(Histos[processBin+"fid"].Integral())
-        if (effrecotofid[processBin]*(1-effrecotofid[processBin])/Histos[processBin+"fid"].Integral()>0):
-            deffrecotofid[processBin] = sqrt(effrecotofid[processBin]*(1-effrecotofid[processBin])/Histos[processBin+"fid"].Integral())
-            print("effrecotofid     numerator========", Histos[processBin+"recoh4lfid"].Integral())
-            print("effrecotofid     denominator========", Histos[processBin+"fid"].Integral())
-            cfactor[processBin] = Histos[processBin+"recoh4l"].Integral()/Histos[processBin+"fid"].Integral()
+        #Another bug that requires protection: What if Histos[processBin+"fid"].Integral() == 0 -> we'll have division with 0.
+        if (Histos[processBin+"fid"].Integral()>0):
+
+            if (effrecotofid[processBin]*(1-effrecotofid[processBin])/Histos[processBin+"fid"].Integral()>0):
+                deffrecotofid[processBin] = sqrt(effrecotofid[processBin]*(1-effrecotofid[processBin])/Histos[processBin+"fid"].Integral())
+                print("effrecotofid     numerator========", Histos[processBin+"recoh4lfid"].Integral())
+                print("effrecotofid     denominator========", Histos[processBin+"fid"].Integral())
+                cfactor[processBin] = Histos[processBin+"recoh4l"].Integral()/Histos[processBin+"fid"].Integral()
+
+            else:
+                print("the fid integral is====", Histos[processBin+"fid"].Integral())
+                effrecotofid[processBin] = -1.0
+                deffrecotofid[processBin] = -1.0
+                cfactor[processBin] = Histos[processBin+"recoh4l"].Integral()/1.0 # if N(fid) for a gen bin is 0.0, change it to 1.0
 
         else:
             print("the fid integral is====", Histos[processBin+"fid"].Integral())
@@ -460,6 +503,7 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
             outinratio[processBin] = -1.0
             doutinratio[processBin] = -1.0
 
+        # NOTE: Should it be .contains for double diff measurement?
         if (opt.OBSNAME == "nJets" or opt.OBSNAME.startswith("njets") or ("jet" in opt.OBSNAME)):
 
             if (Histos[processBin+"recoh4l"].Integral()>0):
@@ -745,22 +789,38 @@ m4l_low = 105.0
 m4l_high = 140.0
 
 # INFO: Get reco and gen observable names
-obs_reco = opt.OBSNAME
-obs_gen = "GEN"+opt.OBSNAME
+
+obs_reco = ''
+obs_gen = ''
 
 obs_reco2 = ''
 obs_gen2 = ''
 
-if not (opt.OBSNAME2 == ''):
-    obs_reco2 = opt.OBSNAME2
-    obs_gen2 = "GEN"+opt.OBSNAME2
+label = ''
+
+if 'vs' in opt.OBSNAME:
+    obs_reco = opt.OBSNAME.split(" vs ")[0]
+    obs_gen = "GEN" + obs_reco
+
+    obs_reco2 = opt.OBSNAME.split(" vs ")[1]
+    obs_gen2 = "GEN" + obs_reco2
+
+    label = obs_reco + "_vs_"+obs_reco2
+else:
+    obs_reco = opt.OBSNAME
+    obs_gen = "GEN"+opt.OBSNAME
+
+    obs_reco2 = ''
+    obs_gen2 = ''
+    label = obs_reco
+
 
 # variables measured in absolute values
-if (opt.OBSNAME == "rapidity4l"):
+if (obs_reco == "rapidity4l"):
     obs_reco = "abs(rapidity4l)"
     obs_gen = "abs(GENrapidity4l)"
 
-if (opt.OBSNAME2 == "rapidity4l"):
+if (obs_reco2 == "rapidity4l"):
     obs_reco2 = "abs(rapidity4l)"
     obs_gen2 = "abs(GENrapidity4l)"
 
@@ -769,32 +829,7 @@ print("[INFO] obs_gen  is  : {}".format(obs_gen))
 print("[INFO] obs_reco2 is  : {}".format(obs_reco2))
 print("[INFO] obs_gen2  is  : {}".format(obs_gen2))
 
-#obs_bins = {0:(opt.OBSBINS.split("|")[1:((len(opt.OBSBINS)-1)/2)]),1:['0','inf']}[opt.OBSNAME=='inclusive']
-obs_bins = opt.OBSBINS.split("|")
-if (not (obs_bins[0] == '' and obs_bins[len(obs_bins)-1]=='')):
-    print('BINS OPTION MUST START AND END WITH A |')
-    sys.exit()
-
-obs_bins2 = []
-if not (opt.OBSNAME2 == ''):
-    obs_bins2 = opt.OBSBINS2.split("|")
-    if (not (obs_bins2[0] == '' and obs_bins2[len(obs_bins2)-1]=='')):
-        print('BINS OPTION MUST START AND END WITH A |')
-        sys.exit()
-
-# INFO: obs_bins will be something like: ['', '105.0', '140.0', '']
-#       so, remove first and last element from the list
-#       pop(): removes last element, pop(0): removes first element
-obs_bins.pop()
-obs_bins.pop(0)
-
-if not (opt.OBSNAME2 == ''):
-    obs_bins2.pop()
-    obs_bins2.pop(0)
-
-
-print("[INFO] obs_bins is  : {}".format(obs_bins))
-print("[INFO] obs_bins2 is  : {}".format(obs_bins2))
+obs_bins = read_bins(opt.OBSBINS)
 
 SampleList = []
 for long, short in sample_shortnames.iteritems():
@@ -814,30 +849,27 @@ if (not opt.CHAN==''):
     chans = [opt.CHAN]
 print("[DEBUG] Channels: {}".format(chans))
 
+Nbins = len(obs_bins)
+
+if obs_reco2 == '':
+    Nbins = Nbins - 1 #  For the double diff measurement the len(obs_bins) is the actual number of bins, while for the 1 observable we parse bin edges so it needs to be len -1
+    
+
 for chan in chans:
-    for recobin in range(len(obs_bins)-1):
-        for genbin in range(len(obs_bins)-1):
-            if not (opt.OBSNAME2 == ''):
-                for recobin2 in range(len(obs_bins2)-1):
-                    for genbin2 in range(len(obs_bins2)-1):
-                        fixed_border_msg("[DEBUG] {:7} SampleList: {}, m4l_bins: {}, m4l_low: {}, m4l_high: {}, obs_reco: {}, obs_gen: {}, obs_bins: {}, recobin: {}, genbin: {}, obs_reco2: {}, obs_gen2: {}, obs_bins2: {}, recobin2: {}, genbin2: {}".format(
-                        chan, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_reco2, obs_gen2, obs_bins2, recobin2, genbin2))
+    for recobin in range(Nbins):
+        for genbin in range(Nbins):
+            fixed_border_msg("[DEBUG] {:7} SampleList: {}, m4l_bins: {}, m4l_low: {}, m4l_high: {}, obs_reco: {}, obs_gen: {},  obs_reco2: {}, obs_gen2: {}, obs_bins: {}, recobin: {}, genbin: {}".format(
+            chan, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_reco2, obs_gen2, obs_bins, recobin, genbin))
 
-                        geteffs(chan, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_reco2, obs_gen2, obs_bins2, recobin2, genbin2)
-            else:
-                    fixed_border_msg("[DEBUG] {:7} SampleList: {}, m4l_bins: {}, m4l_low: {}, m4l_high: {}, obs_reco: {}, obs_gen: {}, obs_bins: {}, recobin: {}, genbin: {}".format(
-                    chan,SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin))
+            geteffs(chan, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_reco2, obs_gen2)
 
-                    geteffs(chan, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin)
 
 ext=''
 if (not opt.CHAN==''):
     ext='_'+opt.CHAN
 
-output_file_name = datacardInputs+'/inputs_sig_'+opt.OBSNAME+ext+'.py'
+output_file_name = datacardInputs+'/inputs_sig_'+label+ext+'.py'
 
-if not (opt.OBSNAME2 == ''):
-    output_file_name = datacardInputs+'/inputs_sig_'+opt.OBSNAME+'_vs_'+opt.OBSNAME2+ext+'.py'
 
 with open(output_file_name, 'w') as f:
     f.write('acc = '+str(acceptance)+' \n')
@@ -859,8 +891,8 @@ with open(output_file_name, 'w') as f:
 
 more_output_file_name = datacardInputs+'/moreinputs_sig_'+opt.OBSNAME+ext+'.py'
 
-if not (opt.OBSNAME2 == ''):
-    more_output_file_name = datacardInputs+'/moreinputs_sig_'+opt.OBSNAME+'_vs_'+opt.OBSNAME2+ext+'.py'
+if not (obs_reco2 == ''):
+    more_output_file_name = datacardInputs+'/moreinputs_sig_'+opt.OBSNAME.replace(" ", "_")+'.py'
 
 
 with open(more_output_file_name, 'w') as f:
