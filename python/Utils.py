@@ -1,3 +1,5 @@
+from inspect import currentframe
+
 def border_msg(msg):
     """Print message inside the border
 
@@ -18,6 +20,10 @@ def fixed_border_msg(msg):
     border = "="*51
     result = border + "\n" + msg + "\n" + border
     print(result)
+
+def get_linenumber():
+    cf = currentframe()
+    return cf.f_back.f_lineno
 
 def processCmd(cmd, lineNumber, quiet = 0):
     """This function is defined for processing of os command
