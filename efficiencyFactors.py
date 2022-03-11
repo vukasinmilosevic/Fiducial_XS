@@ -186,8 +186,12 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
         obs_gen2_lowest = str(min(obs2_boundaries_float))
         obs_gen2_highest = str(max(obs2_boundaries_float))
 
+        print("General information about the variable 1:")
+        print ("Chosen reco/gen Bin is: {} / {}, Low reco bin value is: {}, High reco bin value is: {}, Lowest value is: {}, Highest value is: {}".format(recobin, genbin, obs_reco_low, obs_reco_high, obs_gen_lowest, obs_gen_highest))
+
+
         print("General information about the variable 2:")
-        print ("Chosen Bin is: {}, Low reco bin value is: {}, High reco bin value is: {}, Lowest value is: {}, Highest value is: {}".format(recobin, obs_reco2_low, obs_reco2_high, obs_gen2_lowest, obs_gen2_highest))
+        print ("Chosen reco/gen Bin is: {} / {}, Low reco bin value is: {}, High reco bin value is: {}, Lowest value is: {}, Highest value is: {}".format(recobin, genbin, obs_reco2_low, obs_reco2_high, obs_gen2_lowest, obs_gen2_highest))
 
 
     if (obs_reco.startswith("mass4l")):
@@ -253,19 +257,48 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
 
         cutobs_reco = "("+obs_reco+">="+str(obs_reco_low)+" && "+obs_reco+"<"+str(obs_reco_high)+")"
 
-        # Double differential measurement addition for the reco observable cut
+        if obs_reco_high == "inf":
+            cutobs_reco = "("+obs_reco+">="+str(obs_reco_low)+")"
 
+        # Double differential measurement addition for the reco observable cut
+       
+        
+        tmp = ''
         if not (obs_reco2 == ''):
-            cutobs_reco += " && ("+obs_reco2+">="+str(obs_reco2_low)+" && "+obs_reco2+"<"+str(obs_reco2_high)+")"
+            tmp = " && ("+obs_reco2+">="+str(obs_reco2_low)+" && "+obs_reco2+"<"+str(obs_reco2_high)+")"
+
+            if obs_reco2_high == "inf":
+                tmp = " && ("+obs_reco2+">="+str(obs_reco2_low)+")"
+                
+            cutobs_reco += tmp
+
+        print(bcolors.HEADER + "cutobs_reco:" + bcolors.ENDC)
+        print(cutobs_reco)
+
 
         # Generator observable cut - important to keep it in the desired bin range
 
+     
+
         cutobs_gen = "("+obs_gen+">="+str(obs_gen_low)+" && "+obs_gen+"<"+str(obs_gen_high)+")"
+
+        if obs_gen_high == "inf":
+            cutobs_gen = "("+obs_gen+">="+str(obs_gen_low)+")"
 
         # Double differential measurement addition for the generator observable cut
 
+        tmp = ''
         if not (obs_reco2 == ''):
-            cutobs_gen += " && ("+obs_gen2+">="+str(obs_gen2_low)+" && "+obs_gen2+"<"+str(obs_gen2_high)+")"
+            tmp = " && ("+obs_gen2+">="+str(obs_gen2_low)+" && "+obs_gen2+"<"+str(obs_gen2_high)+")"
+
+            if obs_gen2_high == "inf":
+                tmp = " && ("+obs_gen2+">="+str(obs_gen2_low)+")"
+                
+            cutobs_gen += tmp
+
+        print(bcolors.HEADER + "cutobs_gen:" + bcolors.ENDC)
+        print(cutobs_gen)
+
 
         # Reco observable cut - if using the _jesup/down variations
 
@@ -273,22 +306,60 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
             cutobs_reco_jesup = "("+obs_reco+"_jesup"+">="+str(obs_reco_low)+" && "+obs_reco+"_jesup"+"<"+str(obs_reco_high)+")"
             cutobs_reco_jesdn = "("+obs_reco+"_jesdn"+">="+str(obs_reco_low)+" && "+obs_reco+"_jesdn"+"<"+str(obs_reco_high)+")"
 
+            if obs_reco_high == "inf":
+                cutobs_reco_jesup = "("+obs_reco+"_jesup"+">="+str(obs_reco_low)+")"
+                cutobs_reco_jesdn = "("+obs_reco+"_jesdn"+">="+str(obs_reco_low)+")"
+           
             # Double differential measurement addition: Reco observable cut - if using the _jesup/down variations
-            if not (obs_reco2 == ''):
-                cutobs_reco_jesup += " && ("+obs_reco2+"_jesup"+">="+str(obs_reco2_low)+" && "+obs_reco2+"_jesup"+"<"+str(obs_reco2_high)+")"
-                cutobs_reco_jesdn += " && ("+obs_reco2+"_jesdn"+">="+str(obs_reco2_low)+" && "+obs_reco2+"_jesdn"+"<"+str(obs_reco2_high)+")"
+            tmp_up = ''
+            tmp_dn = ''
 
+            if not (obs_reco2 == ''):
+                tmp_up = " && ("+obs_reco2+"_jesup"+">="+str(obs_reco2_low)+" && "+obs_reco2+"_jesup"+"<"+str(obs_reco2_high)+")"
+                tmp_dn = " && ("+obs_reco2+"_jesdn"+">="+str(obs_reco2_low)+" && "+obs_reco2+"_jesdn"+"<"+str(obs_reco2_high)+")"
+
+                if obs_reco2_high == "inf":
+                    tmp_up = " && ("+obs_reco2+"_jesup"+">="+str(obs_reco2_low)+")"
+                    tmp_dn = " && ("+obs_reco2+"_jesdn"+">="+str(obs_reco2_low)+")"
+
+                cutobs_reco_jesup += tmp_up
+                cutobs_reco_jesdn += tmp_dn
+
+            print(bcolors.HEADER + "cutobs_reco_jesup:" + bcolors.ENDC)
+            print(cutobs_reco_jesup)
+            print(bcolors.HEADER + "cutobs_reco_jesdn:" + bcolors.ENDC)
+            print(cutobs_reco_jesdn)
 
         # Generator level selection on the out of the fiducial range - i.e. outside of the deisred bin, but still within the high/low range for the observed variable.
         
         cutobs_gen_otherfid = "(("+obs_gen+"<"+str(obs_gen_low)+" && "+obs_gen+">="+str(obs_gen_lowest)+") || ("+obs_gen+">="+str(obs_gen_high)+" && "+obs_gen+"<="+str(obs_gen_highest)+"))"
 
+        if obs_gen_highest == "inf": # can use a check like this because gen and reco bin boundaries are the same - so either reco or gen is ok, but gen is better following the cut logic
+            if obs_gen_high == "inf": # here it must be gen as we for a cut for gen bins while looping over both gen/reco
+                cutobs_gen_otherfid = "(("+obs_gen+"<"+str(obs_gen_low)+" && "+obs_gen+">="+str(obs_gen_lowest)+"))"
+
+            else:
+                cutobs_gen_otherfid = "(("+obs_gen+"<"+str(obs_gen_low)+" && "+obs_gen+">="+str(obs_gen_lowest)+") || ("+obs_gen+">="+str(obs_gen_high)+"))"
+            
+
         # Double differential measurement addition: Generator level selection on the out of the fiducial range - i.e. outside of the deisred bin, but still within the high/low range for the observed variable.
         ### FIXME: For now implementing how it was agreed with LLR, but this should be understood
+        tmp = ''
 
         if not (obs_reco2 == ''):
-            cutobs_gen_otherfid += "|| (("+obs_gen2+"<"+str(obs_gen2_low)+" && "+obs_gen2+">="+str(obs_gen2_lowest)+") || ("+obs_gen2+">="+str(obs_gen2_high)+" && "+obs_gen2+"<="+str(obs_gen2_highest)+"))"
+            tmp = " || (("+obs_gen2+"<"+str(obs_gen2_low)+" && "+obs_gen2+">="+str(obs_gen2_lowest)+") || ("+obs_gen2+">="+str(obs_gen2_high)+" && "+obs_gen2+"<="+str(obs_gen2_highest)+"))"
 
+            if obs_gen2_highest == "inf":
+                if obs_gen2_high == "inf":
+                    tmp = " || (("+obs_gen2+"<"+str(obs_gen2_low)+" && "+obs_gen2+">="+str(obs_gen2_lowest)+"))"
+                
+                else:
+                    tmp = " || (("+obs_gen2+"<"+str(obs_gen2_low)+" && "+obs_gen2+">="+str(obs_gen2_lowest)+") || ("+obs_gen2+">="+str(obs_gen2_high)+"))"
+
+            cutobs_gen_otherfid += tmp
+
+        print(bcolors.HEADER + "cutobs_gen_otherfid:" + bcolors.ENDC)
+        print(cutobs_gen_otherfid)
 
         cutm4l_gen     = "(GENmass4l>"+str(m4l_low)+" && GENmass4l<"+str(m4l_high)+")"
         cutm4l_reco    = "(mass4l>"+str(m4l_low)+" && mass4l<"+str(m4l_high)+")"
@@ -862,6 +933,7 @@ for chan in chans:
             chan, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_reco2, obs_gen2, obs_bins, recobin, genbin))
 
             geteffs(chan, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_reco2, obs_gen2)
+
 
 
 ext=''

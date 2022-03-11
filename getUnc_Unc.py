@@ -74,7 +74,10 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
 
         obs_gen_lowest = obs_bins[0]
         obs_gen_highest = obs_bins[len(obs_bins)-1]
-    
+
+        print("General information about the variable:")
+        print ("Chosen Gen Bin is: {}, Low geb bin value is: {}, High gen bin value is: {}, Lowest value is: {}, Highest value is: {}".format(genbin, obs_gen_low, obs_gen_high, obs_gen_lowest, obs_gen_highest))
+        
     else:
         border_msg("The option of performing a double differential measurement has been selected.")
 
@@ -96,9 +99,12 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
 
         obs_gen2_lowest = str(min(obs2_boundaries_float))
         obs_gen2_highest = str(max(obs2_boundaries_float))
+        
+        print("General information about the variable 1:")
+        print ("Chosen Gen Bin is: {}, Low geb bin value is: {}, High gen bin value is: {}, Lowest value is: {}, Highest value is: {}".format(genbin, obs_gen_low, obs_gen_high, obs_gen_lowest, obs_gen_highest))
 
         print("General information about the variable 2:")
-        print ("Chosen Gen Bin is: {}, Low reco bin value is: {}, High reco bin value is: {}, Lowest value is: {}, Highest value is: {}".format(genbin, obs_reco2_low, obs_reco2_high, obs_gen2_lowest, obs_gen2_highest))
+        print ("Chosen Gen Bin is: {}, Low geb bin value is: {}, High gen bin value is: {}, Lowest value is: {}, Highest value is: {}".format(genbin, obs_gen2_low, obs_gen2_high, obs_gen2_lowest, obs_gen2_highest))
 
 
     if (obs_reco.startswith("mass4l")):
@@ -114,18 +120,28 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
         if (not Sample in Tree): continue
         if (not Tree[Sample]): continue
 
-        if (obs_reco.startswith("njets")):
+        if (obs_reco.startswith("njets")) or (obs_gen_high == "inf"):
             cutobs_gen = "("+obs_gen+">="+str(obs_gen_low)+")"
 
-            if (obs_reco2.startswith("njets")):
+            if (obs_reco2.startswith("njets")) or (obs_gen2_high == "inf"):
                 cutobs_gen  += "&& ("+obs_gen2+">="+str(obs_gen2_low)+")"
+            else:
+                cutobs_gen += "&& ("+obs_gen2+">="+str(obs_gen2_low)+" && "+obs_gen2+"<"+str(obs_gen2_high)+")"
         else:
             cutobs_gen = "("+obs_gen+">="+str(obs_gen_low)+" && "+obs_gen+"<"+str(obs_gen_high)+")"
 
             if not (obs_reco2 == ''):
-                cutobs_gen += "&& ("+obs_gen2+">="+str(obs_gen2_low)+" && "+obs_gen2+"<"+str(obs_gen2_high)+")"
+                if obs_gen2_high == "inf":
+                    cutobs_gen += "&& ("+obs_gen2+">="+str(obs_gen2_low)+")"
+                else:
+                    cutobs_gen += "&& ("+obs_gen2+">="+str(obs_gen2_low)+" && "+obs_gen2+"<"+str(obs_gen2_high)+")"
 
         cutm4l_gen     = "(GENmass4l>"+str(m4l_low)+" && GENmass4l<"+str(m4l_high)+")"
+
+        print(bcolors.HEADER+"cutobs_gen :"+bcolors.ENDC)
+        print(cutobs_gen)
+        print(bcolors.HEADER+"cutm4l_gen :"+bcolors.ENDC)
+        print(cutm4l_gen)
 
         if (channel == "4l"):
             cutchan_gen      = "((abs(GENlep_id[GENlep_Hindex[0]])==11 || abs(GENlep_id[GENlep_Hindex[0]])==13) && (abs(GENlep_id[GENlep_Hindex[2]])==11 || abs(GENlep_id[GENlep_Hindex[2]])==13) )"
