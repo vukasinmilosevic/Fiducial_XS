@@ -22,8 +22,8 @@ def parseOptions():
     global opt, args
     (opt, args) = parser.parse_args()
 
-def interpolate_fun(x, nbins, obsName, DEBUG = 0):
-    border_msg("Start of module `interpolate_fun`")
+def interpolate_full(x, nbins, obsName, DEBUG = 0):
+    border_msg("Start of module `interpolate_full`")
     sys.path.append(datacardInputs)
 
     x_points = [124, 125, 126]
@@ -32,7 +32,6 @@ def interpolate_fun(x, nbins, obsName, DEBUG = 0):
     if obsName=='mass4l': channels=['4mu','2e2mu','4e','4l']
 
     acceptance={}
-    if (DEBUG): print("===>Line#{}:  acceptance: {}".format(get_linenumber(), acceptance))
     dacceptance={}
     efficiency={}
     defficiency={}
@@ -47,10 +46,10 @@ def interpolate_fun(x, nbins, obsName, DEBUG = 0):
     cfactor = {}
     lambdajesup = {}
     lambdajesdn = {}
+    if (DEBUG): print("===>Line#{}:  acceptance: {}".format(get_linenumber(), acceptance))
 
     _temp = __import__('inputs_sig_'+obsName, globals(), locals(), ['acc','dacc','eff','deff','inc_outfrac','binfrac_outfrac','outinratio','doutinratio','inc_wrongfrac', 'inc_outfrac','binfrac_wrongfrac','cfactor','lambdajesup','lambdajesdn'], -1)
     acc_ggH_powheg = _temp.acc
-    if (DEBUG): print("===>Line#{}:  acc_ggH_powheg: {}".format(get_linenumber(), acc_ggH_powheg))
     dacc_ggH_powheg = _temp.dacc
     eff_ggH_powheg = _temp.eff
     deff_ggH_powheg = _temp.deff
@@ -65,16 +64,15 @@ def interpolate_fun(x, nbins, obsName, DEBUG = 0):
     cfactor_ggH_powheg = _temp.cfactor
     lambdajesup_ggH_powheg = _temp.lambdajesup
     lambdajesdn_ggH_powheg = _temp.lambdajesdn
+    if (DEBUG): print("===>Line#{}:  acc_ggH_powheg: {}".format(get_linenumber(), acc_ggH_powheg))
 
     for channel in channels:
         for obsBin in range(0, nbins-1):
             for recoBin in range(0, nbins-1):
-                border_msg("Channel: {:5} obsBin: {:3}  recoBin: {}".format(channel, obsBin, recoBin))
-                thread='ggH_powheg_JHUgen_'+str(x)+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(recoBin)
-                print("=== ===>{:15} : {}".format("obsName", obsName))
-                print("=== ===>{:15} : {}".format("channel", channel))
-                print("=== ===>{:15} : {}".format("x_points", x_points))
-                print("=== ===>{:15} : {}".format("dict key", thread))
+                border_msg("obsName: {:11} Channel: {:5} obsBin: {:3}  recoBin: {}".format(obsName, channel, obsBin, recoBin))
+
+                key_powheg_MX = 'ggH_powheg_JHUgen_'+str(x)+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(recoBin)
+                print("=== ===>{:15} : {}".format("dict key", key_powheg_MX))
 
                 # INFO: Step: 1: Grab info from inputs_sig_*.py and get an array for three different mass points [124, 125, 126] using corresponding acc, eff, etc.
                 acc_points = [acc_ggH_powheg['ggH_powheg_JHUgen_124_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(recoBin)],acc_ggH_powheg['ggH_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(recoBin)],acc_ggH_powheg['ggH_powheg_JHUgen_126_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(recoBin)]]
@@ -115,21 +113,21 @@ def interpolate_fun(x, nbins, obsName, DEBUG = 0):
                 spl_lambdajesdn_points = interpolate.splrep(x_points, lambdajesdn_points, k=2)
 
                 # INFO: Step - 3: Get the value corresponding to "x" based on the interpolation line done above
-                acceptance[thread]=float(interpolate.splev(x, spl_acc_points))
-                dacceptance[thread]= float(interpolate.splev(x, spl_dacc_points))
-                efficiency[thread]=float(interpolate.splev(x, spl_eff_points))
-                defficiency[thread]=float(interpolate.splev(x, spl_deff_points))
-                inc_wrongfrac[thread]=float(interpolate.splev(x, spl_inc_wrongfrac_points))
-                binfrac_outfrac[thread]=float(interpolate.splev(x, spl_binfrac_outfrac_points))
-                outinratio[thread]=float(interpolate.splev(x, spl_outinratio_points))
-                doutinratio[thread]=float(interpolate.splev(x, spl_doutinratio_points))
-                # acc_4l[thread]=float(interpolate.splev(x, spl_acc_4l_points))
-                # dacc_4l[thread]=float(interpolate.splev(x, spl_dacc_4l_points))
-                inc_outfrac[thread]= float(interpolate.splev(x, spl_inc_outfrac_points))
-                binfrac_wrongfrac[thread]= float(interpolate.splev(x, spl_binfrac_wrongfrac_points))
-                cfactor[thread]= float(interpolate.splev(x, spl_cfactor_points))
-                lambdajesup[thread]= float(interpolate.splev(x, spl_lambdajesup_points))
-                lambdajesdn[thread]= float(interpolate.splev(x, spl_lambdajesdn_points))
+                acceptance[key_powheg_MX]=float(interpolate.splev(x, spl_acc_points))
+                dacceptance[key_powheg_MX]= float(interpolate.splev(x, spl_dacc_points))
+                efficiency[key_powheg_MX]=float(interpolate.splev(x, spl_eff_points))
+                defficiency[key_powheg_MX]=float(interpolate.splev(x, spl_deff_points))
+                inc_wrongfrac[key_powheg_MX]=float(interpolate.splev(x, spl_inc_wrongfrac_points))
+                binfrac_outfrac[key_powheg_MX]=float(interpolate.splev(x, spl_binfrac_outfrac_points))
+                outinratio[key_powheg_MX]=float(interpolate.splev(x, spl_outinratio_points))
+                doutinratio[key_powheg_MX]=float(interpolate.splev(x, spl_doutinratio_points))
+                # acc_4l[key_powheg_MX]=float(interpolate.splev(x, spl_acc_4l_points))
+                # dacc_4l[key_powheg_MX]=float(interpolate.splev(x, spl_dacc_4l_points))
+                inc_outfrac[key_powheg_MX]= float(interpolate.splev(x, spl_inc_outfrac_points))
+                binfrac_wrongfrac[key_powheg_MX]= float(interpolate.splev(x, spl_binfrac_wrongfrac_points))
+                cfactor[key_powheg_MX]= float(interpolate.splev(x, spl_cfactor_points))
+                lambdajesup[key_powheg_MX]= float(interpolate.splev(x, spl_lambdajesup_points))
+                lambdajesdn[key_powheg_MX]= float(interpolate.splev(x, spl_lambdajesdn_points))
 
                 print("=== ===>{:15} : {}".format("acceptance", acceptance))
 
@@ -152,9 +150,11 @@ def interpolate_fun(x, nbins, obsName, DEBUG = 0):
                 lambdajesdn_ggH_powheg.update(lambdajesdn)
                 if (DEBUG): print("=== ===>{:15} : {}".format("acc_ggH_powheg", acc_ggH_powheg))
 
-    os.system('cp '+datacardInputs+'/inputs_sig_'+opt.OBSNAME+'.py '+datacardInputs+'/inputs_sig_'+opt.OBSNAME+'_beforeInterpolation.py')
-    with open(datacardInputs+'/inputs_sig_'+obsName+'.py', 'w') as f:
-        print("going write interpolated values   ")
+    OutputDictFileName = datacardInputs+'/inputs_sig_'+obsName+'.py'
+    os.system('cp ' + OutputDictFileName + " " + OutputDictFileName.replace('.py','_beforeInterpolation.py'))
+
+    with open( OutputDictFileName, 'w') as f:
+        print("going write interpolated values  in  "+OutputDictFileName)
         f.write('acc = '+str(acc_ggH_powheg)+' \n')
         f.write('dacc = '+str(dacc_ggH_powheg)+' \n')
         f.write('eff = '+str(eff_ggH_powheg)+' \n')
@@ -180,5 +180,5 @@ if __name__ == "__main__":
 
     print("Obs Name: {:15}  nBins: {:2}  bins: {}".format(opt.OBSNAME, nbins, observableBins))
 
-    interpolate_fun(125.38, nbins, opt.OBSNAME, opt.DEBUG)
+    interpolate_full(125.38, nbins, opt.OBSNAME, opt.DEBUG)
     print("Interpolation completed... :) ")
