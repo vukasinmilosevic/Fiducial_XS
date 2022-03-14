@@ -129,7 +129,7 @@ Run the interpolation step for powheg sample:
 2.2.4 Running the interpolation step
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Run the interpolation step for NNLOPS sample. For NNLOPS sample we don't have M124 and M126 MC samples.
-We assume that the the ratio for the acceptance for M125 and M124.38 is same for both NNLOPS and powheg.
+We assume that the the ratio for the acceptance for M125 and M125.38 is same for both NNLOPS and powheg.
 Then, we compute this ratio from powheg sample and get the values for NNLOPS sample.
 
 NOTE: Run this step after the uncertainty step. As this will also update the pdf and QCD scale uncertainty for NNLOPS.
