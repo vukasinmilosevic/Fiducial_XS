@@ -8,7 +8,7 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-    
+
 
 def border_msg(msg):
     """Print message inside the border
@@ -24,7 +24,7 @@ def border_msg(msg):
     row = len(msg)+4
     h = ''.join(['+'] + ['-' *row] + ['+'])
     result= h + '\n'"|  "+msg+"  |"'\n' + h
-    print(result)
+    print(bcolors.OKGREEN + result +  bcolors.ENDC)
 
 def fixed_border_msg(msg):
     border = "="*51

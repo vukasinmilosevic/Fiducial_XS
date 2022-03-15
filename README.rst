@@ -165,6 +165,9 @@ Hardcoded Informations
     1D_Observables:
       mass4l:
         - bins: "|105.0|140.0|"
+    2D_Observables:
+      mass4l:
+        - bins: "|105.0|140.0|"
   ```
 
-  In this YAML file the two names `Observables` and `1D_Observables` should remain same, else the code will give error.
+  In this YAML file the two names `Observables`, `1D_Observables` and `2D_Observables` should remain same, else the code will give error.

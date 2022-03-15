@@ -170,8 +170,8 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
     # FIXME: directory name hardcoded
     currentDir = os.getcwd(); os.chdir('./templates/')
 
-    print("==> Compile the package main_fiducialXSTemplates...")
-    cmd = 'make'; processCmd(cmd, get_linenumber())
+    print("==> Remove the executable and Compile the package main_fiducialXSTemplates...")
+    cmd = 'rm main_fiducialXSTemplates; make'; processCmd(cmd, get_linenumber())
     DirectoryToCreate = 'templatesXS/DTreeXS_'+opt.OBSNAME+'/13TeV/'
     print('[INFO] Create directory: {}'.format(DirectoryToCreate))
     print('[INFO] compile the script inside the template directory')

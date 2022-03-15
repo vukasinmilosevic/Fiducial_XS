@@ -183,7 +183,6 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
 
     # Wrong signal combination events
-
     if (channel=='4mu'):
         #p1_1_8 = RooRealVar("CMS_fakeH_p1_1_8","p1_1_8", 150.0, 135.0, 185.)
         #p2_1_8 = RooRealVar("CMS_fakeH_p2_1_8","p2_1_8", 20.0, 10.0, 40.0)
@@ -227,6 +226,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     binfrac_wrongfrac_ttH=binfrac_wrongfrac["ttH_powheg_JHUgen_125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
 
     if (channel=='4e'):
+        # FIXME: Check these values
         n_fakeH = (0.24*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.20*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.10*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
     if (channel=='4mu'):
         n_fakeH = (0.45*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.38*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.20*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)

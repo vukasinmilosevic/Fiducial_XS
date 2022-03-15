@@ -36,32 +36,35 @@ parser.add_argument( '-model', dest='modelNames', default="SM_125,SMup_125,SMdn_
 parser.add_argument( '-p', dest='NtupleDir', default="/eos/home-v/vmilosev/Skim_2018_HZZ/WoW/", help='Path of ntuples')
 parser.add_argument( '-m', dest='HiggsMass', default=125.0, type=float, help='Higgs mass')
 parser.add_argument( '-r', dest='RunCommand', default=0, type=int, choices=[0, 1], help="if 1 then it will run the commands else it will just print the commands")
+parser.add_argument( '-obs', dest='OneDOr2DObs', default=1, type=int, choices=[1, 2], help="1 for 1D obs, 2 for 2D observable")
 
 args = parser.parse_args()
 
+# create a directory named "log" to save nohup outputs.
 if not os.path.isdir('log'): os.mkdir('log')
 
-
 InputYAMLFile = args.inYAMLFile
+ObsToStudy = "1D_Observables" if args.OneDOr2DObs == 1 else "2D_Observables"
 
 with open(InputYAMLFile, 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
-    if ( ("Observables" not in cfg) or ("1D_Observables" not in cfg['Observables']) ) :
+    if ( ("Observables" not in cfg) or (ObsToStudy not in cfg['Observables']) ) :
         print('''No section named 'observable' or sub-section name '1D-Observable' found in file {}.
                  Please check your YAML file format!!!'''.format(InputYAMLFile))
 
-    if "1D_Observables" in cfg['Observables']:
-        for obsName, obsBin in cfg['Observables']['1D_Observables'].items():
+
+    if ObsToStudy in cfg['Observables']:
+        for obsName, obsBin in cfg['Observables'][ObsToStudy].items():
             print("="*51)
             print("Observable: {:11} Bins: {}".format(obsName, obsBin['bins']))
             if (args.step == 1):
                 border_msg("Running the efficiencies step")
                 for channel in args.channels:
                     print("==> channel: {}".format(channel))
-                    command = 'nohup python -u efficiencyFactors.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" -c "{channel}" >& log/effs_{obsName}_{channel}.log &'.format(
+                    command = 'nohup python -u efficiencyFactors.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" -c "{channel}" >& log/effs_{obsName_log}_{channel}.log &'.format(
                     # command = 'python -u efficiencyFactors.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" -c "{channel}"'.format(
-                        obsName = obsName, obsBins = obsBin['bins'], channel = channel
+                        obsName = obsName, obsBins = obsBin['bins'], channel = channel, obsName_log = obsName.replace(" ","_")
                     )
                     print("Command: {}".format(command))
                     if (args.RunCommand): os.system(command)
