@@ -1,3 +1,9 @@
+import logging
+import os
+from inspect import currentframe
+from subprocess import *
+
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -8,7 +14,6 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-
 
 def border_msg(msg):
     """Print message inside the border
@@ -30,6 +35,10 @@ def fixed_border_msg(msg):
     border = "="*51
     result = border + "\n" + msg + "\n" + border
     print(result)
+
+def get_linenumber():
+    cf = currentframe()
+    return cf.f_back.f_lineno
 
 def processCmd(cmd, lineNumber, quiet = 0):
     """This function is defined for processing of os command
@@ -61,3 +70,31 @@ def processCmd(cmd, lineNumber, quiet = 0):
         print ('Output:\n   [{}] \n'.format(output))
 
     return output
+
+class ColorLogFormatter(logging.Formatter):
+     """A class for formatting colored logs.
+     Reference: https://stackoverflow.com/a/70796089/2302094
+     """
+
+     # FORMAT = "%(prefix)s%(msg)s%(suffix)s"
+     FORMAT = "\n[%(levelname)s] - [%(filename)s:#%(lineno)d] - %(prefix)s%(levelname)s - %(message)s %(suffix)s\n"
+    #  FORMAT = "\n%(asctime)s - [%(filename)s:#%(lineno)d] - %(prefix)s%(levelname)s - %(message)s %(suffix)s\n"
+
+     LOG_LEVEL_COLOR = {
+         "DEBUG": {'prefix': bcolors.OKBLUE, 'suffix': bcolors.ENDC},
+         "INFO": {'prefix': bcolors.OKGREEN, 'suffix': bcolors.ENDC},
+         "WARNING": {'prefix': bcolors.WARNING, 'suffix': bcolors.ENDC},
+         "ERROR": {'prefix': bcolors.FAIL+bcolors.BOLD, 'suffix': bcolors.ENDC+bcolors.ENDC},
+         "CRITICAL": {'prefix': bcolors.FAIL, 'suffix': bcolors.ENDC},
+     }
+
+     def format(self, record):
+         """Format log records with a default prefix and suffix to terminal color codes that corresponds to the log level name."""
+         if not hasattr(record, 'prefix'):
+             record.prefix = self.LOG_LEVEL_COLOR.get(record.levelname.upper()).get('prefix')
+
+         if not hasattr(record, 'suffix'):
+             record.suffix = self.LOG_LEVEL_COLOR.get(record.levelname.upper()).get('suffix')
+
+         formatter = logging.Formatter(self.FORMAT, datefmt='%m/%d/%Y %I:%M:%S %p' )
+         return formatter.format(record)

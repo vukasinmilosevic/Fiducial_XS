@@ -148,7 +148,7 @@ Things to fix
 Specific
 ^^^^^^^^^^^^^^^^^^^
 1. Hardcoded paths in `LoadData.py <https://github.com/vukasinmilosevic/Fiducial_XS/edit/CMSSW_10_X_VM_docs/python/LoadData.py#8/>`_
-
+1. Currently, the framework will work if all samples exists in the same directory, including the Z+X files.
 
 General
 ^^^^^^^^^^^^^^^^^^

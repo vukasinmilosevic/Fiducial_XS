@@ -8,26 +8,29 @@ import optparse
 import os
 import sys
 from decimal import *
-from inspect import currentframe
-from subprocess import *
 
 from ROOT import *
 
 # INFO: Following items are imported from either python directory or Inputs
-from Input_Info import *
+from Input_Info import datacardInputs, combineOutputs
 from createXSworkspace import createXSworkspace
-from higgs_xsbr_13TeV import *
-from sample_shortnames import *
+from higgs_xsbr_13TeV import higgs4l_br, higgsZZ_br, filtereff, higgs_xs
+from sample_shortnames import sample_shortnames, background_samples
+from Utils import  logging, ColorLogFormatter, processCmd, get_linenumber
+from read_bins import read_bins
 
-
-def get_linenumber():
-    cf = currentframe()
-    return cf.f_back.f_lineno
 
 # NOTE: append the directory `datacardInputs`, as .py files inside is going to load using import.
 #       load XS-specific modules
 sys.path.append('./'+datacardInputs)
 
+#  Setup logger
+logger = logging.getLogger(__name__)
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(ColorLogFormatter())
+logger.addHandler(stream_handler)
+
+log_level = logging.DEBUG # default
 
 ### Define function for parsing options
 def parseOptions():
@@ -65,10 +68,20 @@ def parseOptions():
     parser.add_option('',   '--calcSys', action='store_true', dest='SYS', default=False, help='Calculate Systematic Uncertainties (in addition to stat+sys)')
     parser.add_option('',   '--lumiscale', type='string', dest='LUMISCALE', default='1.0', help='Scale yields')
     parser.add_option('',   '--inYAMLFile', dest='inYAMLFile', type='string', default="Inputs/observables_list.yml", help='Input YAML file having observable names and bin information')
+    parser.add_option('-v', '--verbose', dest='verbose', action='count', help="Increase verbosity (specify multiple times for more)")
+    parser.add_option("-l", "--logLevel", action="store", dest="logLevel", help="Change log verbosity(WARNING: 0, INFO: 1, DEBUG: 2)")
 
     # store options and arguments as global variables
-    global opt, args
+    global opt, args, log_level
     (opt, args) = parser.parse_args()
+
+    if opt.logLevel == "0":
+        log_level = logging.WARNING # default
+    elif opt.logLevel == "1":
+        log_level = logging.INFO
+    elif opt.logLevel == "2":
+        log_level = logging.DEBUG
+    logger.setLevel( log_level)
 
     # prepare the global flag if all the step should be run
     runAllSteps = not(opt.effOnly or opt.templatesOnly or opt.uncertOnly or opt.resultsOnly or opt.finalplotsOnly)
@@ -86,42 +99,6 @@ def parseOptions():
         if not os.path.isdir(os.getcwd()+'/'+dir+'/'):
             parser.error(os.getcwd()+'/'+dir+'/ is not a directory. Exiting...')
             sys.exit()
-
-### Define function for processing of os command
-def processCmd(cmd, lineNumber, quiet = 0):
-    """This function is defined for processing of os command
-
-    Args:
-        cmd (str): The command to be run on the terminal
-        lineNumber (int): The line number from where this function was invoked
-        quiet (int, optional): Want to run the command in quite mode (Don't print anything) or print everything. Defaults to 0.
-
-    Raises:
-        RuntimeError: If the command failed then exit the program with exit code
-
-    Returns:
-        str: The full output of the command
-    """
-    output = '\n'
-    print("="*51)
-    print("[INFO]: Current working directory: {0}".format(os.getcwd()))
-    print("[INFO]: {}#{} command:\n\t{}".format(os.path.basename(__file__), lineNumber, cmd))
-    p = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT,bufsize=-1)
-    for line in iter(p.stdout.readline, ''):
-        output=output+str(line)
-        # FIXME: We don't need print statement here
-        #        If quite mode is set to 1 then it won't
-        #        print anything, if not then it will enter
-        #        the condition `if (not quite)` below and print outputs
-        # print (line, end=' ') # works with python3
-        # print line,
-    p.stdout.close()
-    if p.wait() != 0:
-        raise RuntimeError("%r failed, exit status: %d" % (cmd, p.returncode))
-
-    if (not quiet):
-        print ('Output:\n   [{}] \n'.format(output))
-    return output
 
 ### Extract the all efficiency factors (inclusive/differential, all bins, all final states)
 def extractFiducialEfficiencies(obsName, observableBins, modelName):
@@ -151,28 +128,34 @@ def extractFiducialEfficiencies(obsName, observableBins, modelName):
 def extractBackgroundTemplatesAndFractions(obsName, observableBins):
     global opt
 
-    print("[INFO] Obs Name: {:15}\tBins: {}".format(obsName, observableBins))
+    logger.debug("[INFO] Obs Name: {:15}\tBins: {}".format(obsName, observableBins))
 
     fractionBkg = {}; lambdajesdnBkg={}; lambdajesupBkg={}
-    #if exists, from inputs_bkg_{obsName} import observableBins, fractionsBackground, jesLambdaBkgUp, jesLambdaBkgDn
-    if os.path.isfile(datacardInputs+'/inputs_bkg_'+{0:'',1:'z4l_'}[int(opt.doZ4l)]+obsName+'.py'):
-        _temp = __import__('inputs_bkg_'+{0:'',1:'z4l_'}[int(opt.doZ4l)]+obsName, globals(), locals(), ['observableBins','fractionsBackground','lambdajesupBkg','lambdajesdnBkg'], -1)
+
+    if os.path.isfile(datacardInputs+'/inputs_bkg_'+{0:'',1:'z4l_'}[int(opt.doZ4l)]+obsName.replace(" ","_")+'.py'):
+        _temp = __import__('inputs_bkg_'+{0:'',1:'z4l_'}[int(opt.doZ4l)]+obsName.replace(" ","_"), globals(), locals(), ['observableBins','fractionsBackground','lambdajesupBkg','lambdajesdnBkg'], -1)
         if (hasattr(_temp,'observableBins') and _temp.observableBins == observableBins and not opt.redoTemplates):
-            print ('[Fractions already exist for the given binning. Skipping templates/shapes... ]')
+            logger.info ('[Fractions already exist for the given binning. Skipping templates/shapes... ]')
             return
         if (hasattr(_temp,'fractionsBackground') and hasattr(_temp,'lambdajesupBkg') and hasattr(_temp,'lambdajesdnBkg')):
             fractionBkg = _temp.fractionsBackground
             lambdajesupBkg = _temp.lambdajesupBkg
             lambdajesdnBkg = _temp.lambdajesdnBkg
 
-    print('[INFO] Preparing bkg shapes and fractions, for bins with boundaries {}'.format(observableBins))
+    logger.debug('[INFO] Preparing bkg shapes and fractions, for bins with boundaries {}'.format(observableBins))
     # save/create/prepare directories and compile templates script
     # FIXME: directory name hardcoded
     currentDir = os.getcwd(); os.chdir('./templates/')
 
+    # Here, rm command is mandatory, just to ensure that make works. If make command files
+    #   then this can pick older executable. So, to avoid this we first delete the executable
     print("==> Remove the executable and Compile the package main_fiducialXSTemplates...")
-    cmd = 'rm main_fiducialXSTemplates; make'; processCmd(cmd, get_linenumber())
-    DirectoryToCreate = 'templatesXS/DTreeXS_'+opt.OBSNAME+'/13TeV/'
+    cmd = 'rm main_fiducialXSTemplates; make';
+    processCmd(cmd, get_linenumber())
+    # FIXME: this directory name is searched in fiducialXSTemplates.C
+    # FIXME: Try to link the two automatically.
+    # FIXME: Also, this name is passed as one of arguments of `main_fiducialXSTemplates()`
+    DirectoryToCreate = 'templatesXS/DTreeXS_'+(opt.OBSNAME).replace(" ","_")+'/13TeV/'
     print('[INFO] Create directory: {}'.format(DirectoryToCreate))
     print('[INFO] compile the script inside the template directory')
     cmd = 'mkdir -p '+DirectoryToCreate; processCmd(cmd, get_linenumber(),1)
@@ -203,12 +186,39 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
             tmpSrcDir = opt.SOURCEDIR # FIXME: if the paths for ZX CR is different then we need to update this
         # FIXME: Try to understand this syntax
         fitTypeZ4l = [['none','doRatio'],['doZ4l','doZ4l']][opt.doZ4l][opt.doRatio]
-        cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+tmpObsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS+'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0'
-        output = processCmd(cmd, get_linenumber())
-        print('###\n[INFO] output: \n\t{}\n###'.format(output))
+        VarArguments = tmpObsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS
+        logger.info("tmpObsName: "+str(tmpObsName))
+        logger.info("opt.OBSBINS: "+str(opt.OBSBINS))
+        logger.info("VarArguments: "+str(VarArguments))
+        binDetails = read_bins(opt.OBSBINS)
+        logger.info(binDetails)
+        logger.info("length: len(binDetails): = "+str(len(binDetails)))
+        # logger.info(binDetails[0])
+        # logger.info(binDetails[0][0])
+        # logger.info(binDetails[0][1])
+        # test = '|' + binDetails[0][0][0] + '|' +  binDetails[0][0][1] + '|'
+        # logger.info(test)
+        # test = '|' + binDetails[0][1][0] + '|' +  binDetails[0][1][1] + '|'
+        # logger.info(test)
+        # VarArguments = tmpObsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS + " " + tmpObsName2 + ' "'+opt.OBSBINS2+'" "'+opt.OBSBINS2
+        if ("vs" not in opt.OBSBINS ):
+            logger.error("test message")
+            cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+tmpObsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS+'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0'
+            output = processCmd(cmd, get_linenumber())
+            tmp_fracs = output.split("[Bin fraction: ")
+            print('[INFO] tmp_fracs: {}'.format(tmp_fracs))
+            print('[INFO] Length of observables bins: {}'.format(len(observableBins)))
+        else:
+            for nBins_ in range(len(binDetails)):
+                test0= '|' + binDetails[nBins_][0][0] + '|' +  binDetails[nBins_][0][1] + '|'
+                test1= '|' + binDetails[nBins_][1][0] + '|' +  binDetails[nBins_][1][1] + '|'
+                logger.info(str(test0)+"\t"+str(test1))
+                tmpObsName = obsName.split('vs')
+                cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+tmpObsName[0]+' "'+test0+'" "'+test0 +'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0' + ' '+tmpObsName[1]+' "'+test1+'" "'+test1 +'"'
+                output = processCmd(cmd, get_linenumber())
+                tmp_fracs = output.split("[Bin fraction: ")
+                print('[INFO] tmp_fracs: {}'.format(tmp_fracs))
 
-        tmp_fracs = output.split("[Bin fraction: ")
-        print('[INFO] tmp_fracs: {}'.format(tmp_fracs))
         print('[INFO] Length of observables bins: {}'.format(len(observableBins)))
 
         for obsBin in range(0,len(observableBins)-1):
@@ -741,7 +751,7 @@ def runFiducialXS():
 
     ### Run for the given observable
     obsName = opt.OBSNAME
-    print('\n[INFO] Running fiducial XS computation for - {} - bin boundaries: {}'.format(obsName, observableBins))
+    logger.info('\n[INFO] Running fiducial XS computation for - {} - bin boundaries: {}'.format(obsName, observableBins))
 
     # FIXME: Now we are extracing efficiencies separately. So, don't need below part.
     #        confirm and delete this
@@ -757,17 +767,17 @@ def runFiducialXS():
     #        extractUncertainties(obsName, observableBins[obsBin], observableBins[obsBin+1])
 
     ## Prepare templates for all reco bins and final states
-    print("Options:\n\trunAllSteps: {}\n\topt.templatesOnly {}\n".format(runAllSteps,opt.templatesOnly))
+    logger.debug("Options:\n\trunAllSteps: {}\n\topt.templatesOnly {}\n".format(runAllSteps,opt.templatesOnly))
 
     # FIXME: Understand why in step 4; runAllSteps is False, while in step 5 its True
     if (runAllSteps or opt.templatesOnly):
         extractBackgroundTemplatesAndFractions(obsName, observableBins)
 
-    print("\n[INFO] runAllSteps: {runAllSteps}".format(runAllSteps=runAllSteps))
+    logger.debug("\n[INFO] runAllSteps: {runAllSteps}".format(runAllSteps=runAllSteps))
     ## Create the asimov dataset
     if (runAllSteps):
-        print('='*51)
-        print('[INFO] Create asimov dataset...')
+        logger.debug('='*51)
+        logger.debug('[INFO] Create asimov dataset...')
         resultsXS = {}
         #asimovDataModelName = "ggH_powheg_JHUgen_125"
         cmd = 'python python/addConstrainedModel.py -l -q -b --obsName="'+opt.OBSNAME+'" --obsBins="'+opt.OBSBINS+'"'
@@ -775,11 +785,11 @@ def runFiducialXS():
         asimovDataModelName = "SM_125" # FIXME: Is it fine if the model name is hardcoded here. Since model (ASIMOVMODEL) is also an input argument
         asimovPhysicalModel = "v2" # FIXME: Same above message.
 
-        print("{}\n[DEBUG]: {}#{} command:\n".format("="*51,os.path.basename(__file__),get_linenumber())) # Just print filename and line number; Added for debug
+        logger.debug("{}\n[DEBUG]: {}#{} command:\n".format("="*51,os.path.basename(__file__),get_linenumber())) # Just print filename and line number; Added for debug
         produceDatacards(obsName, observableBins, asimovDataModelName, asimovPhysicalModel)
-        print("{}\n[DEBUG]: {}#{} command:\n".format("="*51,os.path.basename(__file__),get_linenumber())) # Just print filename and line number; Added for debug
+        logger.debug("{}\n[DEBUG]: {}#{} command:\n".format("="*51,os.path.basename(__file__),get_linenumber())) # Just print filename and line number; Added for debug
         resultsXS = createAsimov(obsName, observableBins, asimovDataModelName, resultsXS, asimovPhysicalModel)
-        print("resultsXS: \n", resultsXS)
+        logger.debug("resultsXS: \n", resultsXS)
 
         # plot the asimov predictions for data, signal, and backround in differential bins
         if (not obsName.startswith("mass4l")):
@@ -787,7 +797,7 @@ def runFiducialXS():
             if (opt.UNBLIND): cmd = cmd + ' --unblind'
             output = processCmd(cmd, get_linenumber())
             sys.exit()
-            print(output)
+            logger.debug(output)
 
     ## Extract the results
     # use constrained SM

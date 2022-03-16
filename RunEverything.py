@@ -1,4 +1,3 @@
-import sys
 import os
 import argparse
 import yaml
@@ -13,7 +12,7 @@ except ImportError as e:
     raise ImportError("Check if you run `source setup.sh`. If not please run it.\n")
 
 try:
-    from Utils import *
+    from Utils import logging, ColorLogFormatter, border_msg
 except Exception as e:
     print (e)
     raise ImportError("Check if you run `source setup.sh`. If not please run it.\n")
@@ -37,8 +36,20 @@ parser.add_argument( '-p', dest='NtupleDir', default="/eos/home-v/vmilosev/Skim_
 parser.add_argument( '-m', dest='HiggsMass', default=125.0, type=float, help='Higgs mass')
 parser.add_argument( '-r', dest='RunCommand', default=0, type=int, choices=[0, 1], help="if 1 then it will run the commands else it will just print the commands")
 parser.add_argument( '-obs', dest='OneDOr2DObs', default=1, type=int, choices=[1, 2], help="1 for 1D obs, 2 for 2D observable")
-
+parser.add_argument(
+     "--log-level",
+     default=logging.DEBUG,
+     type=lambda x: getattr(logging, x),
+     help="Configure the logging level."
+     )
 args = parser.parse_args()
+
+# Setup logger
+logger = logging.getLogger(__name__)
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(ColorLogFormatter())
+logger.addHandler(stream_handler)
+logger.setLevel(args.log_level)
 
 # create a directory named "log" to save nohup outputs.
 if not os.path.isdir('log'): os.mkdir('log')
@@ -50,60 +61,61 @@ with open(InputYAMLFile, 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
     if ( ("Observables" not in cfg) or (ObsToStudy not in cfg['Observables']) ) :
-        print('''No section named 'observable' or sub-section name '1D-Observable' found in file {}.
+        logger.error('''No section named 'observable' or sub-section name '1D-Observable' found in file {}.
                  Please check your YAML file format!!!'''.format(InputYAMLFile))
 
 
     if ObsToStudy in cfg['Observables']:
         for obsName, obsBin in cfg['Observables'][ObsToStudy].items():
-            print("="*51)
-            print("Observable: {:11} Bins: {}".format(obsName, obsBin['bins']))
+            logger.info("="*51)
+            logger.info("Observable: {:11} Bins: {}".format(obsName, obsBin['bins']))
             if (args.step == 1):
-                border_msg("Running the efficiencies step")
+                border_msg("Running efficiencies step: "+ obsName)
                 for channel in args.channels:
-                    print("==> channel: {}".format(channel))
+                    logger.info("==> channel: {}".format(channel))
                     command = 'nohup python -u efficiencyFactors.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" -c "{channel}" >& log/effs_{obsName_log}_{channel}.log &'.format(
                     # command = 'python -u efficiencyFactors.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" -c "{channel}"'.format(
                         obsName = obsName, obsBins = obsBin['bins'], channel = channel, obsName_log = obsName.replace(" ","_")
                     )
-                    print("Command: {}".format(command))
+                    logger.info("Command: {}".format(command))
                     if (args.RunCommand): os.system(command)
                 # os.system('ps -t')
 
             if (args.step == 2):
-                border_msg("Running collect inputs")
+                border_msg("Running collect inputs: "+ obsName)
                 collect(obsName)
-                print("="*51)
+                logger.info("="*51)
 
-                if (not obsName.startswith("mass4l")):
+                # FIXME: Currently the plotter is only working for 1D vars.
+                if ((not obsName.startswith("mass4l") ) or (ObsToStudy != "2D_Observables")):
                     border_msg("Running plotter to plot 2D signal efficiencies")
                     command = 'python python/plot2dsigeffs.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" --inYAMLFile="{inYAMLFile}"'.format(
                         obsName = obsName, obsBins = obsBin['bins'], inYAMLFile = args.inYAMLFile
                     )
-                    print("Command: {}".format(command))
+                    logger.info("Command: {}".format(command))
                     if (args.RunCommand): os.system(command)
 
             if (args.step == 3):
-                border_msg("Running getUnc")
+                border_msg("Running getUnc: "+ obsName)
                 # command = 'python -u getUnc_Unc.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" >& log/unc_{obsName}.log &'.format(
                 command = 'python -u getUnc_Unc.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}"'.format(
                         obsName = obsName, obsBins = obsBin['bins']
                 )
-                print("Command: {}".format(command))
+                logger.info("Command: {}".format(command))
                 if (args.RunCommand): os.system(command)
 
 
             if (args.step == 4):
-                border_msg("Running Background template maker")
+                border_msg("Running Background template maker: "+ obsName)
                 # FIXME: Check if we need modelNames in step-4 or not
                 command = 'python -u runHZZFiducialXS.py --dir="{NtupleDir}" --obsName="{obsName}" --obsBins="{obsBins}" --modelNames {modelNames} --redoTemplates --templatesOnly '.format(
                         obsName = obsName, obsBins = obsBin['bins'], NtupleDir = args.NtupleDir, modelNames= args.modelNames
                 )
-                print("Command: {}".format(command))
+                logger.info("Command: {}".format(command))
                 if (args.RunCommand): os.system(command)
 
             if (args.step == 5):
-                border_msg("Running final measurement and plotters")
+                border_msg("Running final measurement and plotters: "+ obsName)
                 # Copy model from model directory to combine path
                 CMSSW_BASE = os.getenv('CMSSW_BASE')
                 copyCommand = 'cp models/HZZ4L*.py {CMSSW_BASE}/src/HiggsAnalysis/CombinedLimit/python/'.format(CMSSW_BASE=CMSSW_BASE)
@@ -113,5 +125,5 @@ with open(InputYAMLFile, 'r') as ymlfile:
                 command = 'python -u runHZZFiducialXS.py --obsName="{obsName}" --obsBins="{obsBins}"  --calcSys --asimovMass {HiggsMass} --modelNames {modelNames}'.format(
                         obsName = obsName, obsBins = obsBin['bins'], HiggsMass = args.HiggsMass, modelNames= args.modelNames
                 )
-                print("Command: {}".format(command))
+                logger.info("Command: {}".format(command))
                 if (args.RunCommand): os.system(command)

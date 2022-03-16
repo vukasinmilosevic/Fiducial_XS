@@ -2,7 +2,7 @@ import sys
 import os
 
 # INFO: Following items are imported from either python directory or Inputs
-from Input_Info import *
+from Input_Info import datacardInputs
 
 sys.path.append('./'+datacardInputs)
 
