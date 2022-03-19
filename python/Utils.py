@@ -77,7 +77,8 @@ class ColorLogFormatter(logging.Formatter):
      """
 
      # FORMAT = "%(prefix)s%(msg)s%(suffix)s"
-     FORMAT = "\n[%(levelname)s] - [%(filename)s:#%(lineno)d] - %(prefix)s%(levelname)s - %(message)s %(suffix)s\n"
+    #  FORMAT = "\n[%(levelname)s] - [%(filename)s:#%(lineno)d] - %(prefix)s%(levelname)s - %(message)s %(suffix)s\n"
+     FORMAT = "\n[%(levelname)s] - [%(filename)s:#%(lineno)d] - %(prefix)s - %(message)s %(suffix)s\n"
     #  FORMAT = "\n%(asctime)s - [%(filename)s:#%(lineno)d] - %(prefix)s%(levelname)s - %(message)s %(suffix)s\n"
 
      LOG_LEVEL_COLOR = {
@@ -98,3 +99,15 @@ class ColorLogFormatter(logging.Formatter):
 
          formatter = logging.Formatter(self.FORMAT, datefmt='%m/%d/%Y %I:%M:%S %p' )
          return formatter.format(record)
+
+logger = logging.getLogger(__name__)
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(ColorLogFormatter())
+logger.addHandler(stream_handler)
+logger.setLevel( logging.DEBUG)
+
+# log_level_map = {
+#     "0": logging.WARNING,
+#     "1": logging.INFO,
+#     "2": logging.DEBUG
+# }

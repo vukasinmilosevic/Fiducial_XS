@@ -438,7 +438,7 @@ int getTemplateXS(TString processNameTag, TString processFileName, TString sqrts
     if (obsName2 != ""){
         fLocation = templatesDir + "/" + PROCESSING_TYPE + "_" + obsName + "_vs_" + obsName2 + "/" + sqrtsTag + "/";
     }
-    std::cout << "[DEBUG: fiducialXSTemplates.C#441]  fLocation: " << fLocation << std::endl;
+    // std::cout << "[DEBUG: fiducialXSTemplates.C#441]  fLocation: " << fLocation << std::endl;
     TFile *fTemplateTree = new TFile(fLocation + "/" + templateNameTag + "_" + sfinalState + ".root", fOption);
     TTree* TT = new TTree("selectedEvents","selectedEvents");
 
@@ -580,7 +580,7 @@ void storeTreeAndTemplatesXS(TTree* TT, TString obsName, TString obsBinDn, TStri
     TString treeWeightedCut; treeWeightedCut = sWeight + treeCut;
     TT->Draw(treeReq.Data(), treeWeightedCut.Data(), "goff");
 
-    std::cout << "==>#582 fLocation: " << fLocation << std::endl;
+    // std::cout << "==>#582 fLocation: " << fLocation << std::endl;
     TString templateLocation = fLocation + "/" + templateNameTag + "_" + sfinalState + "_" + obsTag + ".root";
     TFile* fTemplate = new TFile(templateLocation, fOption);
     fTemplate->cd();
@@ -605,7 +605,7 @@ void storeTreeAndTemplatesXS(TTree *TT, TString obsName, TString obsBinDn, TStri
     TString obsTag = obsName + "_" + obsBinDn + "_" + obsBinUp;
     //  for second observable
     TString obsTag2 = obsName2 + "_" + obsBinDn2 + "_" + obsBinUp2;
-    TH1D *h1D = new TH1D("m4l_" + obsTag, "m4l_" + obsTag, nbinsX, CUT_M4LLOW, CUT_M4LHIGH);
+    TH1D *h1D = new TH1D("m4l_" + obsTag + "_" + obsTag2, "m4l_" + obsTag + "_" + obsTag2, nbinsX, CUT_M4LLOW, CUT_M4LHIGH);
 
     // adjust obsName for the selection, e.g. where abs(x) is required
     TString selectionObsName = "1";
