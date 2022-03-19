@@ -16,21 +16,14 @@ from Input_Info import datacardInputs, combineOutputs
 from createXSworkspace import createXSworkspace
 from higgs_xsbr_13TeV import higgs4l_br, higgsZZ_br, filtereff, higgs_xs
 from sample_shortnames import sample_shortnames, background_samples
-from Utils import  logging, ColorLogFormatter, processCmd, get_linenumber
+from Utils import  logging, logger
+from Utils import  processCmd, get_linenumber
 from read_bins import read_bins
 
 
 # NOTE: append the directory `datacardInputs`, as .py files inside is going to load using import.
 #       load XS-specific modules
 sys.path.append('./'+datacardInputs)
-
-#  Setup logger
-logger = logging.getLogger(__name__)
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(ColorLogFormatter())
-logger.addHandler(stream_handler)
-
-log_level = logging.DEBUG # default
 
 ### Define function for parsing options
 def parseOptions():
@@ -68,15 +61,15 @@ def parseOptions():
     parser.add_option('',   '--calcSys', action='store_true', dest='SYS', default=False, help='Calculate Systematic Uncertainties (in addition to stat+sys)')
     parser.add_option('',   '--lumiscale', type='string', dest='LUMISCALE', default='1.0', help='Scale yields')
     parser.add_option('',   '--inYAMLFile', dest='inYAMLFile', type='string', default="Inputs/observables_list.yml", help='Input YAML file having observable names and bin information')
-    parser.add_option('-v', '--verbose', dest='verbose', action='count', help="Increase verbosity (specify multiple times for more)")
     parser.add_option("-l", "--logLevel", action="store", dest="logLevel", help="Change log verbosity(WARNING: 0, INFO: 1, DEBUG: 2)")
 
     # store options and arguments as global variables
-    global opt, args, log_level
+    global opt, args
     (opt, args) = parser.parse_args()
 
+    log_level = logging.DEBUG # default initialization
     if opt.logLevel == "0":
-        log_level = logging.WARNING # default
+        log_level = logging.WARNING
     elif opt.logLevel == "1":
         log_level = logging.INFO
     elif opt.logLevel == "2":
@@ -142,22 +135,22 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
             lambdajesupBkg = _temp.lambdajesupBkg
             lambdajesdnBkg = _temp.lambdajesdnBkg
 
-    logger.debug('[INFO] Preparing bkg shapes and fractions, for bins with boundaries {}'.format(observableBins))
+    logger.debug('Preparing bkg shapes and fractions, for bins with boundaries {}'.format(observableBins))
     # save/create/prepare directories and compile templates script
     # FIXME: directory name hardcoded
     currentDir = os.getcwd(); os.chdir('./templates/')
 
     # Here, rm command is mandatory, just to ensure that make works. If make command files
     #   then this can pick older executable. So, to avoid this we first delete the executable
-    print("==> Remove the executable and Compile the package main_fiducialXSTemplates...")
+    logger.info("==> Remove the executable and Compile the package main_fiducialXSTemplates...")
     cmd = 'rm main_fiducialXSTemplates; make';
     processCmd(cmd, get_linenumber())
     # FIXME: this directory name is searched in fiducialXSTemplates.C
     # FIXME: Try to link the two automatically.
     # FIXME: Also, this name is passed as one of arguments of `main_fiducialXSTemplates()`
-    DirectoryToCreate = 'templatesXS/DTreeXS_'+(opt.OBSNAME).replace(" ","_")+'/13TeV/'
-    print('[INFO] Create directory: {}'.format(DirectoryToCreate))
-    print('[INFO] compile the script inside the template directory')
+    DirectoryToCreate = 'templatesXS/DTreeXS_' + obsName.replace(" ","_") + '/13TeV/'
+    logger.debug('Create directory: {}'.format(DirectoryToCreate))
+    logger.debug('compile the script inside the template directory')
     cmd = 'mkdir -p '+DirectoryToCreate; processCmd(cmd, get_linenumber(),1)
 
     # extract bkg templates and bin fractions
@@ -177,67 +170,100 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
     bkg_samples_shorttags = {sZZname2e2mu:'qqZZ', sZZname4e:'qqZZ', sZZname4mu:'qqZZ', 'ggZZ_2e2mu_MCFM67':'ggZZ', 'ggZZ_4e_MCFM67':'ggZZ', 'ggZZ_4mu_MCFM67':'ggZZ', 'ZX4l_CR':'ZJetsCR', 'ZX4l_CR_4e':'ZJetsCR', "ZX4l_CR_4mu":'ZJetsCR', 'ZX4l_CR_2e2mu':'ZJetsCR'}
     bkg_samples_fStates = {sZZname2e2mu:'2e2mu', sZZname4e:'4e', sZZname4mu:'4mu', 'ggZZ_2e2mu_MCFM67':'2e2mu', 'ggZZ_4e_MCFM67':'4e', 'ggZZ_4mu_MCFM67':'4mu', 'ZX4l_CR':'AllChans', 'ZX4l_CR_4e':'4e', 'ZX4l_CR_4mu':'4mu', 'ZX4l_CR_2e2mu':'2e2mu'}
 
-    print('[INFO] Loop over each background sample tags: \n\t{}\n'.format(bkg_sample_tags))
+    logger.info('Loop over each background sample tags: \n\t{}\n'.format(bkg_sample_tags))
     for sample_tag in bkg_sample_tags:
-        tmpObsName = obsName
         tmpSrcDir = opt.SOURCEDIR
         if (sample_tag=='ZX4l_CR'):
             # tmpSrcDir = '/eos/user/v/vmilosev/Skim_2018_HZZ/WoW'
             tmpSrcDir = opt.SOURCEDIR # FIXME: if the paths for ZX CR is different then we need to update this
         # FIXME: Try to understand this syntax
         fitTypeZ4l = [['none','doRatio'],['doZ4l','doZ4l']][opt.doZ4l][opt.doRatio]
-        VarArguments = tmpObsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS
-        logger.info("tmpObsName: "+str(tmpObsName))
-        logger.info("opt.OBSBINS: "+str(opt.OBSBINS))
-        logger.info("VarArguments: "+str(VarArguments))
-        binDetails = read_bins(opt.OBSBINS)
-        logger.info(binDetails)
-        logger.info("length: len(binDetails): = "+str(len(binDetails)))
-        # logger.info(binDetails[0])
-        # logger.info(binDetails[0][0])
-        # logger.info(binDetails[0][1])
-        # test = '|' + binDetails[0][0][0] + '|' +  binDetails[0][0][1] + '|'
-        # logger.info(test)
-        # test = '|' + binDetails[0][1][0] + '|' +  binDetails[0][1][1] + '|'
-        # logger.info(test)
-        # VarArguments = tmpObsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS + " " + tmpObsName2 + ' "'+opt.OBSBINS2+'" "'+opt.OBSBINS2
-        if ("vs" not in opt.OBSBINS ):
-            logger.error("test message")
-            cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+tmpObsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS+'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0'
+        logger.info("observableBins: "+str(observableBins))
+
+        # # INFO: Call read bins to parse the input bins information
+        # observableBins = read_bins(observableBins)
+        # logger.info("Parsed bins: {}".format(observableBins))
+        # logger.info("Bin size = "+str(len(observableBins)))
+        # logger.info("First bin: {}".format(observableBins[0]))
+
+        if (" vs " not in obsName ):
+            cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+obsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS+'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0'
             output = processCmd(cmd, get_linenumber())
+            # FIXME: URGENT: Here previous command copies all the cout info in variable `output`
+            #               then from the string it is going to extract useful information about bin fraction
             tmp_fracs = output.split("[Bin fraction: ")
             print('[INFO] tmp_fracs: {}'.format(tmp_fracs))
-            print('[INFO] Length of observables bins: {}'.format(len(observableBins)))
+            logger.debug('Length of observables bins: {}'.format(observableBins))
+            logger.debug('Length of observables bins: {}'.format(len(observableBins)))
+            for obsBin in range(0,len(observableBins)-1):
+                fractionBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = 0
+                lambdajesupBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = 0
+                lambdajesdnBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = 0
+                tmpFrac = float(tmp_fracs[obsBin+1].split("][end fraction]")[0])
+                if not math.isnan(tmpFrac):
+                    fractionBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = tmpFrac
+                if (('jet' in obsName) and tmpFrac!=0 and not math.isnan(tmpFrac)):
+                    tmpFrac_up =float(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1].split("]")[0])
+                    tmpFrac_dn =float(tmp_fracs[obsBin+1].split("Bin fraction (JESdn): ")[1].split("]")[0])
+                    if not math.isnan(tmpFrac_up):
+                        lambdajesupBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = tmpFrac_up/tmpFrac - 1
+                    if not math.isnan(tmpFrac_dn):
+                        lambdajesdnBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = tmpFrac_dn/tmpFrac - 1
         else:
-            for nBins_ in range(len(binDetails)):
-                test0= '|' + binDetails[nBins_][0][0] + '|' +  binDetails[nBins_][0][1] + '|'
-                test1= '|' + binDetails[nBins_][1][0] + '|' +  binDetails[nBins_][1][1] + '|'
-                logger.info(str(test0)+"\t"+str(test1))
-                tmpObsName = obsName.split('vs')
-                cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+tmpObsName[0]+' "'+test0+'" "'+test0 +'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0' + ' '+tmpObsName[1]+' "'+test1+'" "'+test1 +'"'
+            for nBins_ in range(len(observableBins)):
+                test0= '|' + observableBins[nBins_][0][0] + '|' +  observableBins[nBins_][0][1] + '|'
+                test1= '|' + observableBins[nBins_][1][0] + '|' +  observableBins[nBins_][1][1] + '|'
+
+                ListObsName = (''.join(obsName.split())).split('vs')
+                logger.info(ListObsName[0]+ ' : ' + str(test0)+"\t"+ListObsName[1] + ' : '+str(test1))
+                cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+ListObsName[0]+' "'+test0+'" "'+test0 +'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0' + ' '+ListObsName[1]+' "'+test1+'" "'+test1 +'"'
                 output = processCmd(cmd, get_linenumber())
                 tmp_fracs = output.split("[Bin fraction: ")
-                print('[INFO] tmp_fracs: {}'.format(tmp_fracs))
+                logger.debug('tmp_fracs: {}'.format(tmp_fracs))
+                logger.debug('Length of observables bins: {}'.format(len(observableBins)))
 
-        print('[INFO] Length of observables bins: {}'.format(len(observableBins)))
+                for obsBin in range(0,2-1): # FIXME: Here I (Ram) hardcoded the value 2. Will test with with other 2D obs then generalize. Currently, checking with massZ1 vs massZ2
+                    logger.debug('obsBin: '+str(obsBin))
+                    tag_ = sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName.replace(' ','_')+'_recobin'+str(nBins_)
+                    logger.debug('tag_ : {}'.format(tag_))
 
-        for obsBin in range(0,len(observableBins)-1):
-            fractionBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = 0
-            lambdajesupBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = 0
-            lambdajesdnBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = 0
-            tmpFrac = float(tmp_fracs[obsBin+1].split("][end fraction]")[0])
-            if not math.isnan(tmpFrac):
-                fractionBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = tmpFrac
-            if (('jet' in obsName) and tmpFrac!=0 and not math.isnan(tmpFrac)):
-                tmpFrac_up =float(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1].split("]")[0])
-                tmpFrac_dn =float(tmp_fracs[obsBin+1].split("Bin fraction (JESdn): ")[1].split("]")[0])
-                if not math.isnan(tmpFrac_up):
-                    lambdajesupBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = tmpFrac_up/tmpFrac - 1
-                if not math.isnan(tmpFrac_dn):
-                    lambdajesdnBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = tmpFrac_dn/tmpFrac - 1
+                    fractionBkg[tag_] = 0
+                    lambdajesupBkg[tag_] = 0
+                    lambdajesdnBkg[tag_] = 0
+
+                    logger.debug('tmp_fracs: {}'.format(tmp_fracs))
+                    logger.debug('tmp_fracs[obsBin+1]: {}'.format(tmp_fracs[obsBin+1]))
+                    logger.debug('tmp_fracs[obsBin+1].split("][end fraction]"): {}'.format(tmp_fracs[obsBin+1].split("][end fraction]")))
+
+                    tmpFrac = float(tmp_fracs[obsBin+1].split("][end fraction]")[0])
+                    if not math.isnan(tmpFrac):
+                        fractionBkg[tag_] = tmpFrac
+                    else:
+                        logger.error('total entries in the current bin is zero. Please check...')
+                        #FIXME: should we exit program here or not???
+
+                    if (('jet' in obsName) and tmpFrac!=0 and not math.isnan(tmpFrac)):
+                        # FIXME: Check jets information, if its passing correctly or not.
+                        logger.debug('tmp_fracs[obsBin+1].split("Bin fraction (JESup): "): {}'.format(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")))
+                        logger.debug('tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1]: {}'.format(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1]))
+                        logger.debug('tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1].split("]"): {}'.format(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1].split("]")))
+
+                        tmpFrac_up =float(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1].split("]")[0])
+                        tmpFrac_dn =float(tmp_fracs[obsBin+1].split("Bin fraction (JESdn): ")[1].split("]")[0])
+                        if not math.isnan(tmpFrac_up):
+                            lambdajesupBkg[tag_] = tmpFrac_up/tmpFrac - 1
+                        if not math.isnan(tmpFrac_dn):
+                            lambdajesdnBkg[tag_] = tmpFrac_dn/tmpFrac - 1
 
     os.chdir(currentDir)
-    with open(datacardInputs+'/inputs_bkg_'+{0:'',1:'z4l_'}[int(opt.doZ4l)]+obsName+'.py', 'w') as f:
+    logger.debug('observableBins: {}'.format(observableBins))
+    logger.debug('fractionBkg: {}'.format(fractionBkg))
+    logger.debug('lambdajesupBkg: {}'.format(lambdajesupBkg))
+    logger.debug('lambdajesdnBkg: {}'.format(lambdajesdnBkg))
+
+    OutputFileName = 'inputs_bkg_'+{0:'',1:'z4l_'}[int(opt.doZ4l)]+obsName.replace(' ','_')+'.py'
+    logger.debug('File Name: '+OutputFileName)
+    with open(datacardInputs + '/' + OutputFileName, 'w') as f:
         f.write('observableBins = '     +json.dumps(observableBins)+';\n')
         f.write('fractionsBackground = '+json.dumps(fractionBkg)   +';\n')
         f.write('lambdajesupBkg = '     +json.dumps(lambdajesupBkg)+';\n')
@@ -267,31 +293,62 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
         physicalModel (str): version of model, for example: v2
     """
 
-    print ('[INFO] Producing workspace/datacards for obsName - '+obsName+', bins - '+str(observableBins)+']')
+    logger.info ('Producing workspace/datacards for obsName - '+obsName+', bins - '+str(observableBins)+']')
+    logger.debug('obsName: {}'.format(obsName))
+    logger.debug('observableBins: {}'.format(observableBins))
+
+    ListObsName = (''.join(obsName.split())).split('vs')
+    logger.debug('ListObsName: {}'.format(ListObsName))
+
     fStates = ['2e2mu','4mu','4e']
-    nBins = len(observableBins)
+
+    # INFO: in case of 2D obs nbins is n else its n-1
+    logger.error("len(observableBins): = "+str(len(observableBins)))
+    nBins = len(observableBins) -1
+    if len(ListObsName) == 2:    # INFO: for 2D this list size == 2
+        nBins = len(observableBins)
+
     for fState in fStates:
-        # print ("INFO::: VM Creating datacards for nBins = {}".format(nBins))
-        print('[INFO] VM Creating datacards for:\n\tobsName: {obsName}\n\tfState: {fState}\n\tnBins: {nBins}\n\tobservableBins: {observableBins}\n\tmodelName: {modelName}\n\tphysicalModel: {physicalModel}'.format(
-                obsName = obsName , fState = fState , nBins = nBins , observableBins = observableBins , modelName = modelName , physicalModel = physicalModel
+        logger.info('''VM Creating datacards for:
+        \tobsName: {obsName}
+        \tfState: {fState}
+        \tnBins: {nBins}
+        \tobservableBins: {observableBins}
+        \tmodelName: {modelName}
+        \tphysicalModel: {physicalModel}'''.format(
+                obsName = ListObsName , fState = fState , nBins = nBins ,
+                observableBins = observableBins , modelName = modelName ,
+                physicalModel = physicalModel
                 ))
         if (not obsName.startswith("mass4l")):
-            os.system("python python/datacard_maker.py -c {} -b {}".format(fState, nBins - 1))
-            for obsBin in range(nBins-1):
-                # first bool = cfactor second bool = add fake H               #
-                ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, modelName, physicalModel)
-                os.system("cp xs_125.0_"+str(nBins - 1)+"bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
-                os.system("sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
-                os.system("sed -i 's~_xs.Databin"+str(obsBin)+"~_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+"~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
-                if ("jet" in obsName):
-                    os.system("sed -i 's~\#JES param~JES param~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
+            logger.debug("Running the datacard_maker.py...")
+            processCmd("python python/datacard_maker.py -c {} -b {}".format(fState, nBins),get_linenumber())
+            logger.debug("Completed the datacard_maker.py...")
+            for obsBin in range(nBins):
+                logger.debug("=="*51)
+                logger.debug("""
+                    \ttmpObsName = {},
+                    \tfState = {},
+                    \tnBins = {}, obsBin = {},
+                    \tobservableBins = {},
+                    \tFalse = {}, True = {},
+                    \tmodelName = {}, physicalModel = {}
+                    """.format(ListObsName, fState, nBins, obsBin, observableBins, False, True, modelName, physicalModel))
+                ndata = createXSworkspace(ListObsName, fState, nBins, obsBin, observableBins, False, True, modelName, physicalModel)
+                CopyDataCardToOutputDir = "cp xs_125.0_"+str(nBins)+"bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName.replace(' ','_')+"_bin"+str(obsBin)+"_"+physicalModel+".txt"
+                processCmd(CopyDataCardToOutputDir)
+                UpdateObservationValue = "sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName.replace(' ','_')+"_bin"+str(obsBin)+"_"+physicalModel+".txt"
+                processCmd(UpdateObservationValue)
+                UpdateDatabin = "sed -i 's~_xs.Databin"+str(obsBin)+"~_xs_"+modelName+"_"+obsName.replace(' ','_')+"_"+physicalModel+".Databin"+str(obsBin)+"~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName.replace(' ','_')+"_bin"+str(obsBin)+"_"+physicalModel+".txt"
+                os.system(UpdateDatabin)
+                if ("jet" in obsName.replace(' ','_')):
+                    os.system("sed -i 's~\#JES param~JES param~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName.replace(' ','_')+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
 
-                os.system("sed -i 's~0.0 0.2~0.0 0.2 [-1,1]~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
-
+                os.system("sed -i 's~0.0 0.2~0.0 0.2 [-1,1]~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName.replace(' ','_')+"_bin"+str(obsBin)+"_"+physicalModel+".txt")
 
         else:
             os.system("python python/datacard_maker.py -c {} -b {}".format(fState, 1))
-            ndata = createXSworkspace(obsName,fState, nBins, 0, observableBins, False, True, modelName, physicalModel)
+            ndata = createXSworkspace(ListObsName,fState, nBins, 0, observableBins, False, True, modelName, physicalModel)
             if obsName=='mass4l': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusive_bin0.txt "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
             if obsName=='mass4lREFIT': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusiveREFIT_bin0.txt "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
             os.system("sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
@@ -747,11 +804,20 @@ def runFiducialXS():
     jcpDir = os.getcwd()
 
     # prepare the set of bin boundaries to run over, only 1 bin in case of the inclusive measurement
-    observableBins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
+    # observableBins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
+    # observableBins = opt.OBSBINS
 
     ### Run for the given observable
     obsName = opt.OBSNAME
-    logger.info('\n[INFO] Running fiducial XS computation for - {} - bin boundaries: {}'.format(obsName, observableBins))
+    logger.info('Running fiducial XS computation for - {} - bin boundaries: {}'.format(obsName, opt.OBSBINS))
+    logger.debug("obsName : "+opt.OBSNAME)
+    logger.debug("OBSBINS: "+opt.OBSBINS)
+
+    # INFO: Call read bins to parse the input bins information
+    observableBins = read_bins(opt.OBSBINS)
+    logger.info("Parsed bins: {}".format(observableBins))
+    logger.info("Bin size = "+str(len(observableBins)))
+    logger.info("First bin: {}".format(observableBins[0]))
 
     # FIXME: Now we are extracing efficiencies separately. So, don't need below part.
     #        confirm and delete this
@@ -785,9 +851,11 @@ def runFiducialXS():
         asimovDataModelName = "SM_125" # FIXME: Is it fine if the model name is hardcoded here. Since model (ASIMOVMODEL) is also an input argument
         asimovPhysicalModel = "v2" # FIXME: Same above message.
 
-        logger.debug("{}\n[DEBUG]: {}#{} command:\n".format("="*51,os.path.basename(__file__),get_linenumber())) # Just print filename and line number; Added for debug
+        logger.info("Going to produce datacards...")
+        # INFO: Pass the updated bins information here
         produceDatacards(obsName, observableBins, asimovDataModelName, asimovPhysicalModel)
-        logger.debug("{}\n[DEBUG]: {}#{} command:\n".format("="*51,os.path.basename(__file__),get_linenumber())) # Just print filename and line number; Added for debug
+        logger.info("Datacard produced...")
+        sys.exit()
         resultsXS = createAsimov(obsName, observableBins, asimovDataModelName, resultsXS, asimovPhysicalModel)
         logger.debug("resultsXS: \n", resultsXS)
 
@@ -809,6 +877,8 @@ def runFiducialXS():
     if (obsName.startswith("mass4l")): physicalModels = ["v2","v3"]
     else: physicalModels = ["v3"]
 
+    logger.debug("runAllSteps       : "+str(runAllSteps))
+    logger.debug("opt.resultsOnly  : "+str(opt.resultsOnly))
     if (runAllSteps or opt.resultsOnly):
         for physicalModel in physicalModels:
             for modelName in modelNames:
@@ -838,6 +908,8 @@ def runFiducialXS():
                 f.write('resultsXS = '+json.dumps(resultsXS)+';\n')
                 f.write('modelIndUncert = '+json.dumps(modelIndependenceUncert))
 
+    logger.debug("runAllSteps          : "+str(runAllSteps))
+    logger.debug("opt.finalplotsOnly : "+str(opt.finalplotsOnly))
     # Make final differential plots
     if (runAllSteps or opt.finalplotsOnly):
         DatasetForObservedLimit = "toy_asimov"

@@ -40,7 +40,7 @@ def get_linenumber():
     cf = currentframe()
     return cf.f_back.f_lineno
 
-def processCmd(cmd, lineNumber, quiet = 0):
+def processCmd(cmd, lineNumber = 0, quiet = 0):
     """This function is defined for processing of os command
 
     Args:
@@ -57,7 +57,7 @@ def processCmd(cmd, lineNumber, quiet = 0):
     output = '\n'
     print("="*51)
     print("[INFO]: Current working directory: {0}".format(os.getcwd()))
-    print("[INFO]: {}#{} command:\n\t{}".format(os.path.basename(__file__), lineNumber, cmd))
+    print("[INFO]: {}#{} command:\n\t{}".format(os.path.basename(__file__), lineNumber, cmd)) # FIXME: now its always take filename as `Utils.py`. It should take the file name from where its called.
     p = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT, bufsize=-1)
     for line in iter(p.stdout.readline, ''):
         output=output+str(line)
@@ -68,6 +68,7 @@ def processCmd(cmd, lineNumber, quiet = 0):
 
     if (not quiet):
         print ('Output:\n   [{}] \n'.format(output))
+    print("="*51)
 
     return output
 
@@ -78,15 +79,15 @@ class ColorLogFormatter(logging.Formatter):
 
      # FORMAT = "%(prefix)s%(msg)s%(suffix)s"
     #  FORMAT = "\n[%(levelname)s] - [%(filename)s:#%(lineno)d] - %(prefix)s%(levelname)s - %(message)s %(suffix)s\n"
-     FORMAT = "\n[%(levelname)s] - [%(filename)s:#%(lineno)d] - %(prefix)s - %(message)s %(suffix)s\n"
+     FORMAT = "\n[%(levelname)s] - [%(filename)s:#%(lineno)d] - %(prefix)s%(message)s %(suffix)s\n"
     #  FORMAT = "\n%(asctime)s - [%(filename)s:#%(lineno)d] - %(prefix)s%(levelname)s - %(message)s %(suffix)s\n"
 
      LOG_LEVEL_COLOR = {
          "DEBUG": {'prefix': bcolors.OKBLUE, 'suffix': bcolors.ENDC},
          "INFO": {'prefix': bcolors.OKGREEN, 'suffix': bcolors.ENDC},
          "WARNING": {'prefix': bcolors.WARNING, 'suffix': bcolors.ENDC},
-         "ERROR": {'prefix': bcolors.FAIL+bcolors.BOLD, 'suffix': bcolors.ENDC+bcolors.ENDC},
          "CRITICAL": {'prefix': bcolors.FAIL, 'suffix': bcolors.ENDC},
+         "ERROR": {'prefix': bcolors.FAIL+bcolors.BOLD, 'suffix': bcolors.ENDC+bcolors.ENDC},
      }
 
      def format(self, record):

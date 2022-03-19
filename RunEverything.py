@@ -12,7 +12,7 @@ except ImportError as e:
     raise ImportError("Check if you run `source setup.sh`. If not please run it.\n")
 
 try:
-    from Utils import logging, ColorLogFormatter, border_msg
+    from Utils import logging, logger, ColorLogFormatter, border_msg
 except Exception as e:
     print (e)
     raise ImportError("Check if you run `source setup.sh`. If not please run it.\n")
@@ -44,11 +44,7 @@ parser.add_argument(
      )
 args = parser.parse_args()
 
-# Setup logger
-logger = logging.getLogger(__name__)
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(ColorLogFormatter())
-logger.addHandler(stream_handler)
+# Setup logger level
 logger.setLevel(args.log_level)
 
 # create a directory named "log" to save nohup outputs.
