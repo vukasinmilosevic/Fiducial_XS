@@ -12,7 +12,7 @@ except ImportError as e:
     raise ImportError("Check if you run `source setup.sh`. If not please run it.\n")
 
 try:
-    from Utils import logging, logger, ColorLogFormatter, border_msg
+    from Utils import logging, logger, border_msg
 except Exception as e:
     print (e)
     raise ImportError("Check if you run `source setup.sh`. If not please run it.\n")

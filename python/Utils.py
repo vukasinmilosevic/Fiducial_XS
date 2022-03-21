@@ -79,7 +79,9 @@ class ColorLogFormatter(logging.Formatter):
 
      # FORMAT = "%(prefix)s%(msg)s%(suffix)s"
     #  FORMAT = "\n[%(levelname)s] - [%(filename)s:#%(lineno)d] - %(prefix)s%(levelname)s - %(message)s %(suffix)s\n"
-     FORMAT = "\n[%(levelname)s] - [%(filename)s:#%(lineno)d] - %(prefix)s%(message)s %(suffix)s\n"
+     FORMAT = "\n{}[%(levelname)5s] - [%(filename)s:#%(lineno)d] - [%(funcName)s; %(module)s]{} - %(prefix)s%(message)s %(suffix)s\n".format(
+         bcolors.HEADER, bcolors.ENDC
+     )
     #  FORMAT = "\n%(asctime)s - [%(filename)s:#%(lineno)d] - %(prefix)s%(levelname)s - %(message)s %(suffix)s\n"
 
      LOG_LEVEL_COLOR = {
