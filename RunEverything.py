@@ -34,6 +34,7 @@ parser.add_argument( '-model', dest='modelNames', default="SM_125,SMup_125,SMdn_
                         help='Names of models for unfolding, separated by , (comma) . Default is "SM_125"')
 parser.add_argument( '-p', dest='NtupleDir', default="/eos/home-v/vmilosev/Skim_2018_HZZ/WoW/", help='Path of ntuples')
 parser.add_argument( '-m', dest='HiggsMass', default=125.0, type=float, help='Higgs mass')
+parser.add_argument( '-y', dest='year', default=2018, type=int, help='dataset year')
 parser.add_argument( '-r', dest='RunCommand', default=0, type=int, choices=[0, 1], help="if 1 then it will run the commands else it will just print the commands")
 parser.add_argument( '-obs', dest='OneDOr2DObs', default=1, type=int, choices=[1, 2], help="1 for 1D obs, 2 for 2D observable")
 parser.add_argument(
@@ -92,8 +93,16 @@ with open(InputYAMLFile, 'r') as ymlfile:
                     if (args.RunCommand): os.system(command)
                 else:
                     logger.info("Not running `plot2dsigeffs.py` as either the choosen option is `mass4l` or `2D observables`.")
-            if (args.step == 3):
-                border_msg("Running getUnc: "+ obsName)
+            if (args.step == 3 and (ObsToStudy != "2D_Observables")):  #  Don't run this step for 2D obs for now
+                border_msg("Running Interpolation to get acceptance for MH = 125. 38 GeV and obs " + obsName)
+                command = 'python python/interpolate_differential_full.py --obsName="{obsName}" --obsBins="{obsBins}" --year={year}'.format(
+                        obsName = obsName, obsBins = obsBin['bins'], year = args.year
+                )
+                print("Command: {}".format(command))
+                if (args.RunCommand): os.system(command)
+
+            if (args.step == 4):
+                border_msg("Running getUnc")
                 # command = 'python -u getUnc_Unc.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" >& log/unc_{obsName}.log &'.format(
                 command = 'python -u getUnc_Unc.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}"'.format(
                         obsName = obsName, obsBins = obsBin['bins']
@@ -101,9 +110,16 @@ with open(InputYAMLFile, 'r') as ymlfile:
                 logger.info("Command: {}".format(command))
                 if (args.RunCommand): os.system(command)
 
+            if (args.step == 5 and (ObsToStudy != "2D_Observables")): #  Don't run this step for 2D obs for now
+                border_msg("Grab NNLOPS acc & unc for MH = 125.38 GeV using the powheg sample")
+                command = 'python python/interpolate_differential_pred.py --obsName="{obsName}" --obsBins="{obsBins}" --year={year}'.format(
+                        obsName = obsName, obsBins = obsBin['bins'], year = args.year
+                )
+                print("Command: {}".format(command))
+                if (args.RunCommand): os.system(command)
 
-            if (args.step == 4):
-                border_msg("Running Background template maker: "+ obsName)
+            if (args.step == 6):
+                border_msg("Running Background template maker: " + obsName)
                 # FIXME: Check if we need modelNames in step-4 or not
                 command = 'python -u runHZZFiducialXS.py --dir="{NtupleDir}" --obsName="{obsName}" --obsBins="{obsBins}" --modelNames {modelNames} --redoTemplates --templatesOnly '.format(
                         obsName = obsName, obsBins = obsBin['bins'], NtupleDir = args.NtupleDir, modelNames= args.modelNames
@@ -111,8 +127,8 @@ with open(InputYAMLFile, 'r') as ymlfile:
                 logger.info("Command: {}".format(command))
                 if (args.RunCommand): os.system(command)
 
-            if (args.step == 5):
-                border_msg("Running final measurement and plotters: "+ obsName)
+            if (args.step == 7):
+                border_msg("Running final measurement and plotters: " + obsName)
                 # Copy model from model directory to combine path
                 CMSSW_BASE = os.getenv('CMSSW_BASE')
                 copyCommand = 'cp models/HZZ4L*.py {CMSSW_BASE}/src/HiggsAnalysis/CombinedLimit/python/'.format(CMSSW_BASE=CMSSW_BASE)

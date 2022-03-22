@@ -83,7 +83,6 @@ def get_linenumber():
     cf = currentframe()
     return cf.f_back.f_lineno
 
-# os.path.basename(__file__)
 def processCmd(cmd, lineNumber = 0, moduleNameWhereItsCalled = "", quiet = 0):
     """This function is defined for processing of os command
 
@@ -115,4 +114,3 @@ def processCmd(cmd, lineNumber = 0, moduleNameWhereItsCalled = "", quiet = 0):
     logger.info("="*51)
 
     return output
-

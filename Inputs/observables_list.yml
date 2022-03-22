@@ -62,7 +62,7 @@ Observables:
       label: "cos(#theta*)"
       unit: ""
       gen: "GENcosThetaStar"
-     ifAbs: False
+      ifAbs: False
 
     massZ1:
      bins: "|40.0|65.0|73.0|80.0|85.0|90.0|120.0|"

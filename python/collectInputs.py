@@ -2,7 +2,8 @@ import sys
 import os
 
 # INFO: Following items are imported from either python directory or Inputs
-from Input_Info import datacardInputs
+from Input_Info import *
+from Utils import *
 
 sys.path.append('./'+datacardInputs)
 
@@ -29,7 +30,8 @@ def collect(obsName):
 	if (obsName=='mass4l'): channels.append('4l')
 
 	for ch in channels:
-		_tmp = __import__('inputs_sig_'+obsName.replace(" ","_")+'_'+ch, globals(), locals(), -1)
+		border_msg("module to import: "+'inputs_sig_'+obsName+'_'+ch+".py")
+		_tmp = __import__('inputs_sig_'+obsName+'_'+ch, globals(), locals(), -1)
 
 		acc.update(_tmp.acc)
 		dacc.update(_tmp.dacc)
