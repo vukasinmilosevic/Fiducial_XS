@@ -151,7 +151,7 @@ void templatesXS(TString processNameTag, TString processFileName, TString sqrtsT
 {
     analysisInit();
 
-    useRefit = false;
+    useRefit = false; // FIXME: we can remove this from here. It should be controlled from `runHZZFiducialXS.py`
 
     // produce XS 2D templates (uniform binning)
     cout << "======\n[INFO] preparing 2D XS templates, process: "+processNameTag+", sqrts: "+sqrtsTag+", Final State: ["<<sfinalState<<"]" << "["<<PROCESSING_TYPE<<"]" << "["<<CUT_M4LLOW<<" < m4l < "<<CUT_M4LHIGH<<"] " << endl;

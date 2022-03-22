@@ -83,14 +83,15 @@ with open(InputYAMLFile, 'r') as ymlfile:
                 logger.info("="*51)
 
                 # FIXME: Currently the plotter is only working for 1D vars.
-                if ((not obsName.startswith("mass4l") ) or (ObsToStudy != "2D_Observables")):
+                if ((not obsName.startswith("mass4l") ) and (ObsToStudy != "2D_Observables")):
                     border_msg("Running plotter to plot 2D signal efficiencies")
                     command = 'python python/plot2dsigeffs.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" --inYAMLFile="{inYAMLFile}"'.format(
                         obsName = obsName, obsBins = obsBin['bins'], inYAMLFile = args.inYAMLFile
                     )
                     logger.info("Command: {}".format(command))
                     if (args.RunCommand): os.system(command)
-
+                else:
+                    logger.info("Not running `plot2dsigeffs.py` as either the choosen option is `mass4l` or `2D observables`.")
             if (args.step == 3):
                 border_msg("Running getUnc: "+ obsName)
                 # command = 'python -u getUnc_Unc.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" >& log/unc_{obsName}.log &'.format(

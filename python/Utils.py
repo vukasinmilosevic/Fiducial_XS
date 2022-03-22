@@ -15,63 +15,6 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-def border_msg(msg):
-    """Print message inside the border
-
-    >>> border_msg('hello')
-        +-----+
-        |hello|
-        +-----+
-
-    Args:
-        msg (str): message to print inside border
-    """
-    row = len(msg)+4
-    h = ''.join(['+'] + ['-' *row] + ['+'])
-    result= h + '\n'"|  "+msg+"  |"'\n' + h
-    print(bcolors.OKGREEN + result +  bcolors.ENDC)
-
-def fixed_border_msg(msg):
-    border = "="*51
-    result = border + "\n" + msg + "\n" + border
-    print(result)
-
-def get_linenumber():
-    cf = currentframe()
-    return cf.f_back.f_lineno
-
-def processCmd(cmd, lineNumber = 0, quiet = 0):
-    """This function is defined for processing of os command
-
-    Args:
-        cmd (str): The command to be run on the terminal
-        lineNumber (int): The line number from where this function was invoked
-        quiet (int, optional): Want to run the command in quite mode (Don't print anything) or print everything. Defaults to 0.
-
-    Raises:
-        RuntimeError: If the command failed then exit the program with exit code
-
-    Returns:
-        str: The full output of the command
-    """
-    output = '\n'
-    print("="*51)
-    print("[INFO]: Current working directory: {0}".format(os.getcwd()))
-    print("[INFO]: {}#{} command:\n\t{}".format(os.path.basename(__file__), lineNumber, cmd)) # FIXME: now its always take filename as `Utils.py`. It should take the file name from where its called.
-    p = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT, bufsize=-1)
-    for line in iter(p.stdout.readline, ''):
-        output=output+str(line)
-    p.stdout.close()
-
-    if p.wait() != 0:
-        raise RuntimeError("%r failed, exit status: %d" % (cmd, p.returncode))
-
-    if (not quiet):
-        print ('Output:\n   [{}] \n'.format(output))
-    print("="*51)
-
-    return output
-
 class ColorLogFormatter(logging.Formatter):
      """A class for formatting colored logs.
      Reference: https://stackoverflow.com/a/70796089/2302094
@@ -114,3 +57,62 @@ logger.setLevel( logging.DEBUG)
 #     "1": logging.INFO,
 #     "2": logging.DEBUG
 # }
+
+def border_msg(msg):
+    """Print message inside the border
+
+    >>> border_msg('hello')
+        +-----+
+        |hello|
+        +-----+
+
+    Args:
+        msg (str): message to print inside border
+    """
+    row = len(msg)+4
+    h = ''.join(['+'] + ['-' *row] + ['+'])
+    result= h + '\n'"|  "+msg+"  |"'\n' + h
+    print(bcolors.OKGREEN + result +  bcolors.ENDC)
+
+def fixed_border_msg(msg):
+    border = "="*51
+    result = border + "\n" + msg + "\n" + border
+    print(result)
+
+def get_linenumber():
+    cf = currentframe()
+    return cf.f_back.f_lineno
+
+# os.path.basename(__file__)
+def processCmd(cmd, lineNumber = 0, moduleNameWhereItsCalled = "", quiet = 0):
+    """This function is defined for processing of os command
+
+    Args:
+        cmd (str): The command to be run on the terminal
+        lineNumber (int): The line number from where this function was invoked
+        quiet (int, optional): Want to run the command in quite mode (Don't print anything) or print everything. Defaults to 0.
+
+    Raises:
+        RuntimeError: If the command failed then exit the program with exit code
+
+    Returns:
+        str: The full output of the command
+    """
+    output = '\n'
+    logger.info("="*51)
+    logger.info("[INFO]: Current working directory: {0}".format(os.getcwd()))
+    logger.info("[INFO]: {}#{} command:\n\t{}".format(moduleNameWhereItsCalled, lineNumber, cmd)) # FIXME: now its always take filename as `Utils.py`. It should take the file name from where its called.
+    p = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT, bufsize=-1)
+    for line in iter(p.stdout.readline, ''):
+        output=output+str(line)
+    p.stdout.close()
+
+    if p.wait() != 0:
+        raise RuntimeError("%r failed, exit status: %d" % (cmd, p.returncode))
+
+    if (not quiet):
+        print('Output:\n   [{}] \n'.format(output))
+    logger.info("="*51)
+
+    return output
+

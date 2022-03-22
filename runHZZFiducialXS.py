@@ -39,6 +39,7 @@ def parseOptions():
     parser.add_option('',   '--asimovModelName',dest='ASIMOVMODEL',type='string',default='SM_125', help='Name of the Asimov Model')
     parser.add_option('',   '--asimovMass',dest='ASIMOVMASS',type='string',default='125.09', help='Asimov Mass')
     parser.add_option('',   '--modelNames',dest='MODELNAMES',type='string',default="SM_125,SMup_125,SMdn_125",help='Names of models for unfolding, separated by , (comma) . Default is "SM_125"')
+    # FIXME: `FIXMASS` option should be bool. As per its name. No?
     parser.add_option('',   '--fixMass',  dest='FIXMASS',  type='string',default='125.09',   help='Fix mass, default is a string "125.09" or can be changed to another string, e.g."125.6" or "False"')
     parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
@@ -111,11 +112,11 @@ def extractFiducialEfficiencies(obsName, observableBins, modelName):
     print ('[Extracting eff. and out.factors]')
     #cmd = 'python efficiencyFactors.py --dir='+opt.SOURCEDIR+' --obsName='+opt.OBSNAME+' --obsBins="'+opt.OBSBINS+'" -l -q -b'
     cmd = 'python efficiencyFactors.py --dir='+opt.SOURCEDIR+' --obsName='+opt.OBSNAME+' --obsBins="'+opt.OBSBINS+'" -l -q -b --doPlots --doFit'
-    output = processCmd(cmd, get_linenumber())
+    output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
     print (output)
     if (not opt.OBSNAME.startswith("mass4l")):
         cmd = 'python plot2dsigeffs.py -l -q -b --obsName='+opt.OBSNAME+' --obsBins="'+opt.OBSBINS+'"'
-        output = processCmd(cmd, get_linenumber())
+        output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
 ### Extract the templates for given obs, for all bins and final states (differential)
 def extractBackgroundTemplatesAndFractions(obsName, observableBins):
@@ -144,14 +145,14 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
     #   then this can pick older executable. So, to avoid this we first delete the executable
     logger.info("==> Remove the executable and Compile the package main_fiducialXSTemplates...")
     cmd = 'rm main_fiducialXSTemplates; make';
-    processCmd(cmd, get_linenumber())
-    # FIXME: this directory name is searched in fiducialXSTemplates.C
+    processCmd(cmd, get_linenumber(), os.path.basename(__file__))
+    # FIXME: this directory name is hardcoded in fiducialXSTemplates.C
     # FIXME: Try to link the two automatically.
     # FIXME: Also, this name is passed as one of arguments of `main_fiducialXSTemplates()`
     DirectoryToCreate = 'templatesXS/DTreeXS_' + obsName.replace(" ","_") + '/13TeV/'
     logger.debug('Create directory: {}'.format(DirectoryToCreate))
     logger.debug('compile the script inside the template directory')
-    cmd = 'mkdir -p '+DirectoryToCreate; processCmd(cmd, get_linenumber(),1)
+    cmd = 'mkdir -p '+DirectoryToCreate; processCmd(cmd, get_linenumber(), os.path.basename(__file__), 1)
 
     # extract bkg templates and bin fractions
     sZZname2e2mu = 'ZZTo2e2mu_powheg'
@@ -180,15 +181,9 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
         fitTypeZ4l = [['none','doRatio'],['doZ4l','doZ4l']][opt.doZ4l][opt.doRatio]
         logger.info("observableBins: "+str(observableBins))
 
-        # # INFO: Call read bins to parse the input bins information
-        # observableBins = read_bins(observableBins)
-        # logger.info("Parsed bins: {}".format(observableBins))
-        # logger.info("Bin size = "+str(len(observableBins)))
-        # logger.info("First bin: {}".format(observableBins[0]))
-
         if (" vs " not in obsName ):
             cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+obsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS+'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0'
-            output = processCmd(cmd, get_linenumber())
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
             # FIXME: URGENT: Here previous command copies all the cout info in variable `output`
             #               then from the string it is going to extract useful information about bin fraction
             tmp_fracs = output.split("[Bin fraction: ")
@@ -211,18 +206,20 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
                         lambdajesdnBkg[sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName+'_recobin'+str(obsBin)] = tmpFrac_dn/tmpFrac - 1
         else:
             for nBins_ in range(len(observableBins)):
-                test0= '|' + observableBins[nBins_][0][0] + '|' +  observableBins[nBins_][0][1] + '|'
-                test1= '|' + observableBins[nBins_][1][0] + '|' +  observableBins[nBins_][1][1] + '|'
+                # First observable boundary:  observableBins[nBins_][0]
+                # 2nd  observable boundary:  observableBins[nBins_][1]
+                bin0_ = '|' + observableBins[nBins_][0][0] + '|' +  observableBins[nBins_][0][1] + '|'  # FIXME: Discuss with Vukasin
+                bin1_ = '|' + observableBins[nBins_][1][0] + '|' +  observableBins[nBins_][1][1] + '|'
 
                 ListObsName = (''.join(obsName.split())).split('vs')
-                logger.info(ListObsName[0]+ ' : ' + str(test0)+"\t"+ListObsName[1] + ' : '+str(test1))
-                cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+ListObsName[0]+' "'+test0+'" "'+test0 +'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0' + ' '+ListObsName[1]+' "'+test1+'" "'+test1 +'"'
-                output = processCmd(cmd, get_linenumber())
+                logger.info(ListObsName[0]+ ' : ' + str(bin0_)+"\t"+ListObsName[1] + ' : '+str(bin1_))
+                cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+ListObsName[0]+' "'+bin0_+'" "'+bin0_ +'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0' + ' '+ListObsName[1]+' "'+bin1_+'" "'+bin1_ +'"'
+                output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
                 tmp_fracs = output.split("[Bin fraction: ")
                 logger.debug('tmp_fracs: {}'.format(tmp_fracs))
                 logger.debug('Length of observables bins: {}'.format(len(observableBins)))
 
-                for obsBin in range(0,2-1): # FIXME: Here I (Ram) hardcoded the value 2. Will test with with other 2D obs then generalize. Currently, checking with massZ1 vs massZ2
+                for obsBin in range(0,1): # FIXME & DISCUSS: Here I (Ram) hardcoded the value 1. Will test with with other 2D obs then generalize. Currently, checking with massZ1 vs massZ2
                     logger.debug('obsBin: '+str(obsBin))
                     tag_ = sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName.replace(' ','_')+'_recobin'+str(nBins_)
                     logger.debug('tag_ : {}'.format(tag_))
@@ -235,15 +232,17 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
                     logger.debug('tmp_fracs[obsBin+1]: {}'.format(tmp_fracs[obsBin+1]))
                     logger.debug('tmp_fracs[obsBin+1].split("][end fraction]"): {}'.format(tmp_fracs[obsBin+1].split("][end fraction]")))
 
+                    # The current for loop depends on how many times "[Bin fraction: " appears, when we run the `main_fiducialXSTemplates`
                     tmpFrac = float(tmp_fracs[obsBin+1].split("][end fraction]")[0])
                     if not math.isnan(tmpFrac):
                         fractionBkg[tag_] = tmpFrac
                     else:
-                        logger.error('total entries in the current bin is zero. Please check...')
+                        logger.error('total entries in the current bin is isnan. Please check...')
                         #FIXME: should we exit program here or not???
 
-                    if (('jet' in obsName) and tmpFrac!=0 and not math.isnan(tmpFrac)):
+                    if (('jet' in ListObsName[0] or 'jet' in ListObsName[1]) and tmpFrac!=0 and not math.isnan(tmpFrac)): # FIXME: this part will have issue when we have double differential obs.
                         # FIXME: Check jets information, if its passing correctly or not.
+                        # FIXME: Again we are grabbing things from the log of `main_fiducialXSTemplates`. The next result depends on the couts of `main_fiducialXSTemplates`
                         logger.debug('tmp_fracs[obsBin+1].split("Bin fraction (JESup): "): {}'.format(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")))
                         logger.debug('tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1]: {}'.format(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1]))
                         logger.debug('tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1].split("]"): {}'.format(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1].split("]")))
@@ -280,7 +279,7 @@ def extractUncertainties(obsName, observableBinDn, observableBinUp):
     """
     print ('[Extracting uncertainties  -  range ('+observableBinDn+', '+observableBinUp+')]')
     cmd = 'some command...with some parameters...'
-    #processCmd(cmd, get_linenumber())
+    #processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
 ### Produce datacards for given obs and bin, for all final states
 def produceDatacards(obsName, observableBins, modelName, physicalModel):
@@ -303,7 +302,7 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
     fStates = ['2e2mu','4mu','4e']
 
     # INFO: in case of 2D obs nbins is n else its n-1
-    logger.error("len(observableBins): = "+str(len(observableBins)))
+    logger.debug("len(observableBins): = "+str(len(observableBins)))
     nBins = len(observableBins) -1
     if len(ListObsName) == 2:    # INFO: for 2D this list size == 2
         nBins = len(observableBins)
@@ -322,7 +321,7 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
                 ))
         if (not obsName.startswith("mass4l")):
             logger.debug("Running the datacard_maker.py...")
-            processCmd("python python/datacard_maker.py -c {} -b {}".format(fState, nBins),get_linenumber())
+            processCmd("python python/datacard_maker.py -c {} -b {}".format(fState, nBins),get_linenumber(), os.path.basename(__file__))
             logger.debug("Completed the datacard_maker.py...")
             for obsBin in range(nBins):
                 logger.debug("=="*51)
@@ -336,9 +335,9 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
                     """.format(ListObsName, fState, nBins, obsBin, observableBins, False, True, modelName, physicalModel))
                 ndata = createXSworkspace(ListObsName, fState, nBins, obsBin, observableBins, False, True, modelName, physicalModel)
                 CopyDataCardToOutputDir = "cp xs_125.0_"+str(nBins)+"bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName.replace(' ','_')+"_bin"+str(obsBin)+"_"+physicalModel+".txt"
-                processCmd(CopyDataCardToOutputDir)
+                processCmd(CopyDataCardToOutputDir, get_linenumber(), os.path.basename(__file__))
                 UpdateObservationValue = "sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName.replace(' ','_')+"_bin"+str(obsBin)+"_"+physicalModel+".txt"
-                processCmd(UpdateObservationValue)
+                processCmd(UpdateObservationValue, get_linenumber(), os.path.basename(__file__))
                 UpdateDatabin = "sed -i 's~_xs.Databin"+str(obsBin)+"~_xs_"+modelName+"_"+obsName.replace(' ','_')+"_"+physicalModel+".Databin"+str(obsBin)+"~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName.replace(' ','_')+"_bin"+str(obsBin)+"_"+physicalModel+".txt"
                 os.system(UpdateDatabin)
                 if ("jet" in obsName.replace(' ','_')):
@@ -353,13 +352,13 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
             ndata = createXSworkspace(ListObsName,fState, nBins, 0, observableBins, False, True, modelName, physicalModel)
             if obsName=='mass4l':
                 CopyDataCardToOutputDir = "cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusive_bin0.txt "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt"
-                processCmd(CopyDataCardToOutputDir)
+                processCmd(CopyDataCardToOutputDir, get_linenumber(), os.path.basename(__file__))
             if obsName=='mass4lREFIT':
                 os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusiveREFIT_bin0.txt "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt")
             UpdateObservationValue = "sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt"
-            processCmd(UpdateObservationValue)
+            processCmd(UpdateObservationValue, get_linenumber(), os.path.basename(__file__))
             UpdateDatabin = "sed -i 's~_xs.Databin0~_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin0~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt"
-            processCmd(UpdateDatabin)
+            processCmd(UpdateDatabin, get_linenumber(), os.path.basename(__file__))
 
 ### Create the asimov dataset and return fit results
 def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
@@ -381,7 +380,6 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
     logger.debug('ListObsName: {}'.format(ListObsName))
 
     # INFO: in case of 2D obs nbins is n else its n-1
-    logger.error("len(observableBins): = "+str(len(observableBins)))
     nBins = len(observableBins) -1
     if len(ListObsName) == 2:    # INFO: for 2D this list size == 2
         nBins = len(observableBins)
@@ -391,39 +389,34 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
     currentDir = os.getcwd(); os.chdir('./'+combineOutputs+'/') # FIXME: Hardcoded directory
     fStates = ['2e2mu','4mu','4e']
     for fState in fStates:
+        """Combine cards for all bins corresponding to each final state.
+        """
         # if (nBins>1):
         cmd = 'combineCards.py '
         for obsBin in range(nBins):
             cmd = cmd + 'hzz4l_'+fState+'S_13TeV_xs_'+obsName.replace(' ','_')+'_bin'+str(obsBin)+'_'+physicalModel+'.txt '
-        cmd = cmd + '> hzz4l_'+fState+'S_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt'
-        processCmd(cmd, get_linenumber(),1)
-        # else:
-            # FIXME: Did not get why this line is here?
-            #        If we need this then why we are not running this command?
-            # cmd = 'cp hzz4l_'+fState+'S_13TeV_xs_'+obsName.replace(' ','_')+'_bin0_'+physicalModel+'.txt hzz4l_'+fState+'S_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt'
+        cmd = cmd + '> hzz4l_'+fState+'S_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt' # Output combine card name
+        processCmd(cmd, get_linenumber(),  os.path.basename(__file__), 1)
 
     # combine 3 final state cards
     cmd = 'combineCards.py hzz4l_4muS_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt hzz4l_4eS_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt hzz4l_2e2muS_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt > hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt'
-    processCmd(cmd, get_linenumber(),1)
+    processCmd(cmd, get_linenumber(), os.path.basename(__file__), 1)
     if (not opt.LUMISCALE=="1.0"):
         os.system('echo "    " >> hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt')
         os.system('echo "lumiscale rateParam * * '+opt.LUMISCALE+'" >> hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt')
         os.system('echo "nuisance edit freeze lumiscale" >> hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt')
 
-    # FIXME: put this mkdir command at appropriate place
-    # workspacesDir = "workspaces"
-    # if not os.path.isdir(workspacesDir): os.mkdir(workspacesDir)
     # text-to-workspace
     if (physicalModel=="v2"):
-        #if (opt.FIXMASS=="False"):
+        # if (opt.FIXMASS=="False"):
         cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial_v2:differentialFiducialV2 --PO higgsMassRange=115,135 --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.root'
-        #else:
-        #cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial_v2:differentialFiducialV2 --PO higgsMassRange='+opt.ASIMOVMASS+','+opt.ASIMOVMASS+' --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.root'
-        processCmd(cmd, get_linenumber())
+        # else:
+        # cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial_v2:differentialFiducialV2 --PO higgsMassRange='+opt.ASIMOVMASS+','+opt.ASIMOVMASS+' --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.root'
+        processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
-    # FIXME: don't copy file to the one back directory; and try to make combine command work by fixing paths
+    # FIXME: Can we improve this?
     cmd = 'mv hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.root '+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.root'
-    processCmd(cmd, get_linenumber())
+    processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
     os.chdir(currentDir)
 
@@ -432,15 +425,11 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
     acc = _temp.acc
 
     # Run the Combine
+    logger.info("Going to run the combine commands...")
     if (physicalModel=="v2"):
-        #if (opt.FIXMASS=="False"):
         cmd =  'combine -n '+obsName.replace(' ','_')+' -M MultiDimFit  '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.root -m '+opt.ASIMOVMASS+' --setParameters '
-        logger.debug("="*51)
-        logger.debug("[INFO]: {}#{} command:\n\t{}".format(os.path.basename(__file__),get_linenumber(),cmd))
-        #else:
-        #cmd =  'combine -n '+obsName+' -M MultiDimFit  '+modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root -m '+opt.ASIMOVMASS+' --PO higgsMassRange='+opt.ASIMOVMASS+','+opt.ASIMOVMASS+' --setParameters '
+        logger.debug("command:\n\t{}".format(cmd))
         for fState in fStates:
-            # nBins = len(observableBins)
             for obsBin in range(nBins):
                 fidxs = 0
                 fidxs += higgs_xs['ggH_'+opt.ASIMOVMASS]*higgs4l_br[opt.ASIMOVMASS+'_'+fState]*acc['ggH_powheg_JHUgen_125_'+fState+'_'+obsName.replace(' ','_')+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -451,32 +440,33 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
                 fidxs += higgs_xs['ttH_'+opt.ASIMOVMASS]*higgs4l_br[opt.ASIMOVMASS+'_'+fState]*acc['ttH_powheg_JHUgen_125_'+fState+'_'+obsName.replace(' ','_')+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                 cmd = cmd + 'r'+fState+'Bin'+str(obsBin)+'='+str(fidxs)+','
         cmd =  cmd+ 'MH='+opt.ASIMOVMASS
-        print("="*51)
-        print("[INFO]: {}#{} command:\n\t{}".format(os.path.basename(__file__),get_linenumber(),cmd))
+        logger.debug("command+:\n\t{}".format(cmd))
         for fState in fStates:
-            # nBins = len(observableBins)
             for obsBin in range(nBins):
                 cmd = cmd + ' -P r'+fState+'Bin'+str(obsBin)
         if (opt.FIXMASS=="False"):
             cmd = cmd + ' -P MH '
         else:
             cmd = cmd + ' --floatOtherPOIs=0'
-        print("="*51)
-        print("[INFO]: {}#{} command:\n\t{}".format(os.path.basename(__file__),get_linenumber(),cmd))
         cmd = cmd +' -t -1 --saveWorkspace --saveToys'
+        logger.debug("command+:\n\t{}".format(cmd))
         if not os.path.isdir(combineOutputs): os.mkdir(combineOutputs)
         # cmd = cmd + ' --out ' + combineOutputs # FIXME: redirect log files from combine script to `combineOutputs` directory
         #cmd += ' --X-rtd TMCSO_PseudoAsimov=1000000'
         #cmd += ' --freezeNuisanceGroups r4muBin0,r4eBin0,r2e2muBin0'
-        output = processCmd(cmd, get_linenumber())
-        processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+combineOutputs+'/'+modelName+'_all_'+obsName.replace(' ','_')+'_13TeV_Asimov_'+physicalModel+'.root', get_linenumber(), 1)
+        output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
+
+        # INFO: Move combine output to combineOutputs directory
+        processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+combineOutputs+'/'+modelName+'_all_'+obsName.replace(' ','_')+'_13TeV_Asimov_'+physicalModel+'.root', get_linenumber(), os.path.basename(__file__), 1)
+
         #cmd = cmd.replace(' --freezeNuisanceGroups r4muBin0,r4eBin0,r2e2muBin0','')
         #cmd = cmd.replace(' --X-rtd TMCSO_PseudoAsimov=1000000','')
         cmd = cmd + ' --algo=singles --cl=0.68 --robustFit=1'
-        output = processCmd(cmd, get_linenumber())
-        lsCMD = "ls *.root"
-        processCmd(lsCMD, get_linenumber())
-        processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+combineOutputs+'/', get_linenumber())
+        output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
+        # lsCMD = "ls *.root"
+        # processCmd(lsCMD, get_linenumber(), os.path.basename(__file__))
+        # INFO: Move combine output to combineOutputs directory
+        processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+combineOutputs+'/', get_linenumber(), os.path.basename(__file__))
 
     # parse the results for all the bins and the given final state
     tmp_resultsXS = {}
@@ -508,18 +498,18 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
 
     # run combine with no systematics for stat only uncertainty
     if (opt.SYS):
-#Test VM:        cmd = cmd + ' --freezeNuisanceGroups CMS_fakeH_p1_1_8,CMS_fakeH_p1_2_8,CMS_fakeH_p1_3_8,CMS_fakeH_p3_1_8,CMS_fakeH_p3_2_8,CMS_fakeH_p3_3_8 --freezeParameters allConstrainedNuisances'
+        # Test VM:        cmd = cmd + ' --freezeNuisanceGroups CMS_fakeH_p1_1_8,CMS_fakeH_p1_2_8,CMS_fakeH_p1_3_8,CMS_fakeH_p3_1_8,CMS_fakeH_p3_2_8,CMS_fakeH_p3_3_8 --freezeParameters allConstrainedNuisances'
         cmd = cmd + ' --freezeParameters allConstrainedNuisances'
-        output = processCmd(cmd, get_linenumber())
+        output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
         # FIXME: The current combine command and the previous
         #        combine command generates output with exactly same name (obvious).
         #        But, we are not renaming them so its updated with current command.
         #        check if this is fine?
-        print("="*51)
-        lsCMD = 'echo "ls *.root";ls *.root'
-        processCmd(lsCMD, get_linenumber())
-        processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+combineOutputs+'/', get_linenumber())
+        # print("="*51)
+        # lsCMD = 'echo "ls *.root";ls *.root'
+        # processCmd(lsCMD, get_linenumber(), os.path.basename(__file__))
+        processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH'+opt.ASIMOVMASS.rstrip('.0')+'.123456.root '+combineOutputs+'/', get_linenumber(), os.path.basename(__file__))
 
 
         for fState in fStates:
@@ -584,11 +574,11 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
     logger.debug('ListObsName: {}'.format(ListObsName))
 
     # INFO: in case of 2D obs nbins is n else its n-1
-    logger.error("len(observableBins): = "+str(len(observableBins)))
+    logger.debug("len(observableBins): = "+str(len(observableBins)))
     nBins = len(observableBins) -1
     if len(ListObsName) == 2:    # INFO: for 2D this list size == 2
         nBins = len(observableBins)
-    logger.error("nBins: = "+str(nBins))
+    logger.debug("nBins: = "+str(nBins))
 
     currentDir = os.getcwd(); os.chdir(combineOutputs)
     fStates = ['2e2mu','4mu','4e']
@@ -598,10 +588,10 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
         for bin in range(nBins):
             cmd = cmd+'hzz4l_'+fState+'S_13TeV_xs_'+obsName.replace(' ','_')+'_bin'+str(bin)+'_'+physicalModel+'.txt '
         cmd = cmd + '> hzz4l_'+fState+'S_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt'
-        processCmd(cmd, get_linenumber(),1)
+        processCmd(cmd, get_linenumber(), os.path.basename(__file__), 1)
 
     cmd = 'combineCards.py hzz4l_4muS_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt hzz4l_4eS_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt hzz4l_2e2muS_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt > hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt'
-    processCmd(cmd, get_linenumber(),1)
+    processCmd(cmd, get_linenumber(), os.path.basename(__file__), 1)
 
     if (not opt.LUMISCALE=="1.0"):
         os.system('echo "    " >> hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt')
@@ -610,18 +600,18 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
 
     if (physicalModel=="v2"):
         cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial_v2:differentialFiducialV2 --PO higgsMassRange=115,135 --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.root'
-        processCmd(cmd, get_linenumber())
+        processCmd(cmd, get_linenumber(), os.path.basename(__file__))
     if (physicalModel=="v3"):
         cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial:differentialFiducialV3 --PO higgsMassRange=115,135 --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.root'
-        processCmd(cmd, get_linenumber())
+        processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
     cmd = 'mv hzz4l_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.root '+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.root'
-    processCmd(cmd, get_linenumber(),1)
+    processCmd(cmd, get_linenumber(), os.path.basename(__file__), 1)
 
     os.chdir(currentDir)
 
     cmd = 'root -l -b -q "src/addToyDataset.C(\\"'+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'.root\\",\\"'+combineOutputs+'/'+asimovModelName+'_all_'+obsName.replace(' ','_')+'_13TeV_Asimov_'+asimovPhysicalModel+'.root\\",\\"toy_asimov\\",\\"'+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_exp.root\\")"'
-    processCmd(cmd, get_linenumber())
+    processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
     # Run the Combine
     if (physicalModel=="v3"):
@@ -643,13 +633,13 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
             if (opt.UNBLIND):
                 #cmd = cmd.replace('_exp','')
                 cmd = cmd.replace('-D toy_asimov',' ')
-            output=processCmd(cmd, get_linenumber())
+            output=processCmd(cmd, get_linenumber(), os.path.basename(__file__))
             if (opt.FIXMASS=="False"):
-                processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH125.root '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_result.root', get_linenumber(), 1)
+                processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH125.root '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_result.root', get_linenumber(), os.path.basename(__file__), 1)
             else:
-                processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH'+opt.FIXMASS.replace('.0.root','.root')+'.root '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_result.root', get_linenumber(), 1)
+                processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH'+opt.FIXMASS.replace('.0.root','.root')+'.root '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_result.root', get_linenumber(), os.path.basename(__file__), 1)
             cmd = cmd + ' --algo=singles --cl=0.68 --robustFit=1'
-            output=processCmd(cmd, get_linenumber())
+            output=processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
         else:
             # import acc factors
@@ -736,14 +726,14 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
             if (opt.UNBLIND):
                 #cmd = cmd.replace('_exp','')
                 cmd = cmd.replace('-D toy_asimov',' ')
-            output=processCmd(cmd, get_linenumber())
+            output=processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
             if (opt.FIXMASS=="False"):
-                processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH125.root '+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_result.root',1)
+                processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH125.root '+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_result.root', os.path.basename(__file__), 1)
             else:
-                processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH'+opt.FIXMASS.rstrip('.0')+'.root '+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_result.root',1)
+                processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH'+opt.FIXMASS.rstrip('.0')+'.root '+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_result.root', os.path.basename(__file__), 1)
             cmd = cmd + ' --algo=singles --cl=0.68 --robustFit=1'
-            output=processCmd(cmd, get_linenumber())
+            output=processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
     if (physicalModel=="v2"):
         cmd =  'combine -n '+obsName.replace(' ','_')+' -M MultiDimFit '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_exp.root -D toy_asimov --saveWorkspace'
@@ -754,21 +744,21 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
         if (opt.UNBLIND):
             #cmd = cmd.replace('_exp','')
             cmd = cmd.replace('-D toy_asimov',' ')
-        output=processCmd(cmd, get_linenumber())
+        output=processCmd(cmd, get_linenumber(), os.path.basename(__file__))
         if (opt.FIXMASS=="False"):
-            processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH125.root '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_result.root', get_linenumber(), 1)
+            processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH125.root '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_result.root', get_linenumber(), os.path.basename(__file__), 1)
         else:
             # FIXME: seems like `opt.FIXMASS.rstrip('.0')` this part may do something wrong later.
-            processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH'+opt.FIXMASS.rstrip('.0')+'.root '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_result.root', get_linenumber(), 1)
+            processCmd('mv higgsCombine'+obsName.replace(' ','_')+'.MultiDimFit.mH'+opt.FIXMASS.rstrip('.0')+'.root '+combineOutputs+'/'+modelName+'_all_13TeV_xs_'+obsName.replace(' ','_')+'_bin_'+physicalModel+'_result.root', get_linenumber(), os.path.basename(__file__), 1)
         cmd = cmd + ' --algo=singles --cl=0.68 --robustFit=1'
-        output=processCmd(cmd, get_linenumber())
+        output=processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
     # parse the results for all the bins
     logger.debug("resultsXS: {}".format(resultsXS))
     for obsBin in range(nBins):
         if (physicalModel=="v3"):
             resultsXS[modelName+'_'+obsName.replace(' ','_')+'_genbin'+str(obsBin)] = parseXSResults(output,'SigmaBin'+str(obsBin)+' :')
-            logger.warning("""
+            logger.debug("""
                 nBins = {:2}, obsBins = {:2}, physicalModel = {},
                 key = {},
                 resultsXS = {}
@@ -778,7 +768,7 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
         elif (physicalModel=="v2"):
             for fState in fStates:
                 resultsXS[modelName+'_'+obsName.replace(' ','_')+'_'+fState+'_genbin'+str(obsBin)] = parseXSResults(output, 'r'+fState+'Bin'+str(obsBin)+' :')
-                logger.warning("""
+                logger.debug("""
                     nBins = {:2}, obsBins = {:2}, final State: {:4}, physicalModel = {},
                     key = {},
                     resultsXS = {}
@@ -792,7 +782,7 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
        #VM Test:  cmd = cmd + ' --freezeNuisanceGroups CMS_fakeH_p1_1_8,CMS_fakeH_p1_2_8,CMS_fakeH_p1_3_8,CMS_fakeH_p3_1_8,CMS_fakeH_p3_2_8,CMS_fakeH_p3_3_8 --freezeParameters allConstrainedNuisances'
         cmd = cmd + ' --freezeParameters allConstrainedNuisances'
 
-        output = processCmd(cmd, get_linenumber())
+        output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
         # parse the results
         for obsBin in range(nBins):
             if (physicalModel=="v3"):
@@ -806,7 +796,7 @@ def extractResults(obsName, observableBins, modelName, physicalModel, asimovMode
 ### Extract model dependance uncertnaities from the fit results
 def addModelIndependenceUncert(obsName, observableBins, resultsXS, asimovDataModelName, physicalModel):
 
-    logger.info('[Extract model dependance uncertnaities from the fit results for obsName "'+obsName.replace(' ','_')+'" using '+']')
+    logger.debug('[Extract model dependance uncertnaities from the fit results for obsName "'+obsName.replace(' ','_')+'" using '+']')
 
     logger.debug('obsName: {}'.format(obsName))
     logger.debug('observableBins: {}'.format(observableBins))
@@ -815,11 +805,10 @@ def addModelIndependenceUncert(obsName, observableBins, resultsXS, asimovDataMod
     logger.debug('ListObsName: {}'.format(ListObsName))
 
     # INFO: in case of 2D obs nbins is n else its n-1
-    logger.error("len(observableBins): = "+str(len(observableBins)))
     nBins = len(observableBins) -1
     if len(ListObsName) == 2:    # INFO: for 2D this list size == 2
         nBins = len(observableBins)
-    logger.error("nBins: = "+str(nBins))
+    logger.debug("nBins: = "+str(nBins))
 
     if (opt.UNBLIND): DataModel = 'SM_125_'
     else: DataModel = 'AsimovData_'
@@ -830,7 +819,7 @@ def addModelIndependenceUncert(obsName, observableBins, resultsXS, asimovDataMod
             for fState in ['4e','4mu','2e2mu']:
                 modelIndependenceUncert[DataModel + obsName.replace(' ','_') +'_'+fState+ '_genbin'+str(obsBin)] = {'uncerDn':0.0, 'uncerUp':0.0}
 
-        print (modelIndependenceUncert)
+        logger.debug ("modelIndependenceUncert: {}".format(modelIndependenceUncert))
         for key, value in resultsXS.iteritems():
             if (opt.UNBLIND and key.startswith('Asimov')): continue
             for obsBin in range(nBins):
@@ -876,19 +865,22 @@ def runFiducialXS():
 
     # prepare the set of bin boundaries to run over, only 1 bin in case of the inclusive measurement
     # observableBins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
-    # observableBins = opt.OBSBINS
+    # FIXME & DISCUSS: When we need the above mentioned feature? Get back this feature.???
 
     ### Run for the given observable
     obsName = opt.OBSNAME
+    ListObsName = (''.join(obsName.split())).split('vs')
+
     logger.info('Running fiducial XS computation for - {} - bin boundaries: {}'.format(obsName, opt.OBSBINS))
-    logger.debug("obsName : "+opt.OBSNAME)
-    logger.debug("OBSBINS: "+opt.OBSBINS)
 
     # INFO: Call read bins to parse the input bins information
     observableBins = read_bins(opt.OBSBINS)
     logger.info("Parsed bins: {}".format(observableBins))
     logger.info("Bin size = "+str(len(observableBins)))
-    logger.info("First bin: {}".format(observableBins[0]))
+    nBins = len(observableBins) -1
+    if len(ListObsName) == 2:    # INFO: for 2D this list size == 2
+        nBins = len(observableBins)
+    logger.debug("nBins: = "+str(nBins))
 
     # FIXME: Now we are extracing efficiencies separately. So, don't need below part.
     #        confirm and delete this
@@ -910,32 +902,32 @@ def runFiducialXS():
     if (runAllSteps or opt.templatesOnly):
         extractBackgroundTemplatesAndFractions(obsName, observableBins)
 
-    logger.debug("\n[INFO] runAllSteps: {runAllSteps}".format(runAllSteps=runAllSteps))
+    logger.debug("Options:\n\trunAllSteps: {}\n".format(runAllSteps))
     ## Create the asimov dataset
     if (runAllSteps):
-        logger.debug('='*51)
-        logger.debug('[INFO] Create asimov dataset...')
+        logger.info('='*51)
+        logger.info('Create asimov dataset...')
         resultsXS = {}
-        #asimovDataModelName = "ggH_powheg_JHUgen_125"
         cmd = 'python python/addConstrainedModel.py -l -q -b --obsName="'+opt.OBSNAME+'" --obsBins="'+opt.OBSBINS+'"'
-        output = processCmd(cmd, get_linenumber())
+        output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
         asimovDataModelName = "SM_125" # FIXME: Is it fine if the model name is hardcoded here. Since model (ASIMOVMODEL) is also an input argument
         asimovPhysicalModel = "v2" # FIXME: Same above message.
 
         logger.info("Going to produce datacards...")
         # INFO: Pass the updated bins information here
         produceDatacards(obsName, observableBins, asimovDataModelName, asimovPhysicalModel)
-        logger.info("Datacard produced...")
+        logger.info("Create the Asimov dataset...")
         resultsXS = createAsimov(obsName, observableBins, asimovDataModelName, resultsXS, asimovPhysicalModel)
-        logger.error("resultsXS: {}".format(resultsXS))
+        logger.debug("resultsXS: {}".format(resultsXS))
         # # plot the asimov predictions for data, signal, and backround in differential bins
         # if (not obsName.startswith("mass4l")):
         #     cmd = 'python python/plotDifferentialBins.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --inYAMLFile="'+opt.inYAMLFile+'"'
         #     if (opt.UNBLIND): cmd = cmd + ' --unblind'
-        #     output = processCmd(cmd, get_linenumber())
+        #     output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
         #     logger.debug(output)
 
     ## Extract the results
+    logger.info("Extract the results")
     # use constrained SM
     modelNames = opt.MODELNAMES
     modelNames = modelNames.split(',')
@@ -945,30 +937,30 @@ def runFiducialXS():
     if (obsName.startswith("mass4l")): physicalModels = ["v2","v3"]
     else: physicalModels = ["v3"]
 
-    logger.debug("runAllSteps       : "+str(runAllSteps))
-    logger.debug("opt.resultsOnly  : "+str(opt.resultsOnly))
+    logger.debug("Options:\n\trunAllSteps: {}\n\topt.resultsOnly {}\n".format(runAllSteps,opt.resultsOnly))
     if (runAllSteps or opt.resultsOnly):
         for physicalModel in physicalModels:
             for modelName in modelNames:
+                logger.debug("Produce datacard for physicsModel - {}, and modelName - {}".format(physicalModel, modelName))
                 produceDatacards(obsName, observableBins, modelName, physicalModel)
-                logger.debug("resultsXS: {}".format(resultsXS))
+                logger.debug("Extract results for physicsModel - {}, and modelName - {}".format(physicalModel, modelName))
                 resultsXS = extractResults(obsName, observableBins, modelName, physicalModel, asimovDataModelName, asimovPhysicalModel, resultsXS)
-                logger.debug("resultsXS: {}".format(resultsXS))
                 # # plot the fit results
                 # if (not obsName.startswith("mass4l")):
                 #     cmd = 'python python/plotAsimov_simultaneous.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'"'# +' --lumiscale=str(opt.LUMISCALE)'
                 #     if (opt.UNBLIND): cmd = cmd + ' --unblind'
-                #     output = processCmd(cmd, get_linenumber())
+                #     output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
                 #     print (output)
                 # elif (physicalModel=="v2"):
                 #     cmd = 'python python/plotAsimov_inclusive.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'"' #+' --lumiscale=str(opt.LUMISCALE)'
                 #     if (opt.UNBLIND): cmd = cmd + ' --unblind'
-                #     output = processCmd(cmd, get_linenumber())
+                #     output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
                 #     print (output)
 
             ## Calculate model dependance uncertainties
+            logger.debug("Calculate model dependence uncertainties for physicsModel - {}, and modelName - {}".format(physicalModel, asimovDataModelName))
             modelIndependenceUncert = addModelIndependenceUncert(obsName, observableBins, resultsXS, asimovDataModelName,physicalModel)
-            print("modelIndependenceUncert: \n{}".format(modelIndependenceUncert))
+            logger.debug("modelIndependenceUncert: \n{}".format(modelIndependenceUncert))
             if (opt.FIXFRAC): floatfix = '_fixfrac'
             else: floatfix = ''
             with open('python/resultsXS_'+obsName.replace(' ','_')+'_'+physicalModel+floatfix+'.py', 'w') as f:
@@ -977,8 +969,7 @@ def runFiducialXS():
                 f.write('resultsXS = '+json.dumps(resultsXS)+';\n')
                 f.write('modelIndUncert = '+json.dumps(modelIndependenceUncert))
 
-    logger.debug("runAllSteps          : "+str(runAllSteps))
-    logger.debug("opt.finalplotsOnly : "+str(opt.finalplotsOnly))
+    logger.debug("Options:\n\trunAllSteps: {}\n\topt.finalplotsOnly {}\n".format(runAllSteps,opt.finalplotsOnly))
     # Make final differential plots
     if (runAllSteps or opt.finalplotsOnly):
         DatasetForObservedLimit = "toy_asimov"
@@ -989,55 +980,47 @@ def runFiducialXS():
 
             # These commands for observed data
             # with systematics
-            # FIXME: Check if --points=500 improves results/not? If not, keep it to default value which is 50
-            # FIXME: hardcoded higgs mass value
-            cmd = 'combine -n mass4l_SigmaBin0 -M MultiDimFit '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v3_exp.root -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P SigmaBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin0=0.0,5.0 --redefineSignalPOI SigmaBin0 --algo=grid --points=500'
-            output = processCmd(cmd, get_linenumber())
+            # FIXME: Check the result of --points=100  and --points=500 improves results/not? In earlier version it was set to 500.
+            # FIXME: hardcoded higgs mass value to 125.09
+            cmd = 'combine -n mass4l_SigmaBin0 -M MultiDimFit '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v3_exp.root -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P SigmaBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin0=0.0,5.0 --redefineSignalPOI SigmaBin0 --algo=grid --points=100'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
             # no systematics
-            cmd = 'combine -n mass4l_SigmaBin0_NoSys -M MultiDimFit -d '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v3_result.root -w w --snapshotName "MultiDimFit" -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P SigmaBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin0=0.0,5.0 --redefineSignalPOI SigmaBin0 --algo=grid --points=500  --freezeParameters allConstrainedNuisances'
-            output = processCmd(cmd, get_linenumber())
+            cmd = 'combine -n mass4l_SigmaBin0_NoSys -M MultiDimFit -d '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v3_result.root -w w --snapshotName "MultiDimFit" -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P SigmaBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin0=0.0,5.0 --redefineSignalPOI SigmaBin0 --algo=grid --points=100  --freezeParameters allConstrainedNuisances'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
             #### These commands for observed data
             # 4e
             # with systematics
-            cmd = 'combine -n mass4l_r4eBin0 -M MultiDimFit '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_exp.root -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P r4eBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r4eBin0=0.0,5.0 --redefineSignalPOI r4eBin0 --algo=grid --points=500'
-            output = processCmd(cmd, get_linenumber())
+            cmd = 'combine -n mass4l_r4eBin0 -M MultiDimFit '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_exp.root -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P r4eBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r4eBin0=0.0,5.0 --redefineSignalPOI r4eBin0 --algo=grid --points=100'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
             # no systematics
-            cmd = 'combine -n mass4l_r4eBin0_NoSys -M MultiDimFit -d '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_result.root -w w --snapshotName "MultiDimFit" -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P r4eBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r4eBin0=0.0,5.0 --redefineSignalPOI r4eBin0 --algo=grid --points=500  --freezeParameters allConstrainedNuisances'
-            output = processCmd(cmd, get_linenumber())
+            cmd = 'combine -n mass4l_r4eBin0_NoSys -M MultiDimFit -d '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_result.root -w w --snapshotName "MultiDimFit" -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P r4eBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r4eBin0=0.0,5.0 --redefineSignalPOI r4eBin0 --algo=grid --points=100  --freezeParameters allConstrainedNuisances'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
             # 4mu
             # with systematics
-            cmd = 'combine -n mass4l_r4muBin0 -M MultiDimFit '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_exp.root -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P r4muBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r4muBin0=0.0,5.0 --redefineSignalPOI r4muBin0 --algo=grid --points=500'
-            output = processCmd(cmd, get_linenumber())
+            cmd = 'combine -n mass4l_r4muBin0 -M MultiDimFit '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_exp.root -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P r4muBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r4muBin0=0.0,5.0 --redefineSignalPOI r4muBin0 --algo=grid --points=100'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
             # no systematics
-            cmd = 'combine -n mass4l_r4muBin0_NoSys -M MultiDimFit -d '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_result.root -w w --snapshotName "MultiDimFit" -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P r4muBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r4muBin0=0.0,5.0 --redefineSignalPOI r4muBin0 --algo=grid --points=500  --freezeParameters allConstrainedNuisances'
-            output = processCmd(cmd, get_linenumber())
+            cmd = 'combine -n mass4l_r4muBin0_NoSys -M MultiDimFit -d '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_result.root -w w --snapshotName "MultiDimFit" -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P r4muBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r4muBin0=0.0,5.0 --redefineSignalPOI r4muBin0 --algo=grid --points=100  --freezeParameters allConstrainedNuisances'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
             # 2e2mu
             # with systematics
-            cmd = 'combine -n mass4l_r2e2muBin0 -M MultiDimFit '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_exp.root -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P r2e2muBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r2e2muBin0=0.0,5.0 --redefineSignalPOI r2e2muBin0 --algo=grid --points=500'
-            output = processCmd(cmd, get_linenumber())
+            cmd = 'combine -n mass4l_r2e2muBin0 -M MultiDimFit '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_exp.root -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P r2e2muBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r2e2muBin0=0.0,5.0 --redefineSignalPOI r2e2muBin0 --algo=grid --points=100'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
             # no systematics
-            cmd = 'combine -n mass4l_r2e2muBin0_NoSys -M MultiDimFit -d '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_result.root -w w --snapshotName "MultiDimFit" -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P r2e2muBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r2e2muBin0=0.0,5.0 --redefineSignalPOI r2e2muBin0 --algo=grid --points=500  --freezeParameters allConstrainedNuisances'
-            output = processCmd(cmd, get_linenumber())
+            cmd = 'combine -n mass4l_r2e2muBin0_NoSys -M MultiDimFit -d '+combineOutputs+'/SM_125_all_13TeV_xs_mass4l_bin_v2_result.root -w w --snapshotName "MultiDimFit" -m 125.09 -D '+DatasetForObservedLimit+' --setParameters MH=125.09 -P r2e2muBin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:r2e2muBin0=0.0,5.0 --redefineSignalPOI r2e2muBin0 --algo=grid --points=100  --freezeParameters allConstrainedNuisances'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
         else:
-            ListObsName = (''.join(obsName.split())).split('vs')
-            # INFO: in case of 2D obs nbins is n else its n-1
-            logger.error("len(observableBins): = "+str(len(observableBins)))
-            nBins = len(observableBins) -1
-            if len(ListObsName) == 2:    # INFO: for 2D this list size == 2
-                nBins = len(observableBins)
-            logger.error("nBins: = "+str(nBins))
             for obsBin in range(0,nBins):
-                cmd = "combine -n "+obsName.replace(' ','_')+"_SigmaBin"+str(obsBin)+" -M MultiDimFit -d "+combineOutputs+"/SM_125_all_13TeV_xs_"+obsName.replace(' ','_')+"_bin_"+physicalModel+"_exp.root -m 125.09 -D toy_asimov --setParameters MH=125.09 -P SigmaBin"+str(obsBin)+" --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin"+str(obsBin)+"=0.0,3.0 --redefineSignalPOIs SigmaBin"+str(obsBin)+" --algo=grid --points=50 --autoRange 4 "
-                if (opt.UNBLIND): cmd = cmd.replace("-D toy_asimov","-D data_obs") # FIXME: Amend this in previous line using variable `DatasetForObservedLimit`
-                print("combine command: ",cmd)
+                cmd = "combine -n "+obsName.replace(' ','_')+"_SigmaBin"+str(obsBin)+" -M MultiDimFit -d "+combineOutputs+"/SM_125_all_13TeV_xs_"+obsName.replace(' ','_')+"_bin_"+physicalModel+"_exp.root -m 125.09 -D "+DatasetForObservedLimit+" --setParameters MH=125.09 -P SigmaBin"+str(obsBin)+" --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin"+str(obsBin)+"=0.0,3.0 --redefineSignalPOIs SigmaBin"+str(obsBin)+" --algo=grid --points=100 --autoRange 4 "
+                logger.debug("combine command: {}".format(cmd))
 
                 # FIXME: Along with observables in the YAML file we can also add this custom sigmaBin range???
                 # if (obsName=='pt_leadingjet_pt30_eta2p5' and str(obsBin)=='1'): cmd = cmd.replace('0.0,3.0','0.0,1.5')
@@ -1049,13 +1032,13 @@ def runFiducialXS():
                 if (obsName=='njets_pt30_eta2p5' or obsName=='pt_leadingjet_pt30_eta2p5' and str(obsBin)=='3'): cmd = cmd.replace('0.0,3.0','0.0,1.0')
                 if (obsName=='njets_pt30_eta2p5' or obsName=='pt_leadingjet_pt30_eta2p5' and str(obsBin)=='4'): cmd = cmd.replace('0.0,3.0','0.0,1.0')
 
-                output = processCmd(cmd, get_linenumber())
+                output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
                 cmd = "combine -n "+obsName.replace(' ','_')+"_SigmaBin"+str(obsBin)+"_NoSys -M MultiDimFit -d "+combineOutputs+"/SM_125_all_13TeV_xs_"+obsName.replace(' ','_')+"_bin_"+physicalModel+"_result.root -w w --snapshotName \"MultiDimFit\" -m 125.09 -D toy_asimov --setParameters MH=125.09 -P SigmaBin"+str(obsBin)+" --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin"+str(obsBin)+"=0.0,3.0 --redefineSignalPOI SigmaBin"+str(obsBin)+" --algo=grid --points=50 --autoRange 4 --freezeParameters allConstrainedNuisances "
-                output = processCmd(cmd, get_linenumber())
+                output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
         # cmd = 'python python/plotLHScans.py -l -q -b --obsName='+obsName.replace(' ','_')
-        # output = processCmd(cmd, get_linenumber())
+        # output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
         # for modelName in modelNames:
         #     if (not opt.FIXMASS=="False"):
         #         cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="'+opt.FIXMASS+'"'
@@ -1067,10 +1050,10 @@ def runFiducialXS():
 
         #     if (opt.FIXFRAC): cmd = cmd + ' --fixFrac'
         #     if (opt.UNBLIND): cmd = cmd + ' --unblind'
-        #     output = processCmd(cmd, get_linenumber())
+        #     output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
         #     print (output)
         #     cmd = cmd + ' --setLog'
-        #     output = processCmd(cmd, get_linenumber())
+        #     output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
         #     print (output)
 
 if __name__ == "__main__":

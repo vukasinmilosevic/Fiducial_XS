@@ -90,9 +90,9 @@ for fState in fStates:
     dnfactors_diag = {}
 
     binDetails = read_bins(observableBins)
-    logger.info(binDetails)
+    logger.info("bins: {}".format(binDetails))
 
-    binSize = len(binDetails) if ('vs' in opt.OBSNAME) else len(binDetails) -1
+    binSize = len(binDetails) if ('vs' in obsName) else len(binDetails) -1
     logger.info("Bin size = "+str(binSize))
 
     for recobin in range(binSize):
@@ -111,7 +111,7 @@ for fState in fStates:
         ttHxs_allgen=0.0
 
         for genbin in range(binSize):
-            logger.debug("(recobin, genbin): ("+str(recobin) + ', '+str(genbin)+')')
+            # logger.debug("(recobin, genbin): ("+str(recobin) + ', '+str(genbin)+')')
             ggHxs_allgen += higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH_powheg_JHUgen_125_'+fState+'_'+obsName.replace(' ','_')+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             #ggHxs_allgen += acc['ggH_HRes_125_'+fState+'_'+obsName.replace(' ','_')+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             VBFxs_allgen += higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+fState]*acc['VBF_powheg_JHUgen_125_'+fState+'_'+obsName.replace(' ','_')+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
@@ -126,7 +126,7 @@ for fState in fStates:
         outin_SM += ttHxs_allgen*fout_ttH/(ggHxs_allgen+VBFxs_allgen+WHxs_allgen+ZHxs_allgen+ttHxs_allgen)
 
         for genbin in range(binSize):
-            logger.debug("(recobin, genbin): ("+str(recobin) + ', '+str(genbin)+')')
+            # logger.debug("(recobin, genbin): ("+str(recobin) + ', '+str(genbin)+')')
 
             ggHxs = higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH_powheg_JHUgen_125_'+fState+'_'+obsName.replace(' ','_')+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             #ggHxs = acc['ggH_HRes_125_'+fState+'_'+obsName.replace(' ','_')+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
@@ -284,7 +284,7 @@ for fState in fStates:
 
         print fState,obsName.replace(' ','_'),'recobin',str(recobin),'jesSM',jesSM,'jesSMup',jesSMup,'jesSMdn',jesSMdn
 
-with open(datacardInputs+'/inputs_sig_'+(opt.OBSNAME).replace(' ','_')+'.py', 'w') as f:
+with open(datacardInputs+'/inputs_sig_'+(obsName).replace(' ','_')+'.py', 'w') as f:
     f.write('acc = '+str(acc)+' \n')
     f.write('dacc = '+str(dacc)+' \n')
     f.write('eff = '+str(eff)+' \n')

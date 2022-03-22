@@ -66,7 +66,11 @@ if float(observableBins[len(observableBins)-1])>200.0:
 def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, observableBins):
 
 
-    nBins = len(observableBins)-1
+    if ('vs' in obsName):
+        nBins = len(observableBins)
+    else:
+        nBins = len(observableBins)-1
+
     # FIXME: we could relate channel and fstate???
     # FIXME: Channels and fstates are given at many places.
     # FIXME: Is it possible to define them at one place and grab it where its necessary?
@@ -81,7 +85,7 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
     # FIXME: Improve the directory naming/pointer of hardcoded directory
-    f_asimov = TFile(combineOutputs+"/"+asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
+    f_asimov = TFile(combineOutputs+"/"+asimovDataModel+'_all_'+obsName.replace(' ','_')+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
     if (not opt.UNBLIND):
         data = f_asimov.Get("toys/toy_asimov");
     #data.Print("v");
