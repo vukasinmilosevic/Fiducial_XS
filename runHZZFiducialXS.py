@@ -219,40 +219,38 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
                 logger.debug('tmp_fracs: {}'.format(tmp_fracs))
                 logger.debug('Length of observables bins: {}'.format(len(observableBins)))
 
-                for obsBin in range(0,1): # FIXME & DISCUSS: Here I (Ram) hardcoded the value 1. Will test with with other 2D obs then generalize. Currently, checking with massZ1 vs massZ2
-                    logger.debug('obsBin: '+str(obsBin))
-                    tag_ = sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName.replace(' ','_')+'_recobin'+str(nBins_)
-                    logger.debug('tag_ : {}'.format(tag_))
+                tag_ = sample_tag+'_'+bkg_samples_fStates[sample_tag]+'_'+obsName.replace(' ','_')+'_recobin'+str(nBins_)
+                logger.debug('tag_ : {}'.format(tag_))
 
-                    fractionBkg[tag_] = 0
-                    lambdajesupBkg[tag_] = 0
-                    lambdajesdnBkg[tag_] = 0
+                fractionBkg[tag_] = 0
+                lambdajesupBkg[tag_] = 0
+                lambdajesdnBkg[tag_] = 0
 
-                    logger.debug('tmp_fracs: {}'.format(tmp_fracs))
-                    logger.debug('tmp_fracs[obsBin+1]: {}'.format(tmp_fracs[obsBin+1]))
-                    logger.debug('tmp_fracs[obsBin+1].split("][end fraction]"): {}'.format(tmp_fracs[obsBin+1].split("][end fraction]")))
+                logger.debug('tmp_fracs: {}'.format(tmp_fracs))
+                logger.debug('tmp_fracs[1]: {}'.format(tmp_fracs[1]))
+                logger.debug('tmp_fracs[1].split("][end fraction]"): {}'.format(tmp_fracs[1].split("][end fraction]")))
 
-                    # The current for loop depends on how many times "[Bin fraction: " appears, when we run the `main_fiducialXSTemplates`
-                    tmpFrac = float(tmp_fracs[obsBin+1].split("][end fraction]")[0])
-                    if not math.isnan(tmpFrac):
-                        fractionBkg[tag_] = tmpFrac
-                    else:
-                        logger.error('total entries in the current bin is isnan. Please check...')
-                        #FIXME: should we exit program here or not???
+                # The current for loop depends on how many times "[Bin fraction: " appears, when we run the `main_fiducialXSTemplates`
+                tmpFrac = float(tmp_fracs[1].split("][end fraction]")[0])
+                if not math.isnan(tmpFrac):
+                    fractionBkg[tag_] = tmpFrac
+                else:
+                    logger.error('total entries in the current bin is isnan. Please check...')
+                    #FIXME: should we exit program here or not???
 
-                    if (('jet' in ListObsName[0] or 'jet' in ListObsName[1]) and tmpFrac!=0 and not math.isnan(tmpFrac)): # FIXME: this part will have issue when we have double differential obs.
-                        # FIXME: Check jets information, if its passing correctly or not.
-                        # FIXME: Again we are grabbing things from the log of `main_fiducialXSTemplates`. The next result depends on the couts of `main_fiducialXSTemplates`
-                        logger.debug('tmp_fracs[obsBin+1].split("Bin fraction (JESup): "): {}'.format(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")))
-                        logger.debug('tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1]: {}'.format(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1]))
-                        logger.debug('tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1].split("]"): {}'.format(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1].split("]")))
+                if (('jet' in ListObsName[0] or 'jet' in ListObsName[1]) and tmpFrac!=0 and not math.isnan(tmpFrac)): # FIXME: this part will have issue when we have double differential obs.
+                    # FIXME: Check jets information, if its passing correctly or not.
+                    # FIXME: Again we are grabbing things from the log of `main_fiducialXSTemplates`. The next result depends on the couts of `main_fiducialXSTemplates`
+                    logger.debug('tmp_fracs[1].split("Bin fraction (JESup): "): {}'.format(tmp_fracs[1].split("Bin fraction (JESup): ")))
+                    logger.debug('tmp_fracs[1].split("Bin fraction (JESup): ")[1]: {}'.format(tmp_fracs[1].split("Bin fraction (JESup): ")[1]))
+                    logger.debug('tmp_fracs[1].split("Bin fraction (JESup): ")[1].split("]"): {}'.format(tmp_fracs[1].split("Bin fraction (JESup): ")[1].split("]")))
 
-                        tmpFrac_up =float(tmp_fracs[obsBin+1].split("Bin fraction (JESup): ")[1].split("]")[0])
-                        tmpFrac_dn =float(tmp_fracs[obsBin+1].split("Bin fraction (JESdn): ")[1].split("]")[0])
-                        if not math.isnan(tmpFrac_up):
-                            lambdajesupBkg[tag_] = tmpFrac_up/tmpFrac - 1
-                        if not math.isnan(tmpFrac_dn):
-                            lambdajesdnBkg[tag_] = tmpFrac_dn/tmpFrac - 1
+                    tmpFrac_up =float(tmp_fracs[1].split("Bin fraction (JESup): ")[1].split("]")[0])
+                    tmpFrac_dn =float(tmp_fracs[1].split("Bin fraction (JESdn): ")[1].split("]")[0])
+                    if not math.isnan(tmpFrac_up):
+                        lambdajesupBkg[tag_] = tmpFrac_up/tmpFrac - 1
+                    if not math.isnan(tmpFrac_dn):
+                        lambdajesdnBkg[tag_] = tmpFrac_dn/tmpFrac - 1
 
     os.chdir(currentDir)
     logger.debug('observableBins: {}'.format(observableBins))
