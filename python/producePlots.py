@@ -8,6 +8,9 @@ from math import *
 # INFO: Following items are imported from either python directory or Inputs
 from Input_Info import *
 from sample_shortnames import *
+from read_bins import read_bins
+from Utils import logger
+
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -45,28 +48,47 @@ global opt, args, runAllSteps
 parseOptions()
 sys.argv = grootargs
 
-if (not os.path.exists("plots")):
-    os.system("mkdir plots")
 
 from ROOT import *
-
 from tdrStyle import *
-
 setTDRStyle()
 
 datamodel = opt.UNFOLD
 
 sys.path.append('./'+datacardInputs)
 
+
+ListObsName = (''.join((opt.OBSNAME).split())).split('vs')
+
+obs_bins = read_bins(opt.OBSBINS)
+logger.info("Parsed bins: {}".format(obs_bins))
+logger.info("Bin size = "+str(len(obs_bins)))
+
+nBins = len(obs_bins) -1
+if len(ListObsName) == 2:    # INFO: for 2D this list size == 2
+    nBins = len(obs_bins)
+logger.debug("nBins: = "+str(nBins))
+
+if len(ListObsName) == 1:    # INFO: for 2D this list size == 1
+    if float(obs_bins[nBins])>300.0:
+        obs_bins[nBins]='250.0'
+    if (opt.OBSNAME=="nJets" or opt.OBSNAME.startswith("njets")):
+        obs_bins[nBins]='5'
+
+obsName =  (opt.OBSNAME).replace(' ','_')
+
 def plotXS(obsName, obs_bins):
+    global nBins
 
     _temp = __import__('inputs_sig_'+obsName, globals(), locals(), ['acc'], -1)
     acc = _temp.acc
     eff = _temp.eff
     outinratio = _temp.outinratio
+
     _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
     higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
+
     if (opt.FIXFRAC): floatfix = '_fixfrac'
     else: floatfix = ''
     if (obsName == "mass4l"):
@@ -185,8 +207,7 @@ def plotXS(obsName, obs_bins):
     unc_qcd_ZH = 0.031
     unc_qcd_ttH = 0.0655
 
-    nBins=len(obs_bins)
-    for obsBin in range(nBins-1):
+    for obsBin in range(nBins):
 
         # theory cross sections
         ggH_powheg.append(0.0)
@@ -826,24 +847,33 @@ def plotXS(obsName, obs_bins):
         elif (obsName=="pt_leadingjet_pt30_eta2p5"): offset=30.0
         elif (obsName=="njets_pt30_eta2p5"): offset=999.0
         else: offset = 0.0
-        a_observable  = array('d',[0.5*(float(obs_bins[i])+float(obs_bins[i+1])) for i in range(len(obs_bins)-1)])
+
+        logger.debug("obs_bins: {}".format(obs_bins))
+
+        a_observable  = array('d',[0.5*(float(obs_bins[i])+float(obs_bins[i+1])) for i in range(nBins)])
         v_observable  = TVectorD(len(a_observable),a_observable)
-        a_dobservable = array('d',[0.5*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(obs_bins)-1)])
+
+        logger.debug("a_observable: {}".format(a_observable))
+        logger.debug("v_observable: {}".format(v_observable))
+
+        sys.exit()
+
+        a_dobservable = array('d',[0.5*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(nBins)])
         v_dobservable = TVectorD(len(a_dobservable),a_dobservable)
 
-        a_observable_1  = array('d',[(0.5*(float(obs_bins[i])+float(obs_bins[i+1]))+min(offset,0.25*(float(obs_bins[i+1])-float(obs_bins[i])))) for i in range(len(obs_bins)-1)])
+        a_observable_1  = array('d',[(0.5*(float(obs_bins[i])+float(obs_bins[i+1]))+min(offset,0.25*(float(obs_bins[i+1])-float(obs_bins[i])))) for i in range(nBins)])
         v_observable_1  = TVectorD(len(a_observable_1),a_observable_1)
-        a_dobservable_1 = array('d',[0.125*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(obs_bins)-1)])
+        a_dobservable_1 = array('d',[0.125*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(nBins)])
         v_dobservable_1 = TVectorD(len(a_dobservable_1),a_dobservable_1)
 
-        a_observable_2  = array('d',[(0.5*(float(obs_bins[i])+float(obs_bins[i+1]))-min(offset,0.25*(float(obs_bins[i+1])-float(obs_bins[i])))) for i in range(len(obs_bins)-1)])
+        a_observable_2  = array('d',[(0.5*(float(obs_bins[i])+float(obs_bins[i+1]))-min(offset,0.25*(float(obs_bins[i+1])-float(obs_bins[i])))) for i in range(nBins)])
         v_observable_2  = TVectorD(len(a_observable_2),a_observable_2)
-        a_dobservable_2 = array('d',[0.125*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(obs_bins)-1)])
+        a_dobservable_2 = array('d',[0.125*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(nBins)])
         v_dobservable_2 = TVectorD(len(a_dobservable_2),a_dobservable_2)
 
-        a_zeros = array('d',[0.0 for i in range(len(obs_bins)-1)])
+        a_zeros = array('d',[0.0 for i in range(nBins)])
         v_zeros = TVectorD(len(a_zeros),a_zeros)
-        a_twos = array('d',[0.015*(float(obs_bins[len(obs_bins)-1])-float(obs_bins[0])) for i in range(len(obs_bins)-1)])
+        a_twos = array('d',[0.015*(float(obs_bins[nBins])-float(obs_bins[0])) for i in range(nBins)])
         v_twos = TVectorD(len(a_twos),a_twos)
         a_ggH_powheg = array('d',[ggH_powheg[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_powheg))])
         v_ggH_powheg = TVectorD(len(a_ggH_powheg),a_ggH_powheg)
@@ -1570,10 +1600,14 @@ def plotXS(obsName, obs_bins):
 
     if (not opt.UNBLIND): set_log = set_log + '_asimov'
 
-    c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'.pdf')
-    c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'.png')
-    c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'.root')
-    c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'.C')
+    OutputPath = ResultsPlot.format(obsName = obsName.replace(' ','_'))
+    if not os.path.isdir(OutputPath):
+        os.makedirs(OutputPath)
+
+    c.SaveAs(OutputPath+'/'+obsName+'_unfoldwith_'+datamodel+set_log+'.pdf')
+    c.SaveAs(OutputPath+'/'+obsName+'_unfoldwith_'+datamodel+set_log+'.png')
+    c.SaveAs(OutputPath+'/'+obsName+'_unfoldwith_'+datamodel+set_log+'.root')
+    c.SaveAs(OutputPath+'/'+obsName+'_unfoldwith_'+datamodel+set_log+'.C')
     #c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'_unpublished.pdf')
     #c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'_unpublished.png')
     #c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'_unpublished.root')
@@ -1590,11 +1624,11 @@ def plotXS(obsName, obs_bins):
          f.write('\\begin{table}[!h!tb] \n')
          f.write('\\begin{center} \n')
          f.write('\\begin{tabular}{|l|')
-         for columns in range(0,len(obs_bins)-1):
+         for columns in range(0,nBins):
              f.write('c|')
          f.write('} \\hline \\hline \n')
          f.write('Observable & ' )
-         for obsbin in range(0,len(obs_bins)-1):
+         for obsbin in range(0,nBins):
              f.write('$'+obs_bins[obsbin]+'-'+obs_bins[obsbin+1]+'$')
              if (obsbin == len(obs_bins)-2):
                  f.write(' \\\\ \\hline \n')
@@ -1602,7 +1636,7 @@ def plotXS(obsName, obs_bins):
                  f.write (' & ')
          f.write(opt.OBSNAME+' & \n')
          rbin =0
-         for obsbin in range(0,len(obs_bins)-1):
+         for obsbin in range(0,nBins):
              f.write('$'+str(round(a_data[obsbin],3))+'^{+'+str(abs(round(sqrt(a_data_hi[obsbin]**2-a_systematics_hi[obsbin]**2),3)))+'+'+str(abs(round(a_systematics_hi[obsbin],3)))+'}'+'_{-'+str(abs(round(sqrt(a_data_lo[obsbin]**2-a_systematics_lo[obsbin]**2),3)))+'-'+str(abs(round(a_systematics_lo[obsbin],3)))+'}$')
              if (obsbin == len(obs_bins)-2):
                  f.write (' \n ')
@@ -1613,15 +1647,6 @@ def plotXS(obsName, obs_bins):
          f.write('\\end{center} \n')
          f.write('\\end{table} \n')
          f.write('\\end{document} \n')
-obs_bins = opt.OBSBINS.split("|")
-if (not (obs_bins[0] == '' and obs_bins[len(obs_bins)-1]=='')):
-    print('BINS OPTION MUST START AND END WITH A |')
-obs_bins.pop()
-obs_bins.pop(0)
-if float(obs_bins[len(obs_bins)-1])>300.0:
-    obs_bins[len(obs_bins)-1]='250.0'
-if (opt.OBSNAME=="nJets" or opt.OBSNAME.startswith("njets")):
-    obs_bins[len(obs_bins)-1]='5'
 
-plotXS(opt.OBSNAME, obs_bins)
+plotXS(obsName, obs_bins)
 
