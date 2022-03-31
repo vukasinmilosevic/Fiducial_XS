@@ -20,6 +20,9 @@ from ROOT import *
 # INFO: Following items are imported from either python directory or Inputs
 from Input_Info import *
 from Utils import  logger
+import logging
+
+logger.setLevel(logging.DEBUG)
 
 sys.path.append('./'+datacardInputs)
 

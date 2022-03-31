@@ -38,7 +38,7 @@ def parseOptions():
     parser.add_option('-d', '--dir',      dest='SOURCEDIR',type='string',default='./', help='run from the SOURCEDIR as working area, skip if SOURCEDIR is an empty string')
     parser.add_option('',   '--asimovModelName',dest='ASIMOVMODEL',type='string',default='SM_125', help='Name of the Asimov Model')
     parser.add_option('',   '--asimovMass',dest='ASIMOVMASS',type='string',default='125.09', help='Asimov Mass')
-    parser.add_option('',   '--modelNames',dest='MODELNAMES',type='string',default="SM_125,SMup_125,SMdn_125",help='Names of models for unfolding, separated by , (comma) . Default is "SM_125"')
+    parser.add_option('',   '--modelNames',dest='MODELNAMES',type='string',default="SM_125",help='Names of models for unfolding, separated by , (comma) like "SM_125,SMup_125,SMdn_125". Default is "SM_125"')
     # FIXME: `FIXMASS` option should be bool. As per its name. No?
     parser.add_option('',   '--fixMass',  dest='FIXMASS',  type='string',default='125.09',   help='Fix mass, default is a string "125.09" or can be changed to another string, e.g."125.6" or "False"')
     parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
@@ -908,23 +908,28 @@ def runFiducialXS():
         logger.info('='*51)
         logger.info('Create asimov dataset...')
         resultsXS = {}
+
         cmd = 'python python/addConstrainedModel.py -l -q -b --obsName="'+opt.OBSNAME+'" --obsBins="'+opt.OBSBINS+'"'
         output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
         asimovDataModelName = "SM_125" # FIXME: Is it fine if the model name is hardcoded here. Since model (ASIMOVMODEL) is also an input argument
         asimovPhysicalModel = "v2" # FIXME: Same above message.
-
+        logger.debug("""
+            obsName = {},
+            observableBins = {}
+            asimovDataModelName = {}
+            asimovPhysicalModel = {}""".format(obsName, observableBins, asimovDataModelName, asimovPhysicalModel))
         logger.info("Going to produce datacards...")
         # INFO: Pass the updated bins information here
         produceDatacards(obsName, observableBins, asimovDataModelName, asimovPhysicalModel)
         logger.info("Create the Asimov dataset...")
         resultsXS = createAsimov(obsName, observableBins, asimovDataModelName, resultsXS, asimovPhysicalModel)
         logger.debug("resultsXS: {}".format(resultsXS))
-        # # plot the asimov predictions for data, signal, and backround in differential bins
-        # if (not obsName.startswith("mass4l")):
-        #     cmd = 'python python/plotDifferentialBins.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --inYAMLFile="'+opt.inYAMLFile+'"'
-        #     if (opt.UNBLIND): cmd = cmd + ' --unblind'
-        #     output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
-        #     logger.debug(output)
+        # plot the asimov predictions for data, signal, and backround in differential bins
+        if ( (not obsName.startswith("mass4l")) and ("vs" not in obsName)): # INFO: skip this plotter for 2D obs
+            cmd = 'python python/plotDifferentialBins.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --inYAMLFile="'+opt.inYAMLFile+'"'
+            if (opt.UNBLIND): cmd = cmd + ' --unblind'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
+            logger.debug(output)
 
     ## Extract the results
     logger.info("Extract the results")
@@ -942,20 +947,26 @@ def runFiducialXS():
         for physicalModel in physicalModels:
             for modelName in modelNames:
                 logger.debug("Produce datacard for physicsModel - {}, and modelName - {}".format(physicalModel, modelName))
+                logger.debug("""
+                    obsName = {},
+                    observableBins = {}
+                    asimovDataModelName = {}
+                    asimovPhysicalModel = {}""".format(obsName, observableBins, modelName, physicalModel))
                 produceDatacards(obsName, observableBins, modelName, physicalModel)
                 logger.debug("Extract results for physicsModel - {}, and modelName - {}".format(physicalModel, modelName))
                 resultsXS = extractResults(obsName, observableBins, modelName, physicalModel, asimovDataModelName, asimovPhysicalModel, resultsXS)
-                # # plot the fit results
-                # if (not obsName.startswith("mass4l")):
-                #     cmd = 'python python/plotAsimov_simultaneous.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'"'# +' --lumiscale=str(opt.LUMISCALE)'
-                #     if (opt.UNBLIND): cmd = cmd + ' --unblind'
-                #     output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
-                #     print (output)
-                # elif (physicalModel=="v2"):
-                #     cmd = 'python python/plotAsimov_inclusive.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'"' #+' --lumiscale=str(opt.LUMISCALE)'
-                #     if (opt.UNBLIND): cmd = cmd + ' --unblind'
-                #     output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
-                #     print (output)
+                # plot the fit results
+                if ( (not obsName.startswith("mass4l")) and ("vs" not in obsName)): # INFO: Skip this plotter for 2D vars
+                    # identify 1D or 2D obs using `ListObsName` length
+                    cmd = 'python python/plotAsimov_simultaneous.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'" --obs='+str(len(ListObsName))# +' --lumiscale=str(opt.LUMISCALE)'
+                    if (opt.UNBLIND): cmd = cmd + ' --unblind'
+                    output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
+                    print (output)
+                elif (physicalModel=="v2" and ("vs" not in obsName)): # INFO: Skip this plotter for 2D vars
+                    cmd = 'python python/plotAsimov_inclusive.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'"' #+' --lumiscale=str(opt.LUMISCALE)'
+                    if (opt.UNBLIND): cmd = cmd + ' --unblind'
+                    output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
+                    print (output)
 
             ## Calculate model dependance uncertainties
             logger.debug("Calculate model dependence uncertainties for physicsModel - {}, and modelName - {}".format(physicalModel, asimovDataModelName))
@@ -1037,24 +1048,28 @@ def runFiducialXS():
                 cmd = "combine -n "+obsName.replace(' ','_')+"_SigmaBin"+str(obsBin)+"_NoSys -M MultiDimFit -d "+combineOutputs+"/SM_125_all_13TeV_xs_"+obsName.replace(' ','_')+"_bin_"+physicalModel+"_result.root -w w --snapshotName \"MultiDimFit\" -m 125.09 -D toy_asimov --setParameters MH=125.09 -P SigmaBin"+str(obsBin)+" --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin"+str(obsBin)+"=0.0,3.0 --redefineSignalPOI SigmaBin"+str(obsBin)+" --algo=grid --points=50 --autoRange 4 --freezeParameters allConstrainedNuisances "
                 output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
-        # cmd = 'python python/plotLHScans.py -l -q -b --obsName='+obsName.replace(' ','_')
-        # output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
-        # for modelName in modelNames:
-        #     if (not opt.FIXMASS=="False"):
-        #         cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="'+opt.FIXMASS+'"'
-        #     else:
-        #         cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'
-        #         ### FIXME: VUKASIN: Just until Higgs mass is properly implemented
-        #     cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'
+        cmd = 'python python/plotLHScans.py -l -q -b --obsName="{}" --obsBins="{}"'.format(
+            obsName.replace(' ','_'),  opt.OBSBINS
+        )
+        output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
+        # FIXME: Currently, produce plot is not working for 2D vars
+        if ("vs" in obsName): continue
+        for modelName in modelNames:
+            if (not opt.FIXMASS=="False"):
+                cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="'+opt.FIXMASS+'"'
+            else:
+                cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'
+                ### FIXME: VUKASIN: Just until Higgs mass is properly implemented
+            cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'
 
-        #     if (opt.FIXFRAC): cmd = cmd + ' --fixFrac'
-        #     if (opt.UNBLIND): cmd = cmd + ' --unblind'
-        #     output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
-        #     print (output)
-        #     cmd = cmd + ' --setLog'
-        #     output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
-        #     print (output)
+            if (opt.FIXFRAC): cmd = cmd + ' --fixFrac'
+            if (opt.UNBLIND): cmd = cmd + ' --unblind'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
+            print (output)
+            cmd = cmd + ' --setLog'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
+            print (output)
 
 if __name__ == "__main__":
     runFiducialXS()

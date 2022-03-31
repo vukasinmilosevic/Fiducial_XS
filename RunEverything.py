@@ -28,15 +28,16 @@ except Exception as e:
 
 parser = argparse.ArgumentParser(description='Input arguments')
 parser.add_argument( '-i', dest='inYAMLFile', default="Inputs/observables_list.yml", type=str, help='Input YAML file having observable names and bin information')
-parser.add_argument( '-s', dest='step', default=1, choices=[1, 2, 3, 4, 5], type=int, help='Which step to run')
+parser.add_argument( '-s', dest='step', default=1, choices=[1, 2, 3, 4, 5, 6, 7], type=int, help='Which step to run')
 parser.add_argument( '-c', dest='channels', nargs="+",  default=["4mu", "4e", "2e2mu", "4l"], help='list of channels')
-parser.add_argument( '-model', dest='modelNames', default="SM_125,SMup_125,SMdn_125",
+parser.add_argument( '-model', dest='modelNames', default="SM_125",
                         help='Names of models for unfolding, separated by , (comma) . Default is "SM_125"')
 parser.add_argument( '-p', dest='NtupleDir', default="/eos/home-v/vmilosev/Skim_2018_HZZ/WoW/", help='Path of ntuples')
 parser.add_argument( '-m', dest='HiggsMass', default=125.0, type=float, help='Higgs mass')
 parser.add_argument( '-y', dest='year', default=2018, type=int, help='dataset year')
 parser.add_argument( '-r', dest='RunCommand', default=0, type=int, choices=[0, 1], help="if 1 then it will run the commands else it will just print the commands")
 parser.add_argument( '-obs', dest='OneDOr2DObs', default=1, type=int, choices=[1, 2], help="1 for 1D obs, 2 for 2D observable")
+parser.add_argument('-n', dest="nohup", action='store_true', help='if want to run using nohup')
 parser.add_argument(
      "--log-level",
      default=logging.DEBUG,
@@ -86,8 +87,8 @@ with open(InputYAMLFile, 'r') as ymlfile:
                 # FIXME: Currently the plotter is only working for 1D vars.
                 if ((not obsName.startswith("mass4l") ) and (ObsToStudy != "2D_Observables")):
                     border_msg("Running plotter to plot 2D signal efficiencies")
-                    command = 'python python/plot2dsigeffs.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" --inYAMLFile="{inYAMLFile}"'.format(
-                        obsName = obsName, obsBins = obsBin['bins'], inYAMLFile = args.inYAMLFile
+                    command = 'python python/plot2dsigeffs.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" --inYAMLFile="{inYAMLFile}" --obs={obsToStudy}'.format(
+                        obsName = obsName, obsBins = obsBin['bins'], inYAMLFile = args.inYAMLFile, obsToStudy = args.OneDOr2DObs
                     )
                     logger.info("Command: {}".format(command))
                     if (args.RunCommand): os.system(command)
@@ -121,9 +122,12 @@ with open(InputYAMLFile, 'r') as ymlfile:
             if (args.step == 6):
                 border_msg("Running Background template maker: " + obsName)
                 # FIXME: Check if we need modelNames in step-4 or not
-                command = 'python -u runHZZFiducialXS.py --dir="{NtupleDir}" --obsName="{obsName}" --obsBins="{obsBins}" --modelNames {modelNames} --redoTemplates --templatesOnly '.format(
+                command = ''
+                if args.nohup: command = 'nohup '
+                command += 'python -u runHZZFiducialXS.py --dir="{NtupleDir}" --obsName="{obsName}" --obsBins="{obsBins}" --modelNames {modelNames} --redoTemplates --templatesOnly '.format(
                         obsName = obsName, obsBins = obsBin['bins'], NtupleDir = args.NtupleDir, modelNames= args.modelNames
                 )
+                if args.nohup: command += ' >& log/step_6_nohup.log &'
                 logger.info("Command: {}".format(command))
                 if (args.RunCommand): os.system(command)
 
@@ -134,9 +138,11 @@ with open(InputYAMLFile, 'r') as ymlfile:
                 copyCommand = 'cp models/HZZ4L*.py {CMSSW_BASE}/src/HiggsAnalysis/CombinedLimit/python/'.format(CMSSW_BASE=CMSSW_BASE)
                 os.system(copyCommand)
 
-                # command = 'nohup python -u runHZZFiducialXS.py --obsName="{obsName}" --obsBins="{obsBins}"  --calcSys --asimovMass {HiggsMass}  >& log/log_{obsName}_Run2Fid.txt &'.format(
-                command = 'python -u runHZZFiducialXS.py --obsName="{obsName}" --obsBins="{obsBins}"  --calcSys --asimovMass {HiggsMass} --modelNames {modelNames}'.format(
+                command = ''
+                if args.nohup: command = 'nohup '
+                command += 'python -u runHZZFiducialXS.py --obsName="{obsName}" --obsBins="{obsBins}"  --calcSys --asimovMass {HiggsMass} --modelNames {modelNames}'.format(
                         obsName = obsName, obsBins = obsBin['bins'], HiggsMass = args.HiggsMass, modelNames= args.modelNames
                 )
+                if args.nohup: command += ' >& log/step_7_nohup.log &'
                 logger.info("Command: {}".format(command))
                 if (args.RunCommand): os.system(command)
