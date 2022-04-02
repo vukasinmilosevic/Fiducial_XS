@@ -1,17 +1,17 @@
 import tarfile
 import os, sys
 
-
-exclude_files = [".tmp", ".log", ".stdout", ".stderr","MasterBranch", "UnderstandingEfficiencyFactors_Docs", "docs"]
+  
+exclude_files = [".tmp", ".log", ".stdout", ".stderr"] 
 
 def filterFunction(tarinfo):
   """Helper function for the tarball creating.
-
+  
   This function filters the unwanted files to add into the tarball creating.
-
+  
   Arguments:
     tarinfo {type of tarinfo var} -- this is test
-
+  
   Returns:
     returntype -- boolean function.
   """
@@ -23,9 +23,9 @@ def filterFunction(tarinfo):
 
 def make_tarfile(source_dir, output_filename):
   """Function to create the tarball.
-
+  
   This function creates the tarball of a given directory.
-
+  
   Arguments:
     output_filename {string} -- Output file name of the tarball.
     source_dir {string} -- Name of directory for which you need to make the tarball.
