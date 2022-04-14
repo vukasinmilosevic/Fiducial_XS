@@ -123,7 +123,6 @@ def interpolate_pred(x, nbins, obsName, DEBUG):
             qcdunc_ggH_powheg[str(key_NNLOPS_MX)]['uncerUp']=qcdunc_ggH_powheg[key_NNLOPS_M125]['uncerUp']*qcdunc_ggH_powheg[str(key_powheg_MX)]['uncerUp']/qcdunc_ggH_powheg[str(key_powheg_M125)]['uncerUp']  #acceptance[key_powheg_MX]
             qcdunc_ggH_powheg[str(key_NNLOPS_MX)]['uncerDn']=qcdunc_ggH_powheg[key_NNLOPS_M125]['uncerDn']*qcdunc_ggH_powheg[str(key_powheg_MX)]['uncerDn']/qcdunc_ggH_powheg[str(key_powheg_M125)]['uncerDn']  #acceptance[key_powheg_MX]
 
-
     OutputDictFileName = 'accUnc_'+obsName+'.py'
     os.system('cp ' + datacardInputs + '/' + OutputDictFileName + " " +datacardInputs+'/'+ OutputDictFileName.replace('.py','_beforeInterpolation.py'))
 
