@@ -6,7 +6,14 @@ from Utils import bcolors as style
 
 import makeTarFile
 
-parser = argparse.ArgumentParser(description='Input arguments')
+parser = argparse.ArgumentParser(description="""
+    Script to submit the condor jobs:
+
+
+    Example command:
+    ---------------------
+    python CondorScripts/condor_job.py  -obs 2 -c tomorrow -f TwoDJobs --OutputPath <EOSOutPutPath> --log log_TwoDJobs --tar
+    """, formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument( '-i', dest='inYAMLFile', default="Inputs/observables_list.yml", type=str, help='Input YAML file having observable names and bin information')
 parser.add_argument( '-obs', dest='OneDOr2DObs', default=1, type=int, choices=[1, 2], help="1 for 1D obs, 2 for 2D observable")
 parser.add_argument('-f', dest='CondorFileName', type=str,
@@ -25,9 +32,12 @@ parser.add_argument('-c', dest='condorQueue', type=str,
                              'nextweek'  # 1w
                              ])
 parser.add_argument('--OutputPath', type=str,
-                    default='/eos/user/r/rasharma/post_doc_ihep/H4LStudies/FiducialXS/',
+                    default='/eos/user/r/rasharma/post_doc_ihep/H4LStudies/FiducialXS/test',
                     help='output path, where the CMSSW tar file and the datacard dict will be stored')
-parser.add_argument('-tar', dest="ifTar", action='store_true', help='if want to run using nohup')
+parser.add_argument('--log', type=str,
+                    default='condor_logs',
+                    help='output path, where the CMSSW tar file and the datacard dict will be stored')
+parser.add_argument('--tar', dest="ifTar", action='store_true', help='if want to run using nohup')
 args = parser.parse_args()
 
 def CreateCMSSWTarFile(OutputPath_):
@@ -43,10 +53,10 @@ def CreateCMSSWTarFile(OutputPath_):
     cmsswDirPath = os.environ['CMSSW_BASE']
     CMSSWRel = cmsswDirPath.split("/")[-1]
     makeTarFile.make_tarfile(cmsswDirPath, CMSSWRel + ".tgz")
-    print "copying the " + CMSSWRel + ".tgz  file to eos path: " + storeDir + "\n"
+    print "copying the " + CMSSWRel + ".tgz  file to eos path: " + OutputPath_ + "\n"
     os.system('mv ' + CMSSWRel + ".tgz" + ' ' + OutputPath_ + '/' + CMSSWRel + ".tgz")
 
-def GetArgumentTextFile(InputYAMLFile, OneDOr2DObs):
+def GetArgumentTextFile(InputYAMLFile = "", OneDOr2DObs = "", fileName = "test",):
     ObsToStudy = "1D_Observables" if OneDOr2DObs == 1 else "2D_Observables"
 
     with open(InputYAMLFile, 'r') as ymlfile:
@@ -63,21 +73,21 @@ def GetArgumentTextFile(InputYAMLFile, OneDOr2DObs):
                 for channel in ["4mu", "4e", "2e2mu", "4l"]:
                         # arguments.append('\\"{}\\" \\"{}\\" \\"{}\\"'.format(obsName.replace(' ','#'), channel.replace(' ','#'), obsBin["bins"].replace(' ','#')))
                         arguments.append('{} {} {}'.format(obsName.replace(' ','=='), channel.replace(' ','=='), obsBin["bins"].replace(' ','==')))
+                        # arguments.append("'{}' {} '{}'".format(obsName, channel, obsBin["bins"]))
 
-            with open("arguments.txt", "w") as args:
+            with open(fileName+".txt", "w") as args:
                 args.write("\n".join(arguments))
 
 def condorJDLFile(fileName = "test",
                             logFilePath = "condor_logs",
                             logFileName = "output",
-                            arguments = "arguments.txt",
                             JobFlavour = "espresso"):
     if not os.path.isdir(logFilePath): os.mkdir(logFilePath)
 
     outJdl = open(fileName+'.jdl','w')
     outJdl.write('executable = '+fileName+'.sh')
     outJdl.write('\n'+'should_transfer_files = YES')
-    outJdl.write('\n'+'transfer_input_files = '+fileName+'.sh, '+arguments)
+    outJdl.write('\n'+'transfer_input_files = '+fileName+'.sh, '+fileName+'.txt')
     outJdl.write('\n'+'when_to_transfer_output = ON_EXIT')
     # outJdl.write('\n'+'x509userproxy = $ENV(X509_USER_PROXY)')
     outJdl.write('\n'+'+JobFlavour = "'+JobFlavour+'"')
@@ -87,7 +97,7 @@ def condorJDLFile(fileName = "test",
     outJdl.write('\n'+'output = '+logFilePath+os.sep+logFileName+'_$(ClusterId)_$(ProcId).stdout')
     outJdl.write('\n'+'error  = '+logFilePath+os.sep+logFileName+'_$(ClusterId)_$(ProcId).stdout')
     outJdl.write('\n'+'log  = '+logFilePath+os.sep+logFileName+'_$(ClusterId)_$(ProcId).log')
-    outJdl.write('\n'+'queue arguments from '+arguments)
+    outJdl.write('\n'+'queue arguments from '+fileName+'.txt')
     outJdl.close()
 
 def condorSHFile(fileName = "test",
@@ -96,19 +106,21 @@ def condorSHFile(fileName = "test",
     outSHFile = open(fileName+".sh","w");
     outSHFile.write('#!/bin/sh -e')
     outSHFile.write('\n'+'obsName=$1')
-    # outSHFile.write('\n'+'obsName=${obsName/==/ }')
-    outSHFile.write('\n'+'obsName=$(echo ${obsName} | sed "s/==/ /g")')
     outSHFile.write('\n'+'channel=$2')
-    # outSHFile.write('\n'+'channel=${channel/==/ }')
-    outSHFile.write('\n'+'channel=$(echo ${channel} | sed "s/==/ /g")')
     outSHFile.write('\n'+'obsBins=$3')
-    # outSHFile.write('\n'+'obsBins=${obsBins/==/ }')
+    outSHFile.write('\n'+'echo "Input arguments: "')
+    outSHFile.write('\n'+'echo "obsName: ${obsName}"')
+    outSHFile.write('\n'+'echo "channel: ${channel}"')
+    outSHFile.write('\n'+'echo "obsBins: ${obsBins}"')
+    outSHFile.write('\n'+'')
+    outSHFile.write('\n'+'obsName=$(echo ${obsName} | sed "s/==/ /g")')
+    outSHFile.write('\n'+'channel=$(echo ${channel} | sed "s/==/ /g")')
     outSHFile.write('\n'+'obsBins=$(echo ${obsBins} | sed "s/==/ /g")')
     outSHFile.write('\n'+'')
     outSHFile.write('\n'+'echo "Input arguments: "')
     outSHFile.write('\n'+'echo "obsName: ${obsName}"')
-    outSHFile.write('\n'+'echo "obsBins: ${obsBins}"')
     outSHFile.write('\n'+'echo "channel: ${channel}"')
+    outSHFile.write('\n'+'echo "obsBins: ${obsBins}"')
     outSHFile.write('\n'+'')
     outSHFile.write('\n'+'cp '+EOSPath+'/'+CMSSW+'.tgz .')
     outSHFile.write('\n'+'echo "==============="')
@@ -143,7 +155,15 @@ def condorSHFile(fileName = "test",
     outSHFile.write('\n'+'echo "Start of efficiency script"')
     outSHFile.write('\n'+'python -u efficiencyFactors.py -l -q -b --obsName="${obsName}" --obsBins="${obsBins}" -c "${channel}"')
     outSHFile.write('\n'+'echo "==============="')
-    outSHFile.write('\n'+'echo "End of efficiency script"')
+    outSHFile.write('\n'+'mkdir '+EOSPath+'/datacardInputs')
+    # outSHFile.write('\n'+'cp -r datacardInputs/*  '+EOSPath+'/datacardInputs/')
+    # outSHFile.write('\n'+'echo "Start collect job"')
+    # outSHFile.write('\n'+'python python/collectInputs.py -obs "${obsName}"')
+    # outSHFile.write('\n'+'echo "==============="')
+    # outSHFile.write('\n'+'echo "Start of Uncertainty script"')
+    # outSHFile.write('\n'+'python -u getUnc_Unc.py -l -q -b --obsName="${obsName}" --obsBins="${obsBins}"')
+    # outSHFile.write('\n'+'echo "==============="')
+    # outSHFile.write('\n'+'echo "End of efficiency script"')
     outSHFile.write('\n'+'echo "content of eos datacard directory: "')
     outSHFile.write('\n'+'ls '+EOSPath)
     outSHFile.write('\n'+'echo "==============="')
@@ -160,11 +180,20 @@ def condorSHFile(fileName = "test",
 
 
 if __name__ == "__main__":
+
+    # Create necessary directory that we need
+    if not os.path.isdir(logFilePath): os.mkdir(logFilePath)
+    if not os.path.isdir(args.OutputPath): os.mkdir(args.OutputPath)
+    if not os.path.isdir(args.OutputPath + "/datacardInputs"): os.mkdir(args.OutputPath + "/datacardInputs")
+
     if args.ifTar:
         CreateCMSSWTarFile(args.OutputPath)
-    GetArgumentTextFile(args.inYAMLFile, args.OneDOr2DObs)
+    GetArgumentTextFile(InputYAMLFile = args.inYAMLFile,
+                                fileName = args.CondorFileName,
+                                OneDOr2DObs = args.OneDOr2DObs)
     condorJDLFile(fileName = args.CondorFileName,
-                            JobFlavour = args.condorQueue)
+                            JobFlavour = args.condorQueue,
+                            logFilePath=args.log)
     condorSHFile(fileName = args.CondorFileName, EOSPath = args.OutputPath)
 
     print "===> Set Proxy Using:";
