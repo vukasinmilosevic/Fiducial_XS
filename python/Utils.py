@@ -2,6 +2,7 @@ import logging
 import os
 from inspect import currentframe
 from subprocess import *
+import datetime;
 
 
 class bcolors:
@@ -97,6 +98,10 @@ def processCmd(cmd, lineNumber = 0, moduleNameWhereItsCalled = "", quiet = 0):
     Returns:
         str: The full output of the command
     """
+    f = open("CommandsRun.txt", "a")
+    ct = datetime.datetime.now()
+    f.write("\n\ncurrent time: {}\n{}\n{}".format(ct, os.getcwd(), cmd))
+    f.close()
     output = '\n'
     logger.info("="*51)
     logger.info("[INFO]: Current working directory: {0}".format(os.getcwd()))

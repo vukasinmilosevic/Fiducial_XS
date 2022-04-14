@@ -5,7 +5,7 @@ import os
 from scipy import interpolate
 
 from Utils import *
-# from python import *
+from Input_Info import datacardInputs
 
 def parseOptions():
 
@@ -125,9 +125,9 @@ def interpolate_pred(x, nbins, obsName, DEBUG):
 
 
     OutputDictFileName = 'accUnc_'+obsName+'.py'
-    os.system('cp ' + OutputDictFileName + " " + OutputDictFileName.replace('.py','_beforeInterpolation.py'))
+    os.system('cp ' + datacardInputs + '/' + OutputDictFileName + " " +datacardInputs+'/'+ OutputDictFileName.replace('.py','_beforeInterpolation.py'))
 
-    with open(OutputDictFileName, 'w') as f:
+    with open(datacardInputs + '/' + OutputDictFileName, 'w') as f:
         print("going write interpolated values in file:   " + OutputDictFileName)
         f.write('acc = '+str(acc_ggH_powheg)+' \n')
         f.write('qcdUncert = '+str(qcdunc_ggH_powheg)+' \n')

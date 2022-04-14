@@ -37,6 +37,7 @@ parser.add_argument( '-m', dest='HiggsMass', default=125.0, type=float, help='Hi
 parser.add_argument( '-y', dest='year', default=2018, type=int, help='dataset year')
 parser.add_argument( '-r', dest='RunCommand', default=0, type=int, choices=[0, 1], help="if 1 then it will run the commands else it will just print the commands")
 parser.add_argument( '-obs', dest='OneDOr2DObs', default=1, type=int, choices=[1, 2], help="1 for 1D obs, 2 for 2D observable")
+parser.add_argument( '-test', dest='TestVar', default="", type=str, help="Name of test variables to run over")
 parser.add_argument('-n', dest="nohup", action='store_true', help='if want to run using nohup')
 parser.add_argument(
      "--log-level",
@@ -65,6 +66,9 @@ with open(InputYAMLFile, 'r') as ymlfile:
 
     if ObsToStudy in cfg['Observables']:
         for obsName, obsBin in cfg['Observables'][ObsToStudy].items():
+            if (args.TestVar != "" and args.TestVar != obsName):
+                """If the test variable is given, then only run over that variable"""
+                continue
             logger.info("="*51)
             logger.info("Observable: {:11} Bins: {}".format(obsName, obsBin['bins']))
             if (args.step == 1):

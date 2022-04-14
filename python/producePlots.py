@@ -8,9 +8,6 @@ from math import *
 # INFO: Following items are imported from either python directory or Inputs
 from Input_Info import *
 from sample_shortnames import *
-from read_bins import read_bins
-from Utils import logger
-
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -48,6 +45,8 @@ global opt, args, runAllSteps
 parseOptions()
 sys.argv = grootargs
 
+if (not os.path.exists("plots")):
+    os.system("mkdir plots")
 
 from ROOT import *
 from tdrStyle import *
@@ -84,11 +83,9 @@ def plotXS(obsName, obs_bins):
     acc = _temp.acc
     eff = _temp.eff
     outinratio = _temp.outinratio
-
     _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
     higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
-
     if (opt.FIXFRAC): floatfix = '_fixfrac'
     else: floatfix = ''
     if (obsName == "mass4l"):
@@ -847,17 +844,8 @@ def plotXS(obsName, obs_bins):
         elif (obsName=="pt_leadingjet_pt30_eta2p5"): offset=30.0
         elif (obsName=="njets_pt30_eta2p5"): offset=999.0
         else: offset = 0.0
-
-        logger.debug("obs_bins: {}".format(obs_bins))
-
         a_observable  = array('d',[0.5*(float(obs_bins[i])+float(obs_bins[i+1])) for i in range(nBins)])
         v_observable  = TVectorD(len(a_observable),a_observable)
-
-        logger.debug("a_observable: {}".format(a_observable))
-        logger.debug("v_observable: {}".format(v_observable))
-
-        sys.exit()
-
         a_dobservable = array('d',[0.5*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(nBins)])
         v_dobservable = TVectorD(len(a_dobservable),a_dobservable)
 
@@ -1648,5 +1636,5 @@ def plotXS(obsName, obs_bins):
          f.write('\\end{table} \n')
          f.write('\\end{document} \n')
 
-plotXS(obsName, obs_bins)
 
+plotXS(obsName, obs_bins)

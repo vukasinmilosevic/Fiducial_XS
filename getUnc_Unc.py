@@ -9,6 +9,7 @@ from LoadData import *
 from sample_shortnames import *
 from Utils import *
 from read_bins import *
+from Input_Info import datacardInputs
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -77,7 +78,7 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
 
         print("General information about the variable:")
         print ("Chosen Gen Bin is: {}, Low geb bin value is: {}, High gen bin value is: {}, Lowest value is: {}, Highest value is: {}".format(genbin, obs_gen_low, obs_gen_high, obs_gen_lowest, obs_gen_highest))
-        
+
     else:
         border_msg("The option of performing a double differential measurement has been selected.")
 
@@ -99,7 +100,7 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
 
         obs_gen2_lowest = str(min(obs2_boundaries_float))
         obs_gen2_highest = str(max(obs2_boundaries_float))
-        
+
         print("General information about the variable 1:")
         print ("Chosen Gen Bin is: {}, Low geb bin value is: {}, High gen bin value is: {}, Lowest value is: {}, Highest value is: {}".format(genbin, obs_gen_low, obs_gen_high, obs_gen_lowest, obs_gen_highest))
 
@@ -368,9 +369,8 @@ if (obs_reco.startswith("njets")):
                 qcdUncert[processBin]['uncerUp'] = sqrt(qcdUncert[processBin]['uncerUp']*qcdUncert[processBin]['uncerUp']+qcdUncert[processBinPlus1]['uncerUp']*qcdUncert[processBinPlus1]['uncerUp'])
                 qcdUncert[processBin]['uncerDn'] = sqrt(qcdUncert[processBin]['uncerDn']*qcdUncert[processBin]['uncerDn']+qcdUncert[processBinPlus1]['uncerDn']*qcdUncert[processBinPlus1]['uncerDn'])
 
-DirForUncFiles = "python"
-if not os.path.isdir(DirForUncFiles): os.mkdir(DirForUncFiles)
-with open(DirForUncFiles+'/accUnc_'+opt.OBSNAME.replace(" ","_")+'.py', 'w') as f:
+if not os.path.isdir(datacardInputs): os.mkdir(datacardInputs)
+with open(datacardInputs+'/accUnc_'+opt.OBSNAME.replace(" ","_")+'.py', 'w') as f:
     f.write('acc = '+str(acceptance)+' \n')
     f.write('qcdUncert = '+str(qcdUncert)+' \n')
     f.write('pdfUncert = '+str(pdfUncert)+' \n')

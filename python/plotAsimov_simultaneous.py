@@ -389,16 +389,11 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
     latex2.DrawLatex(0.30, 0.95, "Preliminary")
     latex2.SetTextFont(42)
     latex2.SetTextSize(0.45*c.GetTopMargin())
-    #latex2.DrawLatex(0.20,0.85, observableBins[recobin]+" "+unit+" < "+label+" < "+observableBins[recobin+1]+" "+unit+"    Unfolding model: "+modelName.replace("_"," ")+" GeV")
     if (ObsToStudy == "1D_Observables"):
         latex2.DrawLatex(0.65,0.85, observableBins[recobin]+" "+unit+" < "+label+" < "+observableBins[recobin+1]+" "+unit)
     else:
-        # print( observableBins[recobin])
-        # print(observableBins[recobin])
         latex2.DrawLatex(0.65,0.85, observableBins[recobin][0][0]+" "+unit+" < "+label[0]+" < "+observableBins[recobin][0][1]+" "+unit)
         latex2.DrawLatex(0.65,0.75, observableBins[recobin][1][0]+" "+unit+" < "+label[1]+" < "+observableBins[recobin][1][1]+" "+unit)
-        # exit()
-        # latex2.DrawLatex(0.65,0.85, observableBins[recobin]+" "+unit+" < "+label+" < "+observableBins[recobin+1]+" "+unit)
     # Create output directory if it does not exits
     OutputPath = AsimovPlots.format(obsName = obsName.replace(' ','_'))
     if not os.path.isdir(OutputPath):
