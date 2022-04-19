@@ -64,24 +64,20 @@ sys.path.append('./'+datacardInputs)
 ListObsName = (''.join((opt.OBSNAME).split())).split('vs')
 
 obs_bins = read_bins(opt.OBSBINS)
-logger.info("Parsed bins: {}".format(obs_bins))
-logger.info("Bin size = "+str(len(obs_bins)))
-
 nBins = len(obs_bins) -1
-if len(ListObsName) == 2:    # INFO: for 2D this list size == 2
-    nBins = len(obs_bins)
-logger.debug("nBins: = "+str(nBins))
 
 obs_bins_boundaries = False
-
 if len(ListObsName) == 1:    # INFO: for 2D this list size == 1
     if float(obs_bins[nBins])>300.0:
         obs_bins[nBins]='250.0'
     if (opt.OBSNAME=="nJets" or opt.OBSNAME.startswith("njets")):
         obs_bins[nBins]='5'
 else:
+    nBins = len(obs_bins)
     obs_bins_boundaries = obs_bins
-    obs_bins = [i for i in range(nBins)]
+    obs_bins = [i for i in range(nBins+1)]  # bins hack
+logger.info("Parsed bins: {}".format(obs_bins))
+logger.debug("nBins: = "+str(nBins))
 
 obsName =  (opt.OBSNAME).replace(' ','_')
 
@@ -393,7 +389,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries):
             total_NLOunc_fs_powheg_lo += (qcdunc_ggH_powheg["ggH_powheg_JHUgen_125_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerDn']
                                           *ggH_xsBR*acc_ggH_powheg['ggH_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin'+str(obsBin)])**2
 
-            print(channel,total_NLOunc_fs_powheg_hi)
+            logger.debug("channel: {:5} total_NLOunc_fs_powheg_hi = {}".format(channel,total_NLOunc_fs_powheg_hi))
 
             total_NLOunc_fs_minloHJ_hi += XH_qcdunc_fs
             total_NLOunc_fs_minloHJ_lo += XH_qcdunc_fs
@@ -574,7 +570,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries):
 
             obsBin=0
 
-            print(obsBin,acc)
+            logger.debug("obsBin: {:3} acc = {}".format(obsBin,acc))
             XH_fs = higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['VBF_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin0_recobin0']
             XH_fs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['WH_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin0_recobin0']
             XH_fs += higgs_xs['ZH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ZH_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin0_recobin0']
@@ -721,13 +717,13 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries):
 
 
 
-    print('data',data)
+    logger.debug('data: {}'.format(data))
     sumdata = 0.0
     for i in range(len(data)):
         sumdata+=data[i]
-    print(obsName,'sum data',sumdata)
-    print('data_hi',data_hi)
-    print('data_lo',data_lo)
+    logger.debug('obsName: {:6} sum data: {}'.format(obsName,sumdata))
+    logger.debug('data_hi: {}'.format(data_hi))
+    logger.debug('data_lo: {}'.format(data_lo))
     #print 'ggH HRes + XH',ggH_HRes
     #print 'NNLO ggH HRes + XH',ggH_HRes_NNLOunc_hi
     #print 'NNLO ggH HRes + XH',ggH_HRes_NNLOunc_lo
@@ -858,12 +854,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries):
         elif (obsName=="pt_leadingjet_pt30_eta2p5"): offset=30.0
         elif (obsName=="njets_pt30_eta2p5"): offset=999.0
         else: offset = 0.0
-        logger.debug("obs_bins: {}".format(obs_bins))
-        logger.debug("obs_bins_boundaries: {}".format(obs_bins_boundaries))
-        logger.debug("nBins: {}".format(nBins))
-        if (obs_bins_boundaries != False): nBins = nBins - 1
-        for i in range(nBins):
-            print("==> ",i)
+
         a_observable  = array('d',[0.5*(float(obs_bins[i])+float(obs_bins[i+1])) for i in range(nBins)])
         v_observable  = TVectorD(len(a_observable),a_observable)
         a_dobservable = array('d',[0.5*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(nBins)])
@@ -883,74 +874,26 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries):
         v_zeros = TVectorD(len(a_zeros),a_zeros)
         a_twos = array('d',[0.015*(float(obs_bins[nBins])-float(obs_bins[0])) for i in range(nBins)])
         v_twos = TVectorD(len(a_twos),a_twos)
-        logger.debug("ggH_powheg: {}".format(ggH_powheg))
-        if len(ListObsName) == 2:    # INFO: for 2D this list size == 2
-            """Custom length for 2D obs. Decrease length by 1"""
-            len_ggH_powheg = len(ggH_powheg) - 1
-            len_ggH_powheg_hi = len(ggH_powheg_unc_hi) - 1
-            len_ggH_powheg_lo = len(ggH_powheg_unc_lo) - 1
-            len_ggH_minloHJ = len(ggH_minloHJ) - 1
-            len_ggH_minloHJ_hi = len(ggH_minloHJ_unc_hi) - 1
-            len_ggH_minloHJ_lo = len(ggH_minloHJ_unc_lo) - 1
-            len_ggH_mad = len(ggH_mad) - 1
-            len_ggH_mad_hi = len(ggH_mad_unc_hi) - 1
-            len_ggH_mad_lo = len(ggH_mad_unc_lo) - 1
-            len_XH = len(XH) - 1
-            len_XH_unc = len(XH_unc) - 1
-            len_data = len(data) - 1
-            len_data_hi = len(data_hi) - 1
-            len_data_hi2 = len(data_hi2) - 1
-            len_data_lo = len(data_lo) - 1
-            len_data_lo2 = len(data_lo2) - 1
-            len_systematics_hi = len(systematics_hi) - 1
-            len_systematics_lo = len(systematics_lo) - 1
-            len_systematics_hi2 = len(systematics_hi2) - 1
-            len_systematics_lo2 = len(systematics_lo2) - 1
-            len_modeldep_hi = len(modeldep_hi) - 1
-            len_modeldep_lo = len(modeldep_lo) - 1
-        else:
-            len_ggH_powheg = len(ggH_powheg)
-            len_ggH_powheg_hi = len(ggH_powheg_unc_hi)
-            len_ggH_powheg_lo = len(ggH_powheg_unc_lo)
-            len_ggH_minloHJ = len(ggH_minloHJ)
-            len_ggH_minloHJ_hi = len(ggH_minloHJ_unc_hi)
-            len_ggH_minloHJ_lo = len(ggH_minloHJ_unc_lo)
-            len_ggH_mad = len(ggH_mad)
-            len_ggH_mad_hi = len(ggH_mad_unc_hi)
-            len_ggH_mad_lo = len(ggH_mad_unc_lo)
-            len_XH = len(XH)
-            len_XH_unc = len(XH_unc)
-            len_data = len(data)
-            len_data_hi = len(data_hi)
-            len_data_lo = len(data_lo)
-            len_data_hi2 = len(data_hi2)
-            len_data_lo2 = len(data_lo2)
-            len_systematics_hi = len(systematics_hi)
-            len_systematics_lo = len(systematics_lo)
-            len_systematics_hi2 = len(systematics_hi2)
-            len_systematics_lo2 = len(systematics_lo2)
-            len_modeldep_hi = len(modeldep_hi)
-            len_modeldep_lo = len(modeldep_lo)
 
-        a_ggH_powheg = array('d',[ggH_powheg[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_ggH_powheg)])
+        a_ggH_powheg = array('d',[ggH_powheg[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_powheg))])
         v_ggH_powheg = TVectorD(len(a_ggH_powheg),a_ggH_powheg)
-        a_ggH_powheg_unc_hi =  array('d',[ggH_powheg_NLOunc_hi[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_ggH_powheg_hi)])
-        a_ggH_powheg_unc_lo =  array('d',[ggH_powheg_NLOunc_lo[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_ggH_powheg_lo)])
+        a_ggH_powheg_unc_hi =  array('d',[ggH_powheg_NLOunc_hi[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_powheg_unc_hi))])
+        a_ggH_powheg_unc_lo =  array('d',[ggH_powheg_NLOunc_lo[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_powheg_unc_lo))])
         v_ggH_powheg_unc_hi = TVectorD(len(a_ggH_powheg_unc_hi),a_ggH_powheg_unc_hi)
         v_ggH_powheg_unc_lo = TVectorD(len(a_ggH_powheg_unc_lo),a_ggH_powheg_unc_lo)
 
-        a_ggH_minloHJ = array('d',[ggH_minloHJ[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_ggH_minloHJ)])
+        a_ggH_minloHJ = array('d',[ggH_minloHJ[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_minloHJ))])
         v_ggH_minloHJ = TVectorD(len(a_ggH_minloHJ),a_ggH_minloHJ)
-        a_ggH_minloHJ_unc_hi =  array('d',[ggH_minloHJ_NNLOunc_hi[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_ggH_minloHJ_hi)])
-        a_ggH_minloHJ_unc_lo =  array('d',[ggH_minloHJ_NNLOunc_lo[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_ggH_minloHJ_lo)])
+        a_ggH_minloHJ_unc_hi =  array('d',[ggH_minloHJ_NNLOunc_hi[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_minloHJ_unc_hi))])
+        a_ggH_minloHJ_unc_lo =  array('d',[ggH_minloHJ_NNLOunc_lo[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_minloHJ_unc_lo))])
         v_ggH_minloHJ_unc_hi = TVectorD(len(a_ggH_minloHJ_unc_hi),a_ggH_minloHJ_unc_hi)
         v_ggH_minloHJ_unc_lo = TVectorD(len(a_ggH_minloHJ_unc_lo),a_ggH_minloHJ_unc_lo)
 
-        a_ggH_mad = array('d',[ggH_mad[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_ggH_mad)])
+        a_ggH_mad = array('d',[ggH_mad[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_mad))])
         v_ggH_mad = TVectorD(len(a_ggH_mad),a_ggH_mad)
         ###mad NNLO or NLO
-        a_ggH_mad_unc_hi =  array('d',[ggH_mad_NNLOunc_hi[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_ggH_mad_hi)])
-        a_ggH_mad_unc_lo =  array('d',[ggH_mad_NNLOunc_lo[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_ggH_mad_lo)])
+        a_ggH_mad_unc_hi =  array('d',[ggH_mad_NNLOunc_hi[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_mad_unc_hi))])
+        a_ggH_mad_unc_lo =  array('d',[ggH_mad_NNLOunc_lo[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_mad_unc_lo))])
         v_ggH_mad_unc_hi = TVectorD(len(a_ggH_mad_unc_hi),a_ggH_mad_unc_hi)
         v_ggH_mad_unc_lo = TVectorD(len(a_ggH_mad_unc_lo),a_ggH_mad_unc_lo)
 
@@ -962,39 +905,38 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries):
         v_ggH_HRes_unc_hi = TVectorD(len(a_ggH_HRes_unc_hi),a_ggH_HRes_unc_hi)
         v_ggH_HRes_unc_lo = TVectorD(len(a_ggH_HRes_unc_lo),a_ggH_HRes_unc_lo)
         '''
-        logger.debug(XH)
-        a_XH = array('d',[XH[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_XH)])
+        a_XH = array('d',[XH[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(XH))])
         v_XH = TVectorD(len(a_XH),a_XH)
 
-        a_XH_hi = array('d',[XH_unc[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_XH_unc)])
-        a_XH_lo = array('d',[XH_unc[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_XH_unc)])
+        a_XH_hi = array('d',[XH_unc[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(XH_unc))])
+        a_XH_lo = array('d',[XH_unc[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(XH_unc))])
         v_XH_hi = TVectorD(len(a_XH_hi),a_XH_hi)
         v_XH_lo = TVectorD(len(a_XH_lo),a_XH_lo)
 
-        a_data = array('d',[data[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_data)])
+        a_data = array('d',[data[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(data))])
         v_data = TVectorD(len(a_data),a_data)
-        a_data_hi = array('d',[data_hi[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_data_hi)])
+        a_data_hi = array('d',[data_hi[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(data_hi))])
         v_data_hi = TVectorD(len(a_data_hi),a_data_hi)
-        a_data_lo = array('d',[data_lo[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_data_lo)])
+        a_data_lo = array('d',[data_lo[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(data_lo))])
         v_data_lo = TVectorD(len(a_data_lo),a_data_lo)
 
-        a_data_hi2 = array('d',[data_hi2[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_data_hi2)])
+        a_data_hi2 = array('d',[data_hi2[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(data_hi2))])
         v_data_hi2 = TVectorD(len(a_data_hi2),a_data_hi2)
-        a_data_lo2 = array('d',[data_lo2[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_data_lo2)])
+        a_data_lo2 = array('d',[data_lo2[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(data_lo2))])
         v_data_lo2 = TVectorD(len(a_data_lo2),a_data_lo2)
-        a_systematics_hi = array('d',[(systematics_hi[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_systematics_hi)])
+        a_systematics_hi = array('d',[(systematics_hi[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(systematics_hi))])
         v_systematics_hi = TVectorD(len(a_systematics_hi),a_systematics_hi)
-        a_systematics_lo = array('d',[(systematics_lo[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_systematics_lo)])
+        a_systematics_lo = array('d',[(systematics_lo[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(systematics_lo))])
         v_systematics_lo = TVectorD(len(a_systematics_lo),a_systematics_lo)
 
-        a_systematics_hi2 = array('d',[(systematics_hi2[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_systematics_hi2)])
+        a_systematics_hi2 = array('d',[(systematics_hi2[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(systematics_hi2))])
         v_systematics_hi2 = TVectorD(len(a_systematics_hi2),a_systematics_hi2)
-        a_systematics_lo2 = array('d',[(systematics_lo2[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_systematics_lo2)])
+        a_systematics_lo2 = array('d',[(systematics_lo2[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(systematics_lo2))])
         v_systematics_lo2 = TVectorD(len(a_systematics_lo2),a_systematics_lo2)
 
-        a_modeldep_hi = array('d',[(modeldep_hi[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_modeldep_hi)])
+        a_modeldep_hi = array('d',[(modeldep_hi[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(modeldep_hi))])
         v_modeldep_hi = TVectorD(len(a_modeldep_hi),a_modeldep_hi)
-        a_modeldep_lo = array('d',[(modeldep_lo[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len_modeldep_lo)])
+        a_modeldep_lo = array('d',[(modeldep_lo[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(modeldep_lo))])
         v_modeldep_lo = TVectorD(len(a_modeldep_lo),a_modeldep_lo)
 
         v_data_hi_allunc = TVectorD(len(data_hi_allunc), array('d',[data_hi_allunc[i] for i in range(len(data_hi_allunc))]))
@@ -1320,8 +1262,6 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries):
         if ( ("Observables" not in cfg) or (ObsToStudy not in cfg['Observables']) ) :
             print('''No section named 'observable' or sub-section name '1D-Observable' found in file {}.
                     Please check your YAML file format!!!'''.format(InputYAMLFile))
-        logger.debug(ObsToStudy)
-        logger.debug(obsName)
         label = cfg['Observables'][ObsToStudy][obsName.replace('_vs_',' vs ')]['label'] # FIXME: hardcoded '_vs_'
         unit = cfg['Observables'][ObsToStudy][obsName.replace('_vs_',' vs ')]['unit']
         if ObsToStudy == "2D_Observables":
@@ -1467,7 +1407,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries):
     latex2.SetTextSize(0.5*c.GetTopMargin())
     latex2.SetTextFont(42)
     latex2.SetTextAlign(31) # align right
-    print(opt.LUMISCALE)
+    logger.debug("LUMISCALE: {}".format(opt.LUMISCALE))
     if (not opt.LUMISCALE=="1.0"):
         lumi = round(59.7*float(opt.LUMISCALE),1)
         latex2.DrawLatex(0.94, 0.94,str(lumi)+" fb^{-1} (13 TeV)")
@@ -1650,7 +1590,6 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries):
          f.write('} \\hline \\hline \n')
          f.write('Observable & ' )
          for obsbin in range(0,nBins):
-             logger.debug("nBins: {}".format(nBins))
              f.write('$'+str(obs_bins[obsbin])+'-'+str(obs_bins[obsbin+1])+'$')
              if (obsbin == len(obs_bins)-2):
                  f.write(' \\\\ \\hline \n')

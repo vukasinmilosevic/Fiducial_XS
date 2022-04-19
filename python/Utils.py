@@ -2,7 +2,7 @@ import logging
 import os
 from inspect import currentframe
 from subprocess import *
-import datetime;
+import datetime
 
 
 class bcolors:
