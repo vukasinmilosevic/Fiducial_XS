@@ -85,7 +85,7 @@ with open(InputYAMLFile, 'r') as ymlfile:
 
             if (args.step == 2):
                 border_msg("Running collect inputs: "+ obsName)
-                collect(obsName)
+                collect(obsName, str(args.year))
                 logger.info("="*51)
 
                 # FIXME: Currently the plotter is only working for 1D vars.

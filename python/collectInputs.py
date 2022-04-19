@@ -6,13 +6,8 @@ import argparse
 from Input_Info import *
 from Utils import *
 
-sys.path.append('./'+datacardInputs)
-
-parser = argparse.ArgumentParser(description='Input arguments')
-parser.add_argument( '-obs', dest='OBSNAME', default="", type=str, help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
-args = parser.parse_args()
-
-def collect(obsName):
+def collect(obsName, year):
+	sys.path.append('./' + year + '/' +datacardInputs)
 
 	acc = {}
 	dacc = {}
@@ -54,7 +49,7 @@ def collect(obsName):
 		lambdajesup.update(_tmp.lambdajesup)
 		lambdajesdn.update(_tmp.lambdajesdn)
 
-	with open(datacardInputs+'/inputs_sig_'+obsName.replace(" ","_")+'.py', 'w') as f:
+	with open(year + '/' + datacardInputs + '/inputs_sig_'+obsName.replace(" ","_")+'.py', 'w') as f:
 		f.write('acc = '+str(acc)+' \n')
 		f.write('dacc = '+str(dacc)+' \n')
 		f.write('acc_4l = '+str(acc_4l)+' \n')
@@ -72,6 +67,14 @@ def collect(obsName):
 		f.write('lambdajesdn = '+str(lambdajesdn)+' \n')
 
 if __name__ == "__main__":
+
+	parser = argparse.ArgumentParser(description='Input arguments')
+	parser.add_argument( '-obs', dest='OBSNAME', default="", type=str, help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
+	parser.add_argument( '-y', dest='YEAR', default="", type=str, help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
+	args = parser.parse_args()
+
+	sys.path.append('./' + args.YEAR + '/' +datacardInputs)
+
 	print("Start of program: 'collectInputs'")
-	collect(args.OBSNAME)
+	collect(args.OBSNAME, args.YEAR)
 	print("successfully completed...")
