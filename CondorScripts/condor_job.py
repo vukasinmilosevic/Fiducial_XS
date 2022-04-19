@@ -3,6 +3,8 @@ import os
 
 import yaml
 from Utils import bcolors as style
+from Input_Info import datacardInputs
+
 
 import makeTarFile
 
@@ -149,30 +151,24 @@ def condorSHFile(fileName = "test",
     outSHFile.write('\n'+'export PYTHONPATH=$PYTHONPATH:$(pwd)/python')
     outSHFile.write('\n'+'export PYTHONPATH=$PYTHONPATH:$(pwd)/Inputs')
     outSHFile.write('\n'+'echo "==============="')
-    outSHFile.write('\n'+'rm -rf datacardInputs')
+    outSHFile.write('\n'+'rm -rf %s'%(datacardInputs))
     outSHFile.write('\n'+'ls')
     outSHFile.write('\n'+'echo "==============="')
     outSHFile.write('\n'+'echo "Start of efficiency script"')
+    outSHFile.write('\n'+'date')
+    outSHFile.write('\n'+'echo "==============="')
     outSHFile.write('\n'+'python -u efficiencyFactors.py -l -q -b --obsName="${obsName}" --obsBins="${obsBins}" -c "${channel}"')
     outSHFile.write('\n'+'echo "==============="')
-    # outSHFile.write('\n'+'mkdir '+EOSPath+'/datacardInputs')
-    # outSHFile.write('\n'+'cp -r datacardInputs/*  '+EOSPath+'/datacardInputs/')
-    # outSHFile.write('\n'+'echo "Start collect job"')
-    # outSHFile.write('\n'+'python python/collectInputs.py -obs "${obsName}"')
-    # outSHFile.write('\n'+'echo "==============="')
-    # outSHFile.write('\n'+'echo "Start of Uncertainty script"')
-    # outSHFile.write('\n'+'python -u getUnc_Unc.py -l -q -b --obsName="${obsName}" --obsBins="${obsBins}"')
-    # outSHFile.write('\n'+'echo "==============="')
-    # outSHFile.write('\n'+'echo "End of efficiency script"')
-    outSHFile.write('\n'+'echo "content of eos datacard directory: "')
-    outSHFile.write('\n'+'ls '+EOSPath)
+    outSHFile.write('\n'+'date')
+    outSHFile.write('\n'+'echo "==============="')
+    outSHFile.write('\n'+'echo "content of datacard directory: "')
+    outSHFile.write('\n'+'ls {}'.format(datacardInputs))
     outSHFile.write('\n'+'echo "==============="')
     outSHFile.write('\n'+'echo "Copy datacardInputs directory to eos"')
-    outSHFile.write('\n'+'cp -r datacardInputs/*  '+EOSPath+'/datacardInputs/') # FIXME: Note hardcoded paths
-    outSHFile.write('\n'+'echo "content of eos datacard directory: "')
-    outSHFile.write('\n'+'ls '+EOSPath+'/datacardInputs')
+    outSHFile.write('\n'+'cp -r {datacardInputs}/*  {EOSPath}/{datacardInputs}/'.format(datacardInputs = datacardInputs, EOSPath = EOSPath))
     outSHFile.write('\n'+'echo "==============="')
-    outSHFile.write('\n'+'ls')
+    outSHFile.write('\n'+'echo "content of eos datacard directory: "')
+    outSHFile.write('\n'+'ls  {EOSPath}/{datacardInputs}'.format(datacardInputs = datacardInputs, EOSPath = EOSPath))
     outSHFile.write('\n'+'echo "==============="')
     outSHFile.write('\n'+'echo -e "DONE"')
     outSHFile.close()
@@ -184,7 +180,7 @@ if __name__ == "__main__":
     # Create necessary directory that we need
     if not os.path.isdir(args.log): os.mkdir(args.log)
     if not os.path.isdir(args.OutputPath): os.mkdir(args.OutputPath)
-    if not os.path.isdir(args.OutputPath + "/datacardInputs"): os.mkdir(args.OutputPath + "/datacardInputs")
+    if not os.path.isdir(args.OutputPath + "/{}".format(datacardInputs)): os.mkdir(args.OutputPath + "/{}".format(datacardInputs))
 
     if args.ifTar:
         CreateCMSSWTarFile(args.OutputPath)
