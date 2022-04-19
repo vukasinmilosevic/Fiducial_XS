@@ -23,7 +23,7 @@ parser.add_argument('-c', dest='condorQueue', type=str,
                     default="espresso",
                     help='The condor queue to use',
                     # Reference: https://twiki.cern.ch/twiki/bin/view/ABPComputing/LxbatchHTCondor#Queue_Flavours
-                    choices=['espresso',  # 20min
+                    choices=['longlunch',  # 20min
                              'microcentury',  # 1h
                              'longlunch',  # 2h
                              'workday',  # 8h
@@ -155,7 +155,7 @@ def condorSHFile(fileName = "test",
     outSHFile.write('\n'+'echo "Start of efficiency script"')
     outSHFile.write('\n'+'python -u efficiencyFactors.py -l -q -b --obsName="${obsName}" --obsBins="${obsBins}" -c "${channel}"')
     outSHFile.write('\n'+'echo "==============="')
-    outSHFile.write('\n'+'mkdir '+EOSPath+'/datacardInputs')
+    # outSHFile.write('\n'+'mkdir '+EOSPath+'/datacardInputs')
     # outSHFile.write('\n'+'cp -r datacardInputs/*  '+EOSPath+'/datacardInputs/')
     # outSHFile.write('\n'+'echo "Start collect job"')
     # outSHFile.write('\n'+'python python/collectInputs.py -obs "${obsName}"')
@@ -168,7 +168,7 @@ def condorSHFile(fileName = "test",
     outSHFile.write('\n'+'ls '+EOSPath)
     outSHFile.write('\n'+'echo "==============="')
     outSHFile.write('\n'+'echo "Copy datacardInputs directory to eos"')
-    outSHFile.write('\n'+'cp -r datacardInputs/*  '+EOSPath+'/datacardInputs/')
+    outSHFile.write('\n'+'cp -r datacardInputs/*  '+EOSPath+'/datacardInputs/') # FIXME: Note hardcoded paths
     outSHFile.write('\n'+'echo "content of eos datacard directory: "')
     outSHFile.write('\n'+'ls '+EOSPath+'/datacardInputs')
     outSHFile.write('\n'+'echo "==============="')
@@ -182,7 +182,7 @@ def condorSHFile(fileName = "test",
 if __name__ == "__main__":
 
     # Create necessary directory that we need
-    if not os.path.isdir(logFilePath): os.mkdir(logFilePath)
+    if not os.path.isdir(args.log): os.mkdir(args.log)
     if not os.path.isdir(args.OutputPath): os.mkdir(args.OutputPath)
     if not os.path.isdir(args.OutputPath + "/datacardInputs"): os.mkdir(args.OutputPath + "/datacardInputs")
 
