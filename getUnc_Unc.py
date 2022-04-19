@@ -122,10 +122,10 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
         if (not Sample in Tree): continue
         if (not Tree[Sample]): continue
 
-        if (obs_reco.startswith("njets")) or (obs_gen_high == "inf"):
+        if (obs_reco.startswith("njets") and obs_reco2 == '') or (obs_gen_high == "inf"):
             cutobs_gen = "("+obs_gen+">="+str(obs_gen_low)+")"
 
-            if (obs_reco2.startswith("njets")) or (obs_gen2_high == "inf"):
+            if (obs_gen2_high == "inf"):
                 cutobs_gen  += "&& ("+obs_gen2+">="+str(obs_gen2_low)+")"
             else:
                 cutobs_gen += "&& ("+obs_gen2+">="+str(obs_gen2_low)+" && "+obs_gen2+"<"+str(obs_gen2_high)+")"
@@ -133,7 +133,7 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
             cutobs_gen = "("+obs_gen+">="+str(obs_gen_low)+" && "+obs_gen+"<"+str(obs_gen_high)+")"
 
             if not (obs_reco2 == ''):
-                if obs_gen2_high == "inf":
+                if (obs_gen2_high == "inf"): 
                     cutobs_gen += "&& ("+obs_gen2+">="+str(obs_gen2_low)+")"
                 else:
                     cutobs_gen += "&& ("+obs_gen2+">="+str(obs_gen2_low)+" && "+obs_gen2+"<"+str(obs_gen2_high)+")"

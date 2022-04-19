@@ -300,18 +300,22 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
         # Reco observable cut - if using the _jesup/down variations
 
         if (("jet" in obs_reco.lower()) or ("jet" in obs_reco2.lower())):
-            cutobs_reco_jesup = "("+obs_reco+"_jesup"+">="+str(obs_reco_low)+" && "+obs_reco+"_jesup"+"<"+str(obs_reco_high)+")"
-            cutobs_reco_jesdn = "("+obs_reco+"_jesdn"+">="+str(obs_reco_low)+" && "+obs_reco+"_jesdn"+"<"+str(obs_reco_high)+")"
+            cutobs_reco_jesup = ''
+            cutobs_reco_jesdn = ''
 
-            if obs_reco_high == "inf":
-                cutobs_reco_jesup = "("+obs_reco+"_jesup"+">="+str(obs_reco_low)+")"
-                cutobs_reco_jesdn = "("+obs_reco+"_jesdn"+">="+str(obs_reco_low)+")"
+            if ("jet" in obs_reco.lower()):
+                cutobs_reco_jesup = "("+obs_reco+"_jesup"+">="+str(obs_reco_low)+" && "+obs_reco+"_jesup"+"<"+str(obs_reco_high)+")"
+                cutobs_reco_jesdn = "("+obs_reco+"_jesdn"+">="+str(obs_reco_low)+" && "+obs_reco+"_jesdn"+"<"+str(obs_reco_high)+")"
+
+                if obs_reco_high == "inf":
+                    cutobs_reco_jesup = "("+obs_reco+"_jesup"+">="+str(obs_reco_low)+")"
+                    cutobs_reco_jesdn = "("+obs_reco+"_jesdn"+">="+str(obs_reco_low)+")"
            
             # Double differential measurement addition: Reco observable cut - if using the _jesup/down variations
             tmp_up = ''
             tmp_dn = ''
 
-            if not (obs_reco2 == ''):
+            if (not (obs_reco2 == '')) and ("jet" in obs_reco2.lower()) :
                 tmp_up = " && ("+obs_reco2+"_jesup"+">="+str(obs_reco2_low)+" && "+obs_reco2+"_jesup"+"<"+str(obs_reco2_high)+")"
                 tmp_dn = " && ("+obs_reco2+"_jesdn"+">="+str(obs_reco2_low)+" && "+obs_reco2+"_jesdn"+"<"+str(obs_reco2_high)+")"
 
