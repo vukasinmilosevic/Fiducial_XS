@@ -100,7 +100,7 @@ def processCmd(cmd, lineNumber = 0, moduleNameWhereItsCalled = "", quiet = 0):
     """
     f = open("CommandsRun.txt", "a")
     ct = datetime.datetime.now()
-    f.write("\n\ncurrent time: {}\n{}\n{}".format(ct, os.getcwd(), cmd))
+    f.write("\n\n==> current time: {}\n{}\n{}".format(ct, os.getcwd(), cmd))
     f.close()
     output = '\n'
     logger.info("="*51)

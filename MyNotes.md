@@ -7,6 +7,15 @@ python python/producePlots.py -l -q -b --obsName="pT4l" --obsBins="|0|10|20|30|4
 
 python python/producePlots.py -l -q -b --obsName="massZ1_vs_massZ2" --obsBins="|50|80| vs |10|30| / |50|80| vs |30|60| / |80|110| vs |10|25| / |80|110| vs |25|30|" --unfoldModel="SM_125" --theoryMass="125.0"
 
+============
+
+[DEBUG] - [producePlots.py:#849] - [plotXS; producePlots] - obs_bins: [[['50', '80'], ['10', '30']], [['50', '80'], ['30', '60']], [['80', '110'], ['10', '25']], [['80', '110'], ['25', '30']]]
+
+[DEBUG] - [producePlots.py:#849] - [plotXS; producePlots] - obs_bins: ['0', '10', '20', '30', '45', '60', '80', '120', '200', '250.0']
+
+
+============
+
 
 python python/plotAsimov_inclusive.py -l -q -b --obsName="mass4l" --obsBins="|105.0|140.0|" --asimovModel="SM_125" --unfoldModel="SM_125"
 
