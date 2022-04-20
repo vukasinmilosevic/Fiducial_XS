@@ -9,6 +9,7 @@ For example: Directory name, etc.
 # Name of output directories
 datacardInputs = "{year}/datacardInputs"
 
+
 combineOutputs = "xs_125.0"
 # combineOutputs = "combineOutputs"
 
