@@ -18,8 +18,9 @@ def parseOptions():
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='2018',   help='Era to analyze, e.g. 2016, 2017, 2018 or Full ')
     parser.add_option('',   '--debug',  dest='DEBUG',  type='int',default=0,   help='0 if debug false, else debug True')
-    global opt, args
+    global opt, args, datacardInputs
     (opt, args) = parser.parse_args()
+    datacardInputs = datacardInputs.format(year = opt.YEAR)
 
 def interpolate_pred(x, nbins, obsName, DEBUG):
     """Module to get the interpolation from powheg and apply that SF to the NNLOPS sample

@@ -37,8 +37,10 @@ def parseOptions():
     parser.add_option("-b",action="callback",callback=callback_rootargs)
 
     # store options and arguments as global variables
-    global opt, args
+    global opt, args, datacardInputs
+
     (opt, args) = parser.parse_args()
+    datacardInputs = datacardInputs.format(year = opt.ERA)
 
 # parse the arguments and options
 global opt, args, runAllSteps
@@ -373,8 +375,8 @@ if (obs_reco.startswith("njets")):
                 qcdUncert[processBin]['uncerUp'] = sqrt(qcdUncert[processBin]['uncerUp']*qcdUncert[processBin]['uncerUp']+qcdUncert[processBinPlus1]['uncerUp']*qcdUncert[processBinPlus1]['uncerUp'])
                 qcdUncert[processBin]['uncerDn'] = sqrt(qcdUncert[processBin]['uncerDn']*qcdUncert[processBin]['uncerDn']+qcdUncert[processBinPlus1]['uncerDn']*qcdUncert[processBinPlus1]['uncerDn'])
 
-if not os.path.isdir(opt.ERA + '/' + datacardInputs): os.mkdir(opt.ERA + '/' + datacardInputs)
-with open(opt.ERA + '/' + datacardInputs+'/accUnc_'+opt.OBSNAME.replace(" ","_")+'.py', 'w') as f:
+if not os.path.isdir(datacardInputs): os.mkdir(datacardInputs)
+with open(datacardInputs+'/accUnc_'+opt.OBSNAME.replace(" ","_")+'.py', 'w') as f:
     f.write('acc = '+str(acceptance)+' \n')
     f.write('qcdUncert = '+str(qcdUncert)+' \n')
     f.write('pdfUncert = '+str(pdfUncert)+' \n')
