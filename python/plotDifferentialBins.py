@@ -39,8 +39,10 @@ def parseOptions():
     parser.add_option("-b",action="callback",callback=callback_rootargs)
 
     # store options and arguments as global variables
-    global opt, args
+    global opt, args, combineOutputs
     (opt, args) = parser.parse_args()
+
+    combineOutputs = combineOutputs.format(year = opt.ERA)
 
 # parse the arguments and options
 global opt, args, runAllSteps

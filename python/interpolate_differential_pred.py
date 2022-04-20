@@ -1,6 +1,7 @@
 import optparse
 import optparse
 import os
+import sys
 
 from scipy import interpolate
 
@@ -21,6 +22,7 @@ def parseOptions():
     global opt, args, datacardInputs
     (opt, args) = parser.parse_args()
     datacardInputs = datacardInputs.format(year = opt.YEAR)
+    sys.path.append('./'+datacardInputs)
 
 def interpolate_pred(x, nbins, obsName, DEBUG):
     """Module to get the interpolation from powheg and apply that SF to the NNLOPS sample

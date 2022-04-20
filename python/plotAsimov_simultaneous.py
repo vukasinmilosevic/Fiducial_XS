@@ -42,8 +42,10 @@ def parseOptions():
     parser.add_option('-y', '--year', dest="ERA", type = 'string', default = '2018', help='Specifies the data taking period')
 
     # store options and arguments as global variables
-    global opt, args
+    global opt, args, combineOutputs
     (opt, args) = parser.parse_args()
+
+    combineOutputs = combineOutputs.format(year = opt.ERA)
 
 # parse the arguments and options
 global opt, args, runAllSteps

@@ -64,12 +64,13 @@ def parseOptions():
     parser.add_option('-y', '--year', dest="ERA", type = 'string', default = '2018', help='Specifies the data taking period')
 
     # store options and arguments as global variables
-    global opt, args, datacardInputs
+    global opt, args, datacardInputs, combineOutputs
     (opt, args) = parser.parse_args()
 
     # NOTE: append the directory `datacardInputs`, as .py files inside is going to load using import.
     #       load XS-specific modules
     datacardInputs = datacardInputs.format(year = opt.ERA)
+    combineOutputs = combineOutputs.format(year = opt.ERA)
     sys.path.append('./'+datacardInputs)
 
     log_level = logging.DEBUG # default initialization
@@ -335,7 +336,7 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
                     \tFalse = {}, True = {},
                     \tmodelName = {}, physicalModel = {}
                     """.format(ListObsName, fState, nBins, obsBin, observableBins, False, True, modelName, physicalModel))
-                ndata = createXSworkspace(ListObsName, fState, nBins, obsBin, observableBins, False, True, modelName, physicalModel)
+                ndata = createXSworkspace(ListObsName, fState, nBins, obsBin, observableBins, False, True, modelName, physicalModel, opt.ERA)
                 CopyDataCardToOutputDir = "cp xs_125.0_"+str(nBins)+"bins/hzz4l_"+fState+"S_13TeV_xs_bin"+str(obsBin)+".txt "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName.replace(' ','_')+"_bin"+str(obsBin)+"_"+physicalModel+".txt"
                 processCmd(CopyDataCardToOutputDir, get_linenumber(), os.path.basename(__file__))
                 UpdateObservationValue = "sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName.replace(' ','_')+"_bin"+str(obsBin)+"_"+physicalModel+".txt"
@@ -351,7 +352,7 @@ def produceDatacards(obsName, observableBins, modelName, physicalModel):
             logger.debug("Running the datacard_maker.py...")
             os.system("python python/datacard_maker.py -c {} -b {}".format(fState, 1))
             logger.debug("Completed the datacard_maker.py...")
-            ndata = createXSworkspace(ListObsName,fState, nBins, 0, observableBins, False, True, modelName, physicalModel)
+            ndata = createXSworkspace(ListObsName,fState, nBins, 0, observableBins, False, True, modelName, physicalModel, opt.ERA)
             if obsName=='mass4l':
                 CopyDataCardToOutputDir = "cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusive_bin0.txt "+combineOutputs+"/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+physicalModel+".txt"
                 processCmd(CopyDataCardToOutputDir, get_linenumber(), os.path.basename(__file__))
