@@ -33,6 +33,7 @@ def parseOptions():
     parser.add_option('',   '--obsName',dest='OBSNAME',    type='string',default='',   help='Name of the observable, supported: "inclusive", "pT", "eta", "Njets"')
     parser.add_option('',   '--obsBins',dest='OBSBINS',    type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--unblind', action='store_true', dest='UNBLIND', default=False, help='Use real data')
+    parser.add_option('-y', '--year', dest="ERA", type = 'string', default = '2018', help='Specifies the data taking period')
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
@@ -72,7 +73,7 @@ if len(ListObsName) == 1:    # INFO: for 2D this list size == 1
     if float(observableBins[nBins])>200.0:
         observableBins[nBins]='200.0'
 
-def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, observableBins):
+def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, observableBins, year):
 
     global nBins
 
@@ -311,7 +312,7 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     legend.Draw()
 
     # Create output directory if it does not exits
-    OutputPath = DifferentialBins.format(obsName = obsName.replace(' ','_'))
+    OutputPath = DifferentialBins.format(year = year, obsName = obsName.replace(' ','_'))
     if not os.path.isdir(OutputPath):
         os.makedirs(OutputPath)
     if (not opt.UNBLIND):
@@ -324,4 +325,4 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
 
 fStates = ["4e","4mu","2e2mu","4l"]
 for fState in fStates:
-    plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fState, observableBins)
+    plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fState, observableBins, opt.ERA)

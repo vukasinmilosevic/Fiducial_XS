@@ -34,6 +34,7 @@ def parseOptions():
     parser.add_option('',   '--fixFrac', action='store_true', dest='FIXFRAC', default=False, help='Use results from fixed fraction fit, default is False')
     parser.add_option('',   '--unblind', action='store_true', dest='UNBLIND', default=False, help='Use real data')
     parser.add_option('',   '--lumiscale', type='string', dest='LUMISCALE', default='1.0', help='Scale yields')
+    parser.add_option('-y', '--year', dest="ERA", type = 'string', default = '2018', help='Specifies the data taking period')
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
@@ -75,7 +76,7 @@ logger.debug("nBins: = "+str(nBins))
 #physicalModel = 'v2'
 #recobin = 0
 
-def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, obsName, fstate, recobin):
+def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, obsName, fstate, recobin, year):
 
     channel = {"4mu":"1", "4e":"2", "2e2mu":"3", "4l":"2"}
 
@@ -347,7 +348,7 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
     #latex2.DrawLatex(0.20,0.85,"Unfolding model: "+modelName.replace("_"," ")+" GeV")
 
     # Create output directory if it does not exits
-    OutputPath = AsimovPlots.format(obsName = obsName.replace(' ','_'))
+    OutputPath = AsimovPlots.format(year = year, obsName = obsName.replace(' ','_'))
     if not os.path.isdir(OutputPath):
         os.makedirs(OutputPath)
 
@@ -361,4 +362,4 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
 
 for fState in ["4e","4mu","2e2mu","4l"]:
     for recobin in range(nBins):
-        plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, 'mass4l', fState, recobin)
+        plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, 'mass4l', fState, recobin, opt.ERA)

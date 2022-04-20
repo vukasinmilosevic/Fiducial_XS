@@ -34,6 +34,7 @@ def parseOptions():
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
     parser.add_option('', '--obs', dest='OneDOr2DObs', default=1, type=int, help="1 for 1D obs, 2 for 2D observable")
+    parser.add_option('-y', '--year', dest="ERA", type = 'string', default = '2018', help='Specifies the data taking period')
 
     # store options and arguments as global variables
     global opt, args
@@ -163,10 +164,10 @@ for model in modelNames:
         latex2.SetTextSize(0.25*c.GetTopMargin())
         latex2.DrawLatex(0.45, 0.92, model.replace("_"," ")+" GeV (#sqrt{s} = 13 TeV)")
 
-        if not os.path.isdir(SigEfficiencyPlots.format(obsName = obsName.replace(' ','_'))):
-            os.makedirs(SigEfficiencyPlots.format(obsName = obsName.replace(' ','_')))
-        c.SaveAs(SigEfficiencyPlots.format(obsName = obsName.replace(' ','_'))+"/eff2d_"+model+"_"+obsName.replace(' ','_')+"_"+fState+".png")
-        c.SaveAs(SigEfficiencyPlots.format(obsName = obsName.replace(' ','_'))+"/eff2d_"+model+"_"+obsName.replace(' ','_')+"_"+fState+".pdf")
+        if not os.path.isdir(SigEfficiencyPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_'))):
+            os.makedirs(SigEfficiencyPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_')))
+        c.SaveAs(SigEfficiencyPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_'))+"/eff2d_"+model+"_"+obsName.replace(' ','_')+"_"+fState+".png")
+        c.SaveAs(SigEfficiencyPlots.formatyear = opt.ERA, (obsName = obsName.replace(' ','_'))+"/eff2d_"+model+"_"+obsName.replace(' ','_')+"_"+fState+".pdf")
         c.Clear()
         # c=TCanvas("c","c",1000,800)
         # c.cd()

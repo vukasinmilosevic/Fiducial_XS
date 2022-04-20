@@ -36,13 +36,16 @@ def parseOptions():
     parser.add_option('',   '--setLog', action='store_true', dest='SETLOG', default=False, help='set plot to log scale y, default is False')
     parser.add_option('',   '--unblind', action='store_true', dest='UNBLIND', default=False, help='Use real data')
     parser.add_option('',   '--lumiscale', type='string', dest='LUMISCALE', default='1.0', help='Scale yields')
+    parser.add_option('-y', '--year', dest="ERA", type = 'string', default = '2018', help='Specifies the data taking period')
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
 
     # store options and arguments as global variables
-    global opt, args
+    global opt, args, datacardInputs
     (opt, args) = parser.parse_args()
+
+    datacardInputs = datacardInputs.format(year = opt.ERA)
 
 # parse the arguments and options
 global opt, args, runAllSteps
@@ -81,7 +84,7 @@ logger.debug("nBins: = "+str(nBins))
 
 obsName =  (opt.OBSNAME).replace(' ','_')
 
-def plotXS(obsName, obs_bins, obs_bins_boundaries):
+def plotXS(obsName, obs_bins, obs_bins_boundaries, year):
     global nBins, ListObsName
     logger.debug("""Inputs for module "plotXS":
         obsName: {},
@@ -1561,7 +1564,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries):
 
     if (not opt.UNBLIND): set_log = set_log + '_asimov'
 
-    OutputPath = ResultsPlot.format(obsName = obsName.replace(' ','_'))
+    OutputPath = ResultsPlot.format(year = year, obsName = obsName.replace(' ','_'))
     if not os.path.isdir(OutputPath):
         os.makedirs(OutputPath)
 
@@ -1610,4 +1613,4 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries):
          f.write('\\end{document} \n')
 
 
-plotXS(obsName, obs_bins, obs_bins_boundaries)
+plotXS(obsName, obs_bins, obs_bins_boundaries, opt.ERA)

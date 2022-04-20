@@ -21,9 +21,7 @@ from Utils import  processCmd, get_linenumber
 from read_bins import read_bins
 
 
-# NOTE: append the directory `datacardInputs`, as .py files inside is going to load using import.
-#       load XS-specific modules
-sys.path.append('./'+datacardInputs)
+
 
 ### Define function for parsing options
 def parseOptions():
@@ -63,10 +61,16 @@ def parseOptions():
     parser.add_option('',   '--lumiscale', type='string', dest='LUMISCALE', default='1.0', help='Scale yields')
     parser.add_option('',   '--inYAMLFile', dest='inYAMLFile', type='string', default="Inputs/observables_list.yml", help='Input YAML file having observable names and bin information')
     parser.add_option("-l", "--logLevel", action="store", dest="logLevel", help="Change log verbosity(WARNING: 0, INFO: 1, DEBUG: 2)")
+    parser.add_option('-y', '--year', dest="ERA", type = 'string', default = '2018', help='Specifies the data taking period')
 
     # store options and arguments as global variables
-    global opt, args
+    global opt, args, datacardInputs
     (opt, args) = parser.parse_args()
+
+    # NOTE: append the directory `datacardInputs`, as .py files inside is going to load using import.
+    #       load XS-specific modules
+    datacardInputs = datacardInputs.format(year = opt.ERA)
+    sys.path.append('./'+datacardInputs)
 
     log_level = logging.DEBUG # default initialization
     if opt.logLevel == "0":
@@ -119,7 +123,7 @@ def extractFiducialEfficiencies(obsName, observableBins, modelName):
         output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
 ### Extract the templates for given obs, for all bins and final states (differential)
-def extractBackgroundTemplatesAndFractions(obsName, observableBins):
+def extractBackgroundTemplatesAndFractions(obsName, observableBins, year):
     global opt
 
     logger.debug("[INFO] Obs Name: {:15}\tBins: {}".format(obsName, observableBins))
@@ -182,7 +186,7 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
         logger.info("observableBins: "+str(observableBins))
 
         if (" vs " not in obsName ):
-            cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+obsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS+'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0'
+            cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[year][sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+obsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS+'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0'
             output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
             # FIXME: URGENT: Here previous command copies all the cout info in variable `output`
             #               then from the string it is going to extract useful information about bin fraction
@@ -213,7 +217,7 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins):
 
                 ListObsName = (''.join(obsName.split())).split('vs')
                 logger.info(ListObsName[0]+ ' : ' + str(bin0_)+"\t"+ListObsName[1] + ' : '+str(bin1_))
-                cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+ListObsName[0]+' "'+bin0_+'" "'+bin0_ +'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0' + ' '+ListObsName[1]+' "'+bin1_+'" "'+bin1_ +'"'
+                cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[year][sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+ListObsName[0]+' "'+bin0_+'" "'+bin0_ +'" 13TeV templatesXS DTreeXS ' + fitTypeZ4l+ ' 0' + ' '+ListObsName[1]+' "'+bin1_+'" "'+bin1_ +'"'
                 output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
                 tmp_fracs = output.split("[Bin fraction: ")
                 logger.debug('tmp_fracs: {}'.format(tmp_fracs))
@@ -898,7 +902,7 @@ def runFiducialXS():
 
     # FIXME: Understand why in step 4; runAllSteps is False, while in step 5 its True
     if (runAllSteps or opt.templatesOnly):
-        extractBackgroundTemplatesAndFractions(obsName, observableBins)
+        extractBackgroundTemplatesAndFractions(obsName, observableBins, opt.ERA)
 
     logger.debug("Options:\n\trunAllSteps: {}\n".format(runAllSteps))
     ## Create the asimov dataset
@@ -907,7 +911,7 @@ def runFiducialXS():
         logger.info('Create asimov dataset...')
         resultsXS = {}
 
-        cmd = 'python python/addConstrainedModel.py -l -q -b --obsName="'+opt.OBSNAME+'" --obsBins="'+opt.OBSBINS+'"'
+        cmd = 'python python/addConstrainedModel.py -l -q -b --obsName="'+opt.OBSNAME+'" --obsBins="'+opt.OBSBINS+'" --year="'+opt.ERA+'"'
         output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
         asimovDataModelName = "SM_125" # FIXME: Is it fine if the model name is hardcoded here. Since model (ASIMOVMODEL) is also an input argument
         asimovPhysicalModel = "v2" # FIXME: Same above message.
@@ -924,7 +928,7 @@ def runFiducialXS():
         logger.debug("resultsXS: {}".format(resultsXS))
         # plot the asimov predictions for data, signal, and backround in differential bins
         if ( (not obsName.startswith("mass4l")) and ("vs" not in obsName)): # INFO: skip this plotter for 2D obs
-            cmd = 'python python/plotDifferentialBins.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --inYAMLFile="'+opt.inYAMLFile+'"'
+            cmd = 'python python/plotDifferentialBins.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --inYAMLFile="'+opt.inYAMLFile+'" --year="'+opt.ERA+'"'
             if (opt.UNBLIND): cmd = cmd + ' --unblind'
             output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
             logger.debug(output)
@@ -956,12 +960,12 @@ def runFiducialXS():
                 # plot the fit results
                 if ( (not obsName.startswith("mass4l"))):
                     # identify 1D or 2D obs using `ListObsName` length
-                    cmd = 'python python/plotAsimov_simultaneous.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'" --obs='+str(len(ListObsName))# +' --lumiscale=str(opt.LUMISCALE)'
+                    cmd = 'python python/plotAsimov_simultaneous.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'" --obs='+str(len(ListObsName)) + ' --year="'+opt.ERA+'"'# +' --lumiscale=str(opt.LUMISCALE)'
                     if (opt.UNBLIND): cmd = cmd + ' --unblind'
                     output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
                     print (output)
                 elif (physicalModel=="v2"):
-                    cmd = 'python python/plotAsimov_inclusive.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'"' #+' --lumiscale=str(opt.LUMISCALE)'
+                    cmd = 'python python/plotAsimov_inclusive.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --asimovModel="'+asimovDataModelName+'" --unfoldModel="'+modelName+'"' + ' --year="'+opt.ERA+'"' #+' --lumiscale=str(opt.LUMISCALE)'
                     if (opt.UNBLIND): cmd = cmd + ' --unblind'
                     output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
                     print (output)
@@ -972,7 +976,7 @@ def runFiducialXS():
             logger.debug("modelIndependenceUncert: \n{}".format(modelIndependenceUncert))
             if (opt.FIXFRAC): floatfix = '_fixfrac'
             else: floatfix = ''
-            with open('python/resultsXS_'+obsName.replace(' ','_')+'_'+physicalModel+floatfix+'.py', 'w') as f:
+            with open(datacardInputs+'/resultsXS_'+obsName.replace(' ','_')+'_'+physicalModel+floatfix+'.py', 'w') as f:
                 f.write('modelNames = '+json.dumps(modelNames)+';\n')
                 f.write('asimovDataModelName = '+json.dumps(asimovDataModelName)+';\n')
                 f.write('resultsXS = '+json.dumps(resultsXS)+';\n')
@@ -1046,8 +1050,8 @@ def runFiducialXS():
                 cmd = "combine -n "+obsName.replace(' ','_')+"_SigmaBin"+str(obsBin)+"_NoSys -M MultiDimFit -d "+combineOutputs+"/SM_125_all_13TeV_xs_"+obsName.replace(' ','_')+"_bin_"+physicalModel+"_result.root -w w --snapshotName \"MultiDimFit\" -m 125.09 -D toy_asimov --setParameters MH=125.09 -P SigmaBin"+str(obsBin)+" --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.09,125.09:SigmaBin"+str(obsBin)+"=0.0,3.0 --redefineSignalPOI SigmaBin"+str(obsBin)+" --algo=grid --points=50 --autoRange 4 --freezeParameters allConstrainedNuisances "
                 output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
-        cmd = 'python python/plotLHScans.py -l -q -b --obsName="{}" --obsBins="{}"'.format(
-            obsName.replace(' ','_'),  opt.OBSBINS
+        cmd = 'python python/plotLHScans.py -l -q -b --obsName="{}" --obsBins="{}" --year="{}"'.format(
+            obsName.replace(' ','_'),  opt.OBSBINS, opt.ERA
         )
         output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
@@ -1055,11 +1059,11 @@ def runFiducialXS():
         if ("vs" not in obsName):
             for modelName in modelNames:
                 if (not opt.FIXMASS=="False"):
-                    cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="'+opt.FIXMASS+'"'
+                    cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="'+opt.FIXMASS+'"'+ ' --year="'+ opt.ERA + '"'
                 else:
-                    cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'
+                    cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'+ ' --year="'+ opt.ERA + '"'
                     ### FIXME: VUKASIN: Just until Higgs mass is properly implemented
-                cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'
+                cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'+ ' --year="'+ opt.ERA + '"'
 
                 if (opt.FIXFRAC): cmd = cmd + ' --fixFrac'
                 if (opt.UNBLIND): cmd = cmd + ' --unblind'

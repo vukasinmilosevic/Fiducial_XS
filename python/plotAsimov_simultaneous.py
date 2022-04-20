@@ -39,6 +39,7 @@ def parseOptions():
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
     parser.add_option('', '--obs', dest='OneDOr2DObs', default=1, type=int, help="1 for 1D obs, 2 for 2D observable")
+    parser.add_option('-y', '--year', dest="ERA", type = 'string', default = '2018', help='Specifies the data taking period')
 
     # store options and arguments as global variables
     global opt, args
@@ -72,7 +73,7 @@ logger.debug("nBins: = "+str(nBins))
 
 ObsToStudy = "1D_Observables" if opt.OneDOr2DObs == 1 else "2D_Observables"
 
-def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, obsName, fstate, observableBins, recobin):
+def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, obsName, fstate, observableBins, recobin, year):
 
     global nBins, ObsToStudy
     logger.debug("nBins: = "+str(nBins))
@@ -395,7 +396,7 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
         latex2.DrawLatex(0.65,0.85, observableBins[recobin][0][0]+" "+unit+" < "+label[0]+" < "+observableBins[recobin][0][1]+" "+unit)
         latex2.DrawLatex(0.65,0.75, observableBins[recobin][1][0]+" "+unit+" < "+label[1]+" < "+observableBins[recobin][1][1]+" "+unit)
     # Create output directory if it does not exits
-    OutputPath = AsimovPlots.format(obsName = obsName.replace(' ','_'))
+    OutputPath = AsimovPlots.format(year = year, obsName = obsName.replace(' ','_'))
     if not os.path.isdir(OutputPath):
         os.makedirs(OutputPath)
 
@@ -410,4 +411,4 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
 fStates = ["4e","4mu","2e2mu","4l"]
 for fState in fStates:
     for recobin in range(nBins):
-        plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, obsName, fState, observableBins, recobin)
+        plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, obsName, fState, observableBins, recobin, opt.ERA)

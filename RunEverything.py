@@ -37,7 +37,7 @@ parser.add_argument( '-m', dest='HiggsMass', default=125.0, type=float, help='Hi
 parser.add_argument( '-y', dest='year', default=2018, type=int, help='dataset year')
 parser.add_argument( '-r', dest='RunCommand', default=0, type=int, choices=[0, 1], help="if 1 then it will run the commands else it will just print the commands")
 parser.add_argument( '-obs', dest='OneDOr2DObs', default=1, type=int, choices=[1, 2], help="1 for 1D obs, 2 for 2D observable")
-parser.add_argument( '-test', dest='TestVar', default="", type=str, help="Name of test variables to run over")
+parser.add_argument( '-test', dest='TestVar', default="", type=str, help="Name of test variables to run over. For example: mass4l")
 parser.add_argument('-n', dest="nohup", action='store_true', help='if want to run using nohup')
 parser.add_argument(
      "--log-level",
@@ -91,8 +91,8 @@ with open(InputYAMLFile, 'r') as ymlfile:
                 # FIXME: Currently the plotter is only working for 1D vars.
                 if ((not obsName.startswith("mass4l") ) and (ObsToStudy != "2D_Observables")):
                     border_msg("Running plotter to plot 2D signal efficiencies")
-                    command = 'python python/plot2dsigeffs.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" --inYAMLFile="{inYAMLFile}" --obs={obsToStudy}'.format(
-                        obsName = obsName, obsBins = obsBin['bins'], inYAMLFile = args.inYAMLFile, obsToStudy = args.OneDOr2DObs
+                    command = 'python python/plot2dsigeffs.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" --inYAMLFile="{inYAMLFile}" --obs="{obsToStudy}" --year={year}'.format(
+                        obsName = obsName, obsBins = obsBin['bins'], inYAMLFile = args.inYAMLFile, obsToStudy = args.OneDOr2DObs, year = args.year
                     )
                     logger.info("Command: {}".format(command))
                     if (args.RunCommand): os.system(command)
@@ -128,8 +128,8 @@ with open(InputYAMLFile, 'r') as ymlfile:
                 # FIXME: Check if we need modelNames in step-4 or not
                 command = ''
                 if args.nohup: command = 'nohup '
-                command += 'python -u runHZZFiducialXS.py --dir="{NtupleDir}" --obsName="{obsName}" --obsBins="{obsBins}" --modelNames {modelNames} --redoTemplates --templatesOnly '.format(
-                        obsName = obsName, obsBins = obsBin['bins'], NtupleDir = args.NtupleDir, modelNames= args.modelNames
+                command += 'python -u runHZZFiducialXS.py --dir="{NtupleDir}" --obsName="{obsName}" --obsBins="{obsBins}" --modelNames {modelNames} --year="{year}" --redoTemplates --templatesOnly '.format(
+                        obsName = obsName, obsBins = obsBin['bins'], NtupleDir = args.NtupleDir, modelNames= args.modelNames, year = args.year
                 )
                 if args.nohup: command += ' >& log/step_6_nohup.log &'
                 logger.info("Command: {}".format(command))
@@ -144,8 +144,8 @@ with open(InputYAMLFile, 'r') as ymlfile:
 
                 command = ''
                 if args.nohup: command = 'nohup '
-                command += 'python -u runHZZFiducialXS.py --obsName="{obsName}" --obsBins="{obsBins}"  --calcSys --asimovMass {HiggsMass} --modelNames {modelNames}'.format(
-                        obsName = obsName, obsBins = obsBin['bins'], HiggsMass = args.HiggsMass, modelNames= args.modelNames
+                command += 'python -u runHZZFiducialXS.py --obsName="{obsName}" --obsBins="{obsBins}"  --calcSys --asimovMass {HiggsMass} --modelNames {modelNames} --year="{year}"'.format(
+                        obsName = obsName, obsBins = obsBin['bins'], HiggsMass = args.HiggsMass, modelNames= args.modelNames, year = args.year
                 )
                 if args.nohup: command += ' >& log/step_7_nohup.log &'
                 logger.info("Command: {}".format(command))
