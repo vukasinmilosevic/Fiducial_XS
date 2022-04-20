@@ -86,6 +86,7 @@ if float(obs_bins[nBins])>199:
 if (opt.OBSNAME=="nJets" or opt.OBSNAME.startswith("njets")): # FIXME: This won't work for 2D bins
     obs_bins[nBins]='4'
 
+datacardInputs = datacardInputs.format(year = opt.ERA)
 sys.path.append('./'+datacardInputs)
 
 _temp = __import__('inputs_sig_'+obsName.replace(' ','_'), globals(), locals(), ['eff','deff'], -1)
@@ -167,7 +168,7 @@ for model in modelNames:
         if not os.path.isdir(SigEfficiencyPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_'))):
             os.makedirs(SigEfficiencyPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_')))
         c.SaveAs(SigEfficiencyPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_'))+"/eff2d_"+model+"_"+obsName.replace(' ','_')+"_"+fState+".png")
-        c.SaveAs(SigEfficiencyPlots.formatyear = opt.ERA, (obsName = obsName.replace(' ','_'))+"/eff2d_"+model+"_"+obsName.replace(' ','_')+"_"+fState+".pdf")
+        c.SaveAs(SigEfficiencyPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_'))+"/eff2d_"+model+"_"+obsName.replace(' ','_')+"_"+fState+".pdf")
         c.Clear()
         # c=TCanvas("c","c",1000,800)
         # c.cd()
