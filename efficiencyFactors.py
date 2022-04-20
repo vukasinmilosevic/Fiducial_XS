@@ -942,7 +942,7 @@ ext=''
 if (not opt.CHAN==''):
     ext='_'+opt.CHAN
 
-datacardInputs = datacardInputs.replace('{year}', opt.ERA)
+datacardInputs = datacardInputs.format(year = opt.ERA)
 
 if not os.path.isdir(opt.ERA): os.mkdir(opt.ERA)
 if not os.path.isdir(datacardInputs): os.mkdir(datacardInputs)
