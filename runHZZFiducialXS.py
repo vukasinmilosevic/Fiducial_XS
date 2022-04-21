@@ -1056,23 +1056,21 @@ def runFiducialXS():
         )
         output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
 
-        # FIXME: Currently, produce plot is not working for 2D vars
-        if ("vs" not in obsName):
-            for modelName in modelNames:
-                if (not opt.FIXMASS=="False"):
-                    cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="'+opt.FIXMASS+'"'+ ' --year="'+ opt.ERA + '"'
-                else:
-                    cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'+ ' --year="'+ opt.ERA + '"'
-                    ### FIXME: VUKASIN: Just until Higgs mass is properly implemented
+        for modelName in modelNames:
+            if (not opt.FIXMASS=="False"):
+                cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="'+opt.FIXMASS+'"'+ ' --year="'+ opt.ERA + '"'
+            else:
                 cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'+ ' --year="'+ opt.ERA + '"'
+                ### FIXME: VUKASIN: Just until Higgs mass is properly implemented
+            cmd = 'python python/producePlots.py -l -q -b --obsName="'+obsName.replace(' ','_')+'" --obsBins="'+opt.OBSBINS+'" --unfoldModel="'+modelName+'" --theoryMass="125.0"'+ ' --year="'+ opt.ERA + '"'
 
-                if (opt.FIXFRAC): cmd = cmd + ' --fixFrac'
-                if (opt.UNBLIND): cmd = cmd + ' --unblind'
-                output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
-                print (output)
-                cmd = cmd + ' --setLog'
-                output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
-                print (output)
+            if (opt.FIXFRAC): cmd = cmd + ' --fixFrac'
+            if (opt.UNBLIND): cmd = cmd + ' --unblind'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
+            print (output)
+            cmd = cmd + ' --setLog'
+            output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
+            print (output)
 
 if __name__ == "__main__":
     runFiducialXS()

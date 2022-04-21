@@ -395,8 +395,8 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
     if (ObsToStudy == "1D_Observables"):
         latex2.DrawLatex(0.65,0.85, observableBins[recobin]+" "+unit+" < "+label+" < "+observableBins[recobin+1]+" "+unit)
     else:
-        latex2.DrawLatex(0.65,0.85, observableBins[recobin][0][0]+" "+unit+" < "+label[0]+" < "+observableBins[recobin][0][1]+" "+unit)
-        latex2.DrawLatex(0.65,0.75, observableBins[recobin][1][0]+" "+unit+" < "+label[1]+" < "+observableBins[recobin][1][1]+" "+unit)
+        latex2.DrawLatex(0.65,0.85, observableBins[recobin][0][0]+" "+unit[0]+" < "+label[0]+" < "+observableBins[recobin][0][1]+" "+unit[0])
+        latex2.DrawLatex(0.65,0.75, observableBins[recobin][1][0]+" "+unit[1]+" < "+label[1]+" < "+observableBins[recobin][1][1]+" "+unit[1])
     # Create output directory if it does not exits
     OutputPath = AsimovPlots.format(year = year, obsName = obsName.replace(' ','_'))
     if not os.path.isdir(OutputPath):
