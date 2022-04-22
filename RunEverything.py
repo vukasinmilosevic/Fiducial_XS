@@ -12,7 +12,7 @@ except ImportError as e:
     raise ImportError("Check if you run `source setup.sh`. If not please run it.\n")
 
 try:
-    from Utils import logging, logger, border_msg
+    from Utils import logging, logger, border_msg, GetDirectory
 except Exception as e:
     print (e)
     raise ImportError("Check if you run `source setup.sh`. If not please run it.\n")
@@ -51,7 +51,7 @@ args = parser.parse_args()
 logger.setLevel(args.log_level)
 
 # create a directory named "log" to save nohup outputs.
-if not os.path.isdir('log'): os.mkdir('log')
+GetDirectory("log")
 
 InputYAMLFile = args.inYAMLFile
 ObsToStudy = "1D_Observables" if args.OneDOr2DObs == 1 else "2D_Observables"

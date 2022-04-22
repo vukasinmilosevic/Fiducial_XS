@@ -10,7 +10,7 @@ import yaml
 from Input_Info import *
 from sample_shortnames import *
 from read_bins import read_bins
-from Utils import logger, border_msg
+from Utils import logger, border_msg, GetDirectory
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -399,8 +399,7 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
         latex2.DrawLatex(0.65,0.75, observableBins[recobin][1][0]+" "+unit[1]+" < "+label[1]+" < "+observableBins[recobin][1][1]+" "+unit[1])
     # Create output directory if it does not exits
     OutputPath = AsimovPlots.format(year = year, obsName = obsName.replace(' ','_'))
-    if not os.path.isdir(OutputPath):
-        os.makedirs(OutputPath)
+    GetDirectory(OutputPath)
 
     if (not opt.UNBLIND):
         c.SaveAs(OutputPath+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_unfoldwith_"+modelName+"_"+physicalModel+"_"+obsName.replace(' ','_')+'_'+fstate+"_recobin"+str(recobin)+".pdf")

@@ -119,3 +119,12 @@ def processCmd(cmd, lineNumber = 0, moduleNameWhereItsCalled = "", quiet = 0):
     logger.info("="*51)
 
     return output
+
+def GetDirectory(DirToCreate):
+    try:
+        if not os.path.exists(DirToCreate):
+            os.makedirs(DirToCreate)
+        if os.path.exists(DirToCreate):
+            logger.warning("Direcoty created/exist - "+DirToCreate)
+    except OSError as err:
+        logger.error(err)

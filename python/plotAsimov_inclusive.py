@@ -9,7 +9,7 @@ from math import *
 from sample_shortnames import *
 from Input_Info import *
 from read_bins import read_bins
-from Utils import logger
+from Utils import logger, GetDirectory
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -350,8 +350,7 @@ def plotAsimov(asimovDataModel, asimovPhysicalModel, modelName, physicalModel, o
 
     # Create output directory if it does not exits
     OutputPath = AsimovPlots.format(year = year, obsName = obsName.replace(' ','_'))
-    if not os.path.isdir(OutputPath):
-        os.makedirs(OutputPath)
+    GetDirectory(OutputPath)
 
     if (not opt.UNBLIND):
         c.SaveAs(OutputPath+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_unfoldwith_"+modelName+"_"+physicalModel+"_"+obsName.replace(' ','_')+'_'+fstate+"_recobin"+str(recobin)+".pdf")

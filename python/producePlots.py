@@ -10,7 +10,7 @@ import yaml
 from Input_Info import *
 from sample_shortnames import *
 from read_bins import read_bins
-from Utils import logger, border_msg
+from Utils import logger, border_msg, GetDirectory
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -1565,24 +1565,16 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries, year):
     if (not opt.UNBLIND): set_log = set_log + '_asimov'
 
     OutputPath = ResultsPlot.format(year = year, obsName = obsName.replace(' ','_'))
-    if not os.path.isdir(OutputPath):
-        os.makedirs(OutputPath)
+    GetDirectory(OutputPath)
 
     c.SaveAs(OutputPath+'/'+obsName+'_unfoldwith_'+datamodel+set_log+'.pdf')
     c.SaveAs(OutputPath+'/'+obsName+'_unfoldwith_'+datamodel+set_log+'.png')
     c.SaveAs(OutputPath+'/'+obsName+'_unfoldwith_'+datamodel+set_log+'.root')
     c.SaveAs(OutputPath+'/'+obsName+'_unfoldwith_'+datamodel+set_log+'.C')
-    #c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'_unpublished.pdf')
-    #c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'_unpublished.png')
-    #c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'_unpublished.root')
-    #c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'_unpublished.C')
-    #c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'_preliminary.pdf')
-    #c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'_preliminary.png')
-    #c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'_preliminary.root')
-    #c.SaveAs('plots/'+obsName+'_unfoldwith_'+datamodel+set_log+'_preliminary.C')
 
-    if not os.path.isdir('table'): os.mkdir('table')
-    with open('table/table_'+opt.OBSNAME+'.py', 'w') as f:
+    GetDirectory('table')
+
+    with open('table/table_'+opt.OBSNAME+'.tex', 'w') as f:
          f.write('\\documentclass{article} \n')
          f.write('\\begin{document} \n')
          f.write('\\begin{table}[!h!tb] \n')

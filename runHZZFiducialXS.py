@@ -16,7 +16,7 @@ from Input_Info import datacardInputs, combineOutputs
 from createXSworkspace import createXSworkspace
 from higgs_xsbr_13TeV import higgs4l_br, higgsZZ_br, filtereff, higgs_xs
 from sample_shortnames import sample_shortnames, background_samples
-from Utils import  logging, logger
+from Utils import  logging, logger, GetDirectory
 from Utils import  processCmd, get_linenumber
 from read_bins import read_bins
 
@@ -91,8 +91,8 @@ def parseOptions():
 
     # FIXME: Check why we need these directories
     #        The directory `combineOutputs` is used to keep the generated workspaces
-    if not os.path.isdir(combineOutputs): os.mkdir(combineOutputs)
-    #dirToExist = ['templates','datacardInputs','125.6','xs_125.6']
+    GetDirectory(combineOutputs)
+
     dirToExist = ['templates', datacardInputs, '125.0', combineOutputs]
     for dir in dirToExist:
         if not os.path.isdir(os.getcwd()+'/'+dir+'/'):
@@ -386,7 +386,7 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
     nBins = len(observableBins) -1
     if len(ListObsName) == 2:    # INFO: for 2D this list size == 2
         nBins = len(observableBins)
-    logger.error("nBins: = "+str(nBins))
+    logger.debug("nBins: = "+str(nBins))
 
     # Run combineCards and text2workspace
     currentDir = os.getcwd(); os.chdir('./'+combineOutputs+'/') # FIXME: Hardcoded directory
@@ -453,7 +453,9 @@ def createAsimov(obsName, observableBins, modelName, resultsXS, physicalModel):
             cmd = cmd + ' --floatOtherPOIs=0'
         cmd = cmd +' -t -1 --saveWorkspace --saveToys'
         logger.debug("command+:\n\t{}".format(cmd))
-        if not os.path.isdir(combineOutputs): os.mkdir(combineOutputs)
+
+        GetDirectory(combineOutputs)
+
         # cmd = cmd + ' --out ' + combineOutputs # FIXME: redirect log files from combine script to `combineOutputs` directory
         #cmd += ' --X-rtd TMCSO_PseudoAsimov=1000000'
         #cmd += ' --freezeNuisanceGroups r4muBin0,r4eBin0,r2e2muBin0'

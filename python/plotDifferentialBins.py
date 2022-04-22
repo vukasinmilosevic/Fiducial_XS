@@ -315,8 +315,8 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
 
     # Create output directory if it does not exits
     OutputPath = DifferentialBins.format(year = year, obsName = obsName.replace(' ','_'))
-    if not os.path.isdir(OutputPath):
-        os.makedirs(OutputPath)
+    GetDirectory(OutputPath)
+
     if (not opt.UNBLIND):
         c.SaveAs(OutputPath+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_"+obsName.replace(' ','_')+'_'+fstate+".pdf")
         c.SaveAs(OutputPath+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_"+obsName.replace(' ','_')+'_'+fstate+".png")

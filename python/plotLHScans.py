@@ -7,7 +7,7 @@ from math import *
 
 from sample_shortnames import *
 from Input_Info import *
-from Utils import logger
+from Utils import logger, GetDirectory
 from read_bins import read_bins
 
 grootargs = []
@@ -265,8 +265,7 @@ for obsName in observables:
 
         # Create output directory if it does not exits
         OutputPath = LHScanPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_'))
-        if not os.path.isdir(OutputPath):
-            os.makedirs(OutputPath)
+        GetDirectory(OutputPath)
 
         c.SaveAs(OutputPath+"/lhscan_"+obsName.replace(' ','_')+"_"+obsbin+".pdf")
         c.SaveAs(OutputPath+"/lhscan_"+obsName.replace(' ','_')+"_"+obsbin+".png")

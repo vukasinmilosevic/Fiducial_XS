@@ -165,10 +165,11 @@ for model in modelNames:
         latex2.SetTextSize(0.25*c.GetTopMargin())
         latex2.DrawLatex(0.45, 0.92, model.replace("_"," ")+" GeV (#sqrt{s} = 13 TeV)")
 
-        if not os.path.isdir(SigEfficiencyPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_'))):
-            os.makedirs(SigEfficiencyPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_')))
-        c.SaveAs(SigEfficiencyPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_'))+"/eff2d_"+model+"_"+obsName.replace(' ','_')+"_"+fState+".png")
-        c.SaveAs(SigEfficiencyPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_'))+"/eff2d_"+model+"_"+obsName.replace(' ','_')+"_"+fState+".pdf")
+        SigEfficiencyPlots = SigEfficiencyPlots.format(year = opt.ERA, obsName = obsName.replace(' ','_'))
+        GetDirectory(SigEfficiencyPlots)
+
+        c.SaveAs(SigEfficiencyPlots + "/eff2d_"+model+"_"+obsName.replace(' ','_')+"_"+fState+".png")
+        c.SaveAs(SigEfficiencyPlots + "/eff2d_"+model+"_"+obsName.replace(' ','_')+"_"+fState+".pdf")
         c.Clear()
         # c=TCanvas("c","c",1000,800)
         # c.cd()
