@@ -29,6 +29,8 @@ def parseOptions():
     parser.add_option('',   '--fixFrac', action='store_true', dest='FIXFRAC', default=False, help='Use results from fixed fraction fit, default is False')
     parser.add_option('',   '--unblind', action='store_true', dest='UNBLIND', default=False, help='Use real data')
     parser.add_option('',   '--era',  dest='ERA',  type='string',default='2018',   help='year(s) of processing, e.g. 2016, 2017, 2018 or Full ')
+    parser.add_option('', '--bkg',      dest='BKG',type='string',default='', help='run with the type of zz background to float zz or qq_gg ')
+
     parser.add_option('',   '--lumiscale', type='string', dest='LUMISCALE', default='1.0', help='Scale yields')
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
@@ -46,8 +48,8 @@ sys.argv = grootargs
 if (not os.path.exists("plots")):
     os.system("mkdir plots")
 '''
-if (not os.path.exists("plots_"+opt.ERA+"/"+opt.OBSNAME)):
-    os.system("mkdir -p plots_"+opt.ERA+"/"+opt.OBSNAME)            
+if (not os.path.exists("plots_"+opt.ERA+opt.BKG+"/"+opt.OBSNAME)):
+    os.system("mkdir -p plots_"+opt.ERA+opt.BKG+"/"+opt.OBSNAME)            
 
 from ROOT import *
 from tdrStyle import *
@@ -83,8 +85,10 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
     
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
-    print asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root'
-    f_asimov = TFile(asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
+    #print asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root'
+    print asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+opt.BKG+'.root'
+    #f_asimov = TFile(asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
+    f_asimov = TFile(asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+opt.BKG+'.root','READ')
     if (not opt.UNBLIND):
         data = f_asimov.Get("toys/toy_asimov");
     #data.Print("v");
@@ -165,7 +169,8 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
         n_qqzz_asimov["4l"] += qqzz_asimov[fState].getVal()
         n_zz_asimov["4l"] += n_ggzz_asimov[fState]+n_qqzz_asimov[fState]                                                                
         
-    f_modelfit = TFile(modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root','READ')
+    #f_modelfit = TFile(modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'_result.root','READ')
+    f_modelfit = TFile(modelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+opt.BKG+'_result.root','READ')
     w_modelfit = f_modelfit.Get("w")    
     sim = w_modelfit.pdf("model_s")
     #sim.Print("v")
@@ -352,7 +357,8 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
     c.cd()
 
     #dummy = TH1D("","",1,105.6,140.6)
-    dummy = TH1D("","",1,105.0,140.0)
+    if(opt.BKG!=''): dummy = TH1D("","",1,105.0,160.0)
+    else: dummy = TH1D("","",1,105.0,140.0)
     dummy.SetBinContent(1,2)
     dummy.SetFillColor(0)
     dummy.SetLineColor(0)
@@ -531,12 +537,12 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
         c.SaveAs("plots/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".png")
     '''
     if (not opt.UNBLIND):
-        c.SaveAs("plots_"+opt.ERA+"/"+opt.OBSNAME+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_unfoldwith_"+modelName+"_"+physicalModel+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".pdf")
-        c.SaveAs("plots_"+opt.ERA+"/"+opt.OBSNAME+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_unfoldwith_"+modelName+"_"+physicalModel+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".png")
+        c.SaveAs("plots_"+opt.ERA+opt.BKG+"/"+opt.OBSNAME+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_unfoldwith_"+modelName+"_"+physicalModel+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".pdf")
+        c.SaveAs("plots_"+opt.ERA+opt.BKG+"/"+opt.OBSNAME+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_unfoldwith_"+modelName+"_"+physicalModel+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".png")
     else:
         #c.SaveAs("plots/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".pdf")
-        c.SaveAs("plots_"+opt.ERA+"/"+opt.OBSNAME+"/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".pdf")
-        c.SaveAs("plots_"+opt.ERA+"/"+opt.OBSNAME+"/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".png")    
+        c.SaveAs("plots_"+opt.ERA+opt.BKG+"/"+opt.OBSNAME+"/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".pdf")
+        c.SaveAs("plots_"+opt.ERA+opt.BKG+"/"+opt.OBSNAME+"/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".png")    
 
 
 fStates = ["4e","4mu","2e2mu","4l"]

@@ -32,6 +32,9 @@ def parseOptions():
     parser.add_option('',   '--obsBins',dest='OBSBINS',    type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--unblind', action='store_true', dest='UNBLIND', default=False, help='Use real data')
     parser.add_option('',   '--era',  dest='ERA',  type='string',default='2018',   help='Era to analyze, e.g. 2016, 2017, 2018 or Full ')
+    parser.add_option('', '--bkg',      dest='BKG',type='string',default='', help='run with the type of zz background to float zz or qq_gg ')
+
+
     parser.add_option('',   '--lumiscale', type='string', dest='LUMISCALE', default='1.0', help='Scale yields')
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
@@ -50,8 +53,8 @@ era=opt.ERA
 #if (not os.path.exists("plots")):
 #    os.system("mkdir plots")
 #if (not os.path.exists("plots_"+date)):
-if (not os.path.exists("plots_"+era+"/"+opt.OBSNAME)):
-    os.system("mkdir -p plots_"+era+"/"+opt.OBSNAME)
+if (not os.path.exists("plots_"+era+opt.BKG+"/"+opt.OBSNAME)):
+    os.system("mkdir -p plots_"+era+opt.BKG+"/"+opt.OBSNAME)
             
 from ROOT import *
 from tdrStyle import *
@@ -89,7 +92,8 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
     
-    f_asimov = TFile(asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
+    #f_asimov = TFile(asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+'.root','READ')
+    f_asimov = TFile(asimovDataModel+'_all_'+obsName+'_13TeV_Asimov_'+asimovPhysicalModel+opt.BKG+'.root','READ')
     print "Asimov file is :  ", f_asimov
 
     if (not opt.UNBLIND):
@@ -423,7 +427,9 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     latex2.DrawLatex(0.23, 0.8, "Preliminary")
     latex2.SetTextFont(42)
     latex2.SetTextSize(0.45*c.GetTopMargin())
-    latex2.DrawLatex(0.19,0.75,"105 GeV < m("+fstate.replace('mu','#mu')+") < 140 GeV")
+    #latex2.DrawLatex(0.19,0.75,"105 GeV < m("+fstate.replace('mu','#mu')+") < 140 GeV")
+    if (opt.BKG!='') :latex2.DrawLatex(0.19,0.75,"105 GeV < m("+fstate.replace('mu','#mu')+") < 160 GeV")
+    else :latex2.DrawLatex(0.19,0.75,"105 GeV < m("+fstate.replace('mu','#mu')+") < 140 GeV")
     legend = TLegend(.6,.70,.9,.90)
     if (not opt.UNBLIND):
         legend.AddEntry(h_data,"Asimov Data (SM)","ep")
@@ -440,11 +446,11 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
                                                                                                             
     if (not opt.UNBLIND):
         #c.SaveAs("plots/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_"+obsName+'_'+fstate+".pdf")
-        c.SaveAs("plots_"+era+"/"+opt.OBSNAME+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_"+obsName+'_'+fstate+".pdf")
-        c.SaveAs("plots_"+era+"/"+opt.OBSNAME+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_"+obsName+'_'+fstate+".png")
+        c.SaveAs("plots_"+era+opt.BKG+"/"+opt.OBSNAME+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_"+obsName+'_'+fstate+".pdf")
+        c.SaveAs("plots_"+era+opt.BKG+"/"+opt.OBSNAME+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_"+obsName+'_'+fstate+".png")
     else:
-        c.SaveAs("plots_"+era+"/"+opt.OBSNAME+"/data_"+obsName+'_'+fstate+".pdf")
-        c.SaveAs("plots_"+era+"/"+opt.OBSNAME+"/data_"+obsName+'_'+fstate+".png")
+        c.SaveAs("plots_"+era+opt.BKG+"/"+opt.OBSNAME+"/data_"+obsName+'_'+fstate+".pdf")
+        c.SaveAs("plots_"+era+opt.BKG+"/"+opt.OBSNAME+"/data_"+obsName+'_'+fstate+".png")
 
 
 fStates = ["4e","4mu","2e2mu","4l"]

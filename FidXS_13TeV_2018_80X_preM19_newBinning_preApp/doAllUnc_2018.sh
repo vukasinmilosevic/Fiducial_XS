@@ -1,4 +1,6 @@
 nohup python -u getUnc_Unc.py -l -q -b --obsName="mass4l" --obsBins="|105.0|140.0|" --year="2018" >& unc_mass4l_2018.unc & 
+nohup python -u getUnc_Unc.py -l -q -b --obsName="mass4l" --obsBins="|105.0|160.0|" --year="2018" --bkg="zz" >& unc_mass4l_zz_2018.unc & 
+nohup python -u getUnc_Unc.py -l -q -b --obsName="mass4l" --obsBins="|105.0|160.0|" --year="2018" --bkg="zz_chan" >& unc_mass4l_zz_chan_2018.unc & 
 
 nohup python -u getUnc_Unc.py -l -q -b --obsName="pT4l" --obsBins="|0|10|20|30|45|60|80|120|200|13000|" --year="2018" >& unc_pT4l_2018.unc & 
 nohup python -u getUnc_Unc.py -l -q -b --obsName="rapidity4l" --obsBins="|0.0|0.15|0.3|0.45|0.6|0.75|0.9|1.2|1.6|2.5|" --year="2018" >& unc_rapidity4l_2018.unc & 

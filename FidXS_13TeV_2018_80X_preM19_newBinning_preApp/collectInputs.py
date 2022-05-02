@@ -14,6 +14,9 @@ def parseOptions():
     parser = optparse.OptionParser(usage)
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year to analyze, e.g. 2016, 2017 or 2018 ')    
     parser.add_option('',   '--obsName',dest='OBSNAME',    type='string',default='',   help='Name of the observalbe, supported: "mass4l", "pT4l", "massZ2", "rapidity4l", "cosThetaStar", "nets_reco_pt30_eta4p7"')
+    parser.add_option('', '--bkg',      dest='BKG',type='string',default='', help='run with the type of zz background to float zz or qq_gg ')
+
+
     global opt, args
     (opt, args) = parser.parse_args()
 # parse the arguments and options
@@ -25,8 +28,8 @@ year = opt.YEAR
 obsName=opt.OBSNAME
 
 #sys.path.append('./datacardInputs')
-sys.path.append('./datacardInputs_'+year)
-
+#sys.path.append('./datacardInputs_'+year)
+sys.path.append('./datacardInputs_'+opt.YEAR+opt.BKG)
 #def collect(obsName):
 def collect(obsName,year):
 
@@ -54,7 +57,8 @@ def collect(obsName,year):
     lambdajesup.update(_tmp.lambdajesup); lambdajesdn.update(_tmp.lambdajesdn);
 
   #with open('datacardInputs/inputs_sig_'+obsName+'.py', 'w') as f:
-  with open('datacardInputs_'+year+'/inputs_sig_'+obsName+'.py', 'w') as f:
+  #with open('datacardInputs_'+year+'/inputs_sig_'+obsName+'.py', 'w') as f:
+  with open('datacardInputs_'+year+opt.BKG+'/inputs_sig_'+obsName+'.py', 'w') as f:
     f.write('acc = '+str(acc)+' \n')
     f.write('dacc = '+str(dacc)+' \n')
     f.write('acc_4l = '+str(acc_4l)+' \n')

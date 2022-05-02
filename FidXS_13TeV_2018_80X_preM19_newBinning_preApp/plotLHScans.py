@@ -31,6 +31,7 @@ def parseOptions():
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
     parser.add_option('',   '--era',  dest='ERA',  type='string',default='2018',   help='Era to analyze, e.g. 2016, 2017, 2018 or Full ')
+    parser.add_option('', '--bkg',      dest='BKG',type='string',default='', help='run with the type of zz background to float zz or qq_gg ')
                        
     # store options and arguments as global variables
     global opt, args
@@ -47,12 +48,17 @@ setTDRStyle()
 
 observables = [opt.OBSNAME]
 era=opt.ERA
-if (not os.path.exists("plots_"+era+"/"+opt.OBSNAME)):
-    os.system("mkdir -p plots_"+era+"/"+opt.OBSNAME)
+if (not os.path.exists("plots_"+era+opt.BKG+"/"+opt.OBSNAME)):
+    os.system("mkdir -p plots_"+era+opt.BKG+"/"+opt.OBSNAME)
 resultsXS ={}
 
 for obsName in observables:
-    if obsName=="mass4l": obsbins = ['r4eBin0','SigmaBin0','r2e2muBin0','r4muBin0']
+    if obsName=="mass4l": 
+	if opt.BKG!="": 
+	    if opt.BKG=="zz_chan": obsbins = ['SigmaBin0','r2e2muBin0','r4muBin0', 'r4eBin0','zz_norm_4e','zz_norm_4mu','zz_norm_2e2mu']
+	    if opt.BKG=="zz": obsbins = ['SigmaBin0','r2e2muBin0','r4muBin0', 'r4eBin0','zz_norm_0']
+        else: obsbins = ['SigmaBin0','r2e2muBin0','r4muBin0', 'r4eBin0']
+        #else: obsbins = ['SigmaBin0'] #,'r2e2muBin0','r4muBin0', 'r4eBin0']
     elif obsName=="massZ1": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5']
     elif obsName=="Phi" or obsName=="Phi1" or obsName=="cosTheta1" or obsName=="cosTheta2" or obsName=="cosThetaStar": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5','SigmaBin6','SigmaBin7']
     elif obsName=="pT4l" or obsName=="rapidity4l" or obsName=="massZ2": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5','SigmaBin6','SigmaBin7','SigmaBin8']
@@ -152,8 +158,37 @@ for obsName in observables:
                         sigma.append(limit.r4eBin0)
                         deltanll.append(2.0*limit.deltaNLL)
 
+## zz_norm variables
+            if (obsbin=="zz_norm_0"):
+                if (point==0): bestfit=limit.zz_norm_0
+                if (point>0): 
+                    if (limit.deltaNLL<2.5):
+                        sigma.append(limit.zz_norm_0)
+                        deltanll.append(2.0*limit.deltaNLL)
+            if (obsbin=="zz_norm_2e2mu"):
+                if (point==0): bestfit=limit.zz_norm_2e2mu
+                if (point>0):
+                    if (limit.deltaNLL<2.5):
+                        sigma.append(limit.zz_norm_2e2mu)
+                        deltanll.append(2.0*limit.deltaNLL)
+            if (obsbin=="zz_norm_4mu"):
+                if (point==0): bestfit=limit.zz_norm_4mu
+                if (point>0):
+                    if (limit.deltaNLL<2.5):
+                        sigma.append(limit.zz_norm_4mu)
+                        deltanll.append(2.0*limit.deltaNLL)
+            if (obsbin=="zz_norm_4e"):
+                if (point==0): bestfit=limit.zz_norm_4e
+                if (point>0):
+                    if (limit.deltaNLL<2.5):
+                        sigma.append(limit.zz_norm_4e)
+                        deltanll.append(2.0*limit.deltaNLL)
+
+
+
             if point>0 and len(deltanll)>0:
                 if deltanll[len(deltanll)-1]>5.0 and sigma[len(sigma)-1]>bestfit: break
+#            print "limit.deltaNLL:     ",limit.deltaNLL
 
         fstat = TFile("higgsCombine"+obsName+"_"+obsbin+"_NoSys.MultiDimFit.mH125.38.root","READ")
         if (fstat==0): continue
@@ -239,12 +274,39 @@ for obsName in observables:
                     if (limitstat.deltaNLL<2.5):
                         sigmastat.append(limitstat.r4eBin0)
                         deltanllstat.append(2.0*limitstat.deltaNLL)
+            if (obsbin=="zz_norm_0"):
+                if (point==0): bestfit=limitstat.zz_norm_0
+                if (point>0):
+                    if (limitstat.deltaNLL<2.5):
+                        sigmastat.append(limitstat.zz_norm_0)
+                        deltanllstat.append(2.0*limitstat.deltaNLL)
+            if (obsbin=="zz_norm_2e2mu"):
+                if (point==0): bestfit=limitstat.zz_norm_2e2mu
+                if (point>0):
+                    if (limitstat.deltaNLL<2.5):
+                        sigmastat.append(limitstat.zz_norm_2e2mu)
+                        deltanllstat.append(2.0*limitstat.deltaNLL)
+            if (obsbin=="zz_norm_4mu"):
+                if (point==0): bestfit=limitstat.zz_norm_4mu
+                if (point>0):
+                    if (limitstat.deltaNLL<2.5):
+                        sigmastat.append(limitstat.zz_norm_4mu)
+                        deltanllstat.append(2.0*limitstat.deltaNLL)
+            if (obsbin=="zz_norm_4e"):
+                if (point==0): bestfit=limitstat.zz_norm_4e
+                if (point>0):
+                    if (limitstat.deltaNLL<2.5):
+                        sigmastat.append(limitstat.zz_norm_4e)
+                        deltanllstat.append(2.0*limitstat.deltaNLL)
 
             if point>0 and len(deltanllstat)>0:
                 if deltanllstat[len(deltanllstat)-1]>5.0 and sigmastat[len(sigmastat)-1]>bestfit: break
 
 
         print obsName,obsbin
+	print sigmastat
+	print deltanllstat 
+
         scan = TGraph(len(sigma),array('d',sigma),array('d',deltanll))
         scanstat = TGraph(len(sigmastat),array('d',sigmastat),array('d',deltanllstat))
 
@@ -252,7 +314,8 @@ for obsName in observables:
         c = TCanvas("c","c",1000,800)
 
         #dummy = TH1D("dummy","dummy",1,0.0,sigmastat[len(sigmastat)-1]+1)
-        dummy = TH1D("dummy","dummy",1,-0.10,sigmastat[len(sigmastat)-1]+1)
+        dummy = TH1D("dummy","dummy",1,0.0,sigmastat[len(sigmastat)-1]+1)
+        if ('zz' in obsbin): dummy = TH1D("dummy","dummy",1,0.0,sigmastat[len(sigmastat)-1]+10)
         #dummy = TH1D("dummy","dummy",1,0.0,5.0)  # tahir
         dummy.SetMinimum(0.0)
         dummy.SetMaximum(5.0)
@@ -276,29 +339,30 @@ for obsName in observables:
 
         gStyle.SetOptFit(0)
 
-        #f1 = TF1("f1","pol8",0.0,5.0)
-        f1 = TF1("f1","pol8",-0.10,5.0)
+        f1 = TF1("f1","pol8",0.0,5.0)
+        if ('zz' in obsbin): f1 = TF1("f1","pol8",0.0,sigmastat[len(sigmastat)-1]+50)
+        #f1 = TF1("f1","pol8",-0.10,5.0)
         f1.SetLineColor(1)
         f1.SetLineWidth(2)
         scan.Fit("f1","N")
         #f1.Draw("same")
 
-        #f1stat = TF1("f1stat","pol8",0.0,5.0)
-        f1stat = TF1("f1stat","pol8",-0.10,5.0)
+        f1stat = TF1("f1stat","pol8",0.0,5.0)
+        if ('zz' in obsbin): f1stat = TF1("f1stat","pol8",0.0,sigmastat[len(sigmastat)-1]+50)
         f1stat.SetLineColor(1)
         f1stat.SetLineWidth(2)
         f1stat.SetLineStyle(2)
         scanstat.Fit("f1stat","N")
         #f1stat.Draw("same")
 
-        #cl68 = TF1("cl68","1.0",0.0,5.0)
-        cl68 = TF1("cl68","1.0",-0.10,5.0)
+        cl68 = TF1("cl68","1.0",0.0,5.0)
+        if ('zz' in obsbin): cl68 = TF1("cl68","1.0",0.0,sigmastat[len(sigmastat)-1]+50)
         cl68.SetLineStyle(2)
         cl68.SetLineColor(1)
         cl68.Draw("same")
 
-        #cl95 = TF1("cl95","3.84",0.0,5.0)
-        cl95 = TF1("cl95","3.84",-0.10,5.0)
+        cl95 = TF1("cl95","3.84",0.0,5.0)
+        if ('zz' in obsbin): cl95 = TF1("cl95","3.84",0.0,sigmastat[len(sigmastat)-1]+50)
         cl95.SetLineStyle(2)
         cl95.SetLineColor(1)
         cl95.Draw("same")
@@ -313,10 +377,14 @@ for obsName in observables:
         cl95upstat = 0.0
         cl95dnstat = 0.0
 
-        for i in range(0,100000):
-#            x = 0.+i/20000.
-            #x = 0.+i/200000.
-            x = 0.+i/120000.
+
+	if ('zz' in obsbin):nmax=10000000
+	else: nmax=200000
+        #for i in range(0,100000):
+        for i in range(0,nmax):
+            x = 0.+i/20000.  # OK
+#            x = 0.+i/200000.
+            #x = 0.+i/120000.
             #scanval = f1.Eval(x)
             scanval = scan.Eval(x)
             #if abs(scanval-3.84)<.0005: print x,scanval
@@ -334,10 +402,13 @@ for obsName in observables:
 
         print obsName,obsbin,round(bestfit,6),"+",cl68up,"-",cl68dn,"(68%)","+",cl95up,"-",cl95dn,"(95%)"
 
-        for i in range(0,100000):
-            #x = 0.+i/20000.  # initial
+#	if ('zz' in obsbin):
+
+        #for i in range(0,100000):
+        for i in range(0,nmax):
+            x = 0.+i/20000.  # initial, OK
             #x = 0.+i/200000.
-            x = 0.+i/120000.   # did for pT4l, for others .001, i/20000
+            #x = 0.+i/120000.   # did for pT4l, for others .001, i/20000
             #scanval = f1stat.Eval(x)
             scanval = scanstat.Eval(x)
             #if abs(scanval-3.84)<.001: print x,scanval
@@ -366,7 +437,6 @@ for obsName in observables:
         latex2.SetTextFont(42)
         latex2.SetTextAlign(31) # align right                                                                     
         print opt.LUMISCALE
-
 
 
 	if (not opt.LUMISCALE=="1.0"):
@@ -406,9 +476,12 @@ for obsName in observables:
         if (obsName=="mass4l"):
             if (obsbin=="SigmaBin0"):
                 resultsXS['SM_125_mass4l_genbin0'] = {"uncerDn": -1.0*cl68dn, "uncerUp": cl68up, "central": bestfit}
-		print "total uncertainty inclusive ................... ", resultsXS['SM_125_mass4l_genbin0']
                 resultsXS['SM_125_mass4l_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat, "uncerUp": cl68upstat, "central": bestfit}
-		print "statistical uncertainty inclusive ................... ", resultsXS['SM_125_mass4l_genbin0_statOnly']
+            #elif (obsbin=="zz_norm_0" or obsbin=="zz_norm_2e2mu" or obsbin=="zz_norm_4e" or obsbin=="zz_norm_4mu"):
+            elif ('zz' in obsbin):
+                resultsXS['SM_125_mass4l_genbin0'+obsbin] = {"uncerDn": -1.0*cl68dn, "uncerUp": cl68up, "central": bestfit}
+                resultsXS['SM_125_mass4l_genbin0_statOnly'+obsbin] = {"uncerDn": -1.0*cl68dnstat, "uncerUp": cl68upstat, "central": bestfit}
+                print "statistical uncertainty inclusive ................... ", resultsXS['SM_125_mass4l_genbin0_statOnly'+obsbin]
             else:
                 resultsXS['SM_125_mass4l_'+obsbin.replace('r','').replace('Bin0','')+'_genbin0'] = {"uncerDn": -1.0*cl68dn, "uncerUp": cl68up, "central": bestfit}
                 resultsXS['SM_125_mass4l_'+obsbin.replace('r','').replace('Bin0','')+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat, "uncerUp": cl68upstat, "central": bestfit}
@@ -552,17 +625,20 @@ for obsName in observables:
 #        c.SaveAs("plots/lhscan_"+obsName+"_"+obsbin+".pdf")
 #        c.SaveAs("plots/lhscan_"+obsName+"_"+obsbin+".png")
 	#c.SaveAs("plots_"+date+"/lhscan_"+obsName+"_"+obsbin+".pdf")
-	c.SaveAs("plots_"+era+"/"+opt.OBSNAME+"/lhscan_"+obsName+"_"+obsbin+".pdf")
+	c.SaveAs("plots_"+era+opt.BKG+"/"+opt.OBSNAME+"/lhscan_"+obsName+"_"+obsbin+".pdf")
         #c.SaveAs("plots_"+date+"/lhscan_"+obsName+"_"+obsbin+".png")
-	c.SaveAs("plots_"+era+"/"+opt.OBSNAME+"/lhscan_"+obsName+"_"+obsbin+".png")
+	c.SaveAs("plots_"+era+opt.BKG+"/"+opt.OBSNAME+"/lhscan_"+obsName+"_"+obsbin+".png")
 
         if (obsName=="mass4l"):
             if (obsbin=="SigmaBin0"):
-                with open('resultsXS_LHScan_mass4l_v3.py', 'w') as f:
+                #with open('resultsXS_LHScan_mass4l_v3.py', 'w') as f:
+                #with open('resultsXS_LHScan_mass4l_v3.py', 'w') as f:
+                with open('resultsXS_LHScan_mass4l_v3'+opt.BKG+'.py', 'w') as f:
 		    print "going write inclusive resultsXS",resultsXS
                     f.write('resultsXS = '+str(resultsXS)+' \n')
             else:
-                with open('resultsXS_LHScan_mass4l_v2.py', 'w') as f:
+                #with open('resultsXS_LHScan_mass4l_v2.py', 'w') as f:
+                with open('resultsXS_LHScan_mass4l_v2'+opt.BKG+'.py', 'w') as f:
 		    print "going write channel wise resultsXS",resultsXS
                     f.write('resultsXS = '+str(resultsXS)+' \n')
         else:

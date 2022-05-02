@@ -1,4 +1,6 @@
 nohup python -u runHZZFiducialXS.py --obsName="mass4l" --obsBins="|105.0|140.0|"  --calcSys --era="Full"  >& log_mass4l_Full.txt & # single bin
+nohup python -u runHZZFiducialXS.py --obsName="mass4l" --obsBins="|105.0|160.0|"  --calcSys --era="Full" --bkg="zz"  >& log_mass4l_zz_Full.txt & # single bin
+nohup python -u runHZZFiducialXS.py --obsName="mass4l" --obsBins="|105.0|160.0|"  --calcSys --era="Full" --bkg="zz_chan" >& log_mass4l_zz_chan_Full.txt & # single bin
 nohup python -u runHZZFiducialXS.py --obsName="pT4l" --obsBins="|0|10|20|30|45|60|80|120|200|13000|"  --calcSys --era="Full" >& log_pT4l_Full.txt &  # 9 bins
 nohup python -u runHZZFiducialXS.py --obsName="rapidity4l" --obsBins="|0.0|0.15|0.3|0.45|0.6|0.75|0.9|1.2|1.6|2.5|" --calcSys --era="Full" >& log_rapidity4l_Full.txt &  # 9 bins
 nohup python -u runHZZFiducialXS.py --obsName="njets_pt30_eta2p5" --obsBins="|0.0|1.0|2.0|3.0|4.0|10.0|"  --calcSys --era="Full" >& log_njets_pt30_eta2p5_Full.txt &  # 5 bins

@@ -33,7 +33,8 @@ Final step is to clone the correct verison of the code. At the moment the workin
 ```
 cd $CMSSW_BASE/src/
 #git clone -b CMSSW_10_X git@github.com:vukasinmilosevic/Fiducial_XS.git
-git clone -b CMSSW_10_X_Combine git@github.com:vukasinmilosevic/Fiducial_XS.git
+#git clone -b CMSSW_10_X_Combine git@github.com:vukasinmilosevic/Fiducial_XS.git
+git clone -b CMSSW_10_X_Combine_zz git@github.com:vukasinmilosevic/Fiducial_XS.git
 ```
 
 ## 2. Running the measurement
@@ -47,6 +48,8 @@ nohup python -u efficiencyFactors.py -l -q -b --obsName="mass4l" --obsBins="|105
 nohup python -u efficiencyFactors.py -l -q -b --obsName="mass4l" --obsBins="|105.0|140.0|" -c "4e"  --year="2018" >& effs_mass4l_4e_2018.log &
 nohup python -u efficiencyFactors.py -l -q -b --obsName="mass4l" --obsBins="|105.0|140.0|" -c "2e2mu"  --year="2018" >& effs_mass4l_2e2mu_2018.log &
 nohup python -u efficiencyFactors.py -l -q -b --obsName="mass4l" --obsBins="|105.0|140.0|" -c "4l"  --year="2018" >& effs_mass4l_4l_2018.log &
+
+
 # for the various observables and all three years:
 
 sh doAllEffs_channels_2016.sh
@@ -63,7 +66,7 @@ sh collectInputs_2018.sh
 
 ```
 
-#Running the plotter:
+Running the plotter:
 
 ```
 #skipping for mass4l 
@@ -142,3 +145,13 @@ python plot_XS_vs_sqrts_Paper.py
 
 
 ```
+
+### Measurement with the floating ZZ background in the fit
+The branch ```CMSSW_10_X_Combine``` currently supports to perform such measurement for inclusive case. 
+This can be done by adding an argument e.g. ```--bkg="zz"``` or ```--bkg="zz_chan"``` at the end of each commandline. (bash scripts are added with full command lines)
+The measurement is done with extended mass range i.e. ```|105.0|160.0|``` for which all the supplement inputs are covered with choice of ```--bkg``` argument. 
+
+
+
+
+

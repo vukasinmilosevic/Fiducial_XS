@@ -2,24 +2,12 @@ from ROOT import *
 from array import array
 import os
 from datapaths_full import *
-#dirMC_94 = '/raid/raid9/qguo/combine/2018_MC_Ntuple/'
-#dirMC_94 = '/publicfs/cms/user/qyguo/ufl_machine/tools/combine/2018_MC_Ntuple/'
-#dirMC_94 = 'root://eosuser.cern.ch//eos/cms/store/group/phys_muon/TagAndProbe/HZZ4L/2018/'
-
-#dirMC_94 = 'root://eoscms.cern.ch//eos/home-v/vmilosev/Skim_2018_HZZ/WoW/'
-#dirMC_94 = 'root://eoscms.cern.ch//eos/cms/store/group/phys_muon/TagAndProbe/HZZ4L/2018/slimmed/'
 dirMC_94 = datapaths["2018"]["MC"]
-#dirMC_94 = "$CMSSW_BASE/src/ntup/"
 
 print "samples directory: ", dirMC_94
-dirMC_94_1 = '/raid/raid7/tjavaid/sig_samples_mc/'    # after copying to the local from Lucien working directory
-dirMC_94_Mad = '/raid/raid9/qguo/Run2/after/Run2_2/new/CMSSW_10_2_18/src/'
-dirData_94 = 'root://cmsio5.rc.ufl.edu//store/user/t2/users/klo/Higgs/HZZ4l/NTuple/Run2/MC80X_M17_4l_Feb21/'  # /cms/data/store/user/t2/users/archived/dsperka/Run2/Zprime/2017/rootfiles_Data_Apr16/  #to be added
-
 
 
 SamplesMC_94 = [
-#File missing or needs to be redirected (Vukasin)'GluGluHToZZTo4L_M125_13TeV_powheg2_minloHJ_NNLOPS_JHUgenV702_pythia8.root',   # path needs to be redirected
 ###
 'GluGluHToZZTo4L_M124_2018_slimmed.root',
 'GluGluHToZZTo4L_M125_2018_slimmed.root',

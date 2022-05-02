@@ -111,7 +111,8 @@ double nEvents = -1;
 
 
 //_______________________________________________________________________________________________________________________________________________
-void fiducialXSTemplates(TString processNameTag = "qqZZ", TString processFileName = "ZZTo2e2mu_mZZ95-160.root", TString sfinalState = "4l", TString obsName = "massZ2", TString obsBinDn = "0", TString obsBinUp = "120", TString sqrtsTag = "8TeV", TString baseDirXS = "templatesXS", TString sProcessingType = "DTreeXS", TString fitTypeZ4l = "none", bool useRefit = false){
+//void fiducialXSTemplates(TString processNameTag = "qqZZ", TString processFileName = "ZZTo2e2mu_mZZ95-160.root", TString sfinalState = "4l", TString obsName = "massZ2", TString obsBinDn = "0", TString obsBinUp = "120", TString sqrtsTag = "8TeV", TString baseDirXS = "templatesXS", TString sProcessingType = "DTreeXS", TString fitTypeZ4l = "none", bool useRefit = false){
+void fiducialXSTemplates(TString processNameTag = "qqZZ", TString processFileName = "ZZTo2e2mu_mZZ95-160.root", TString sfinalState = "4l", TString obsName = "massZ2", TString obsBinDn = "0", TString obsBinUp = "120", TString sqrtsTag = "8TeV", TString baseDirXS = "templatesXS", TString sProcessingType = "DTreeXS", TString fitTypeZ4l = "none", bool useRefit = false, TString float_type=""){
     // prepare XS templates for given parameters
     PROCESSING_TYPE = sProcessingType;
     templatesDir = baseDirXS;
@@ -133,6 +134,12 @@ void fiducialXSTemplates(TString processNameTag = "qqZZ", TString processFileNam
     
     if (obsName!="mass4l") {
         nbinsX=15;
+
+    if (float_type!="") {
+        CUT_M4LLOW = 105; 
+        CUT_M4LHIGH = 160; 
+    }   
+
     }
     cout<<"Begin templatesXS"<<endl;
     templatesXS(processNameTag, processFileName, sqrtsTag, sfinalState, obsName, obsBinDn, obsBinUp, fitTypeZ4l, useRefit);

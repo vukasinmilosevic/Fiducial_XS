@@ -22,6 +22,7 @@ def parseOptions():
     parser.add_option('',   '--obsName',dest='OBSNAME',    type='string',default='',   help='Name of the observalbe, supported: "mass4l", "pT4l", "massZ2", "rapidity4l", "cosThetaStar", "nets_reco_pt30_eta4p7"')
     parser.add_option('',   '--obsBins',dest='OBSBINS',    type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--year',dest='YEAR',    type='string',default='2018',   help='year of processing e.g. 2018')
+    parser.add_option('', '--bkg',      dest='BKG',type='string',default='', help='run with the type of zz background to float zz or qq_gg ')
     parser.add_option('-f', '--doFit', action="store_true", dest='DOFIT', default=False, help='doFit, default false')
     parser.add_option('-p', '--doPlots', action="store_true", dest='DOPLOTS', default=False, help='doPlots, default false')
     parser.add_option("-l",action="callback",callback=callback_rootargs)
@@ -39,7 +40,8 @@ sys.argv = grootargs
 
 year=opt.YEAR
 #sys.path.append('./datacardInputs')
-sys.path.append('./datacardInputs_'+year)
+#sys.path.append('./datacardInputs_'+year)
+sys.path.append('./datacardInputs_'+year+opt.BKG)
 
 obsName = opt.OBSNAME
 observableBins = opt.OBSBINS
@@ -275,10 +277,11 @@ for fState in fStates:
         
         
 #os.system('cp datacardInputs/inputs_sig_'+opt.OBSNAME+'.py datacardInputs/inputs_sig_'+opt.OBSNAME+'_ORIG.py')
-os.system('cp datacardInputs_'+year+'/inputs_sig_'+opt.OBSNAME+'.py datacardInputs_'+year+'/inputs_sig_'+opt.OBSNAME+'_ORIG.py')
+#os.system('cp datacardInputs_'+year+'/inputs_sig_'+opt.OBSNAME+'.py datacardInputs_'+year+'/inputs_sig_'+opt.OBSNAME+'_ORIG.py')
+os.system('cp datacardInputs_'+year+opt.BKG+'/inputs_sig_'+opt.OBSNAME+'.py datacardInputs_'+year+opt.BKG+'/inputs_sig_'+opt.OBSNAME+'_ORIG.py')
 
 #with open('datacardInputs/inputs_sig_'+opt.OBSNAME+'.py', 'w') as f:
-with open('datacardInputs_'+year+'/inputs_sig_'+opt.OBSNAME+'.py', 'w') as f:
+with open('datacardInputs_'+year+opt.BKG+'/inputs_sig_'+opt.OBSNAME+'.py', 'w') as f:
     f.write('acc = '+str(acc)+' \n')
     f.write('dacc = '+str(dacc)+' \n')
     f.write('eff = '+str(eff)+' \n')

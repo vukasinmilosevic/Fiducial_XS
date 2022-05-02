@@ -1,5 +1,11 @@
 # mass4l 
 nohup python -u runHZZFiducialXS.py --obsName="mass4l" --obsBins="|105.0|140.0|" --redoTemplates --templatesOnly --era="2018" >& templates_mass4l_2018.log &
+# mass4l extended
+nohup python -u runHZZFiducialXS.py --obsName="mass4l" --obsBins="|105.0|160.0|" --redoTemplates --templatesOnly --era="2018" --bkg="ext" >& templates_mass4l_ext_2018.log &
+# mass4l floating zz 
+nohup python -u runHZZFiducialXS.py --obsName="mass4l" --obsBins="|105.0|160.0|" --redoTemplates --templatesOnly --era="2018" --bkg="zz" >& templates_mass4l_zz_2018.log &
+# mass4l floating zz_chan 
+nohup python -u runHZZFiducialXS.py --obsName="mass4l" --obsBins="|105.0|160.0|" --redoTemplates --templatesOnly --era="2018" --bkg="zz_chan" >& templates_mass4l_zz_chan_2018.log &
 #pT4l
 nohup python -u runHZZFiducialXS.py --obsName="pT4l" --obsBins="|0|10|20|30|45|60|80|120|200|13000|" --redoTemplates --templatesOnly --era="2018" >& templates_pT4l_2018.log &
 # rapidity4l

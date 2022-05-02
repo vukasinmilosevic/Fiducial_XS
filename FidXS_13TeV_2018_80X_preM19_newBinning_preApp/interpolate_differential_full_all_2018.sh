@@ -1,5 +1,9 @@
 
-#nohup python -u interpolate_differential_full.py --obsName="mass4l" --obsBins="|105.0|140.0|"  --year="2018" >& full_interpolation_mass4l_2018.txt & # single bin
+nohup python -u interpolate_differential_full.py --obsName="mass4l" --obsBins="|105.0|140.0|"  --year="2018" >& full_interpolation_mass4l_2018.txt & # single bin
+# mass extended
+nohup python -u interpolate_differential_full.py --obsName="mass4l" --obsBins="|105.0|160.0|"  --year="2018" >& full_interpolation_mass4l_extended_2018.txt & # single bin
+nohup python -u interpolate_differential_full.py --obsName="mass4l" --obsBins="|105.0|160.0|"  --year="2018" --bkg="zz" >& full_interpolation_mass4l_2018_zz_floating.txt & # single bin
+nohup python -u interpolate_differential_full.py --obsName="mass4l" --obsBins="|105.0|160.0|"  --year="2018" --bkg="zz_chan" >& full_interpolation_mass4l_2018_zz_chan_floating.txt & # single bin
 nohup python -u interpolate_differential_full.py --obsName="pT4l" --obsBins="|0|10|20|30|45|60|80|120|200|13000|"  --year="2018" >& full_interpolation_pT4l_2018.txt &  # 9 bins
 nohup python -u interpolate_differential_full.py --obsName="rapidity4l" --obsBins="|0.0|0.15|0.3|0.45|0.6|0.75|0.9|1.2|1.6|2.5|" --year="2018" >& full_interpolation_rapidity4l_2018.txt &  # 9 bins
 nohup python -u interpolate_differential_full.py --obsName="njets_pt30_eta2p5" --obsBins="|0.0|1.0|2.0|3.0|4.0|10.0|"  --year="2018" >& full_interpolation_njets_pt30_eta2p5_2018.txt &  # 5 bins

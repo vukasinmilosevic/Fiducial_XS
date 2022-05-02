@@ -1,5 +1,7 @@
 # mass4l
 python -u collectInputs.py --obsName="mass4l" --year="2018"
+python -u collectInputs.py --obsName="mass4l" --year="2018" --bkg="zz"
+python -u collectInputs.py --obsName="mass4l" --year="2018" --bkg="zz_chan"
 ##pT4l
 python -u collectInputs.py  --obsName="pT4l"  --year="2018"
 ## rapidity4l

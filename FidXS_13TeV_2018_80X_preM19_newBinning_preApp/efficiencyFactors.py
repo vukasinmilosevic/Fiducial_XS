@@ -37,6 +37,7 @@ def parseOptions():
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='2018',   help='Year to analyze, e.g. 2016, 2017 or 2018 ')                       
+    parser.add_option('', '--bkg',      dest='BKG',type='string',default='', help='run with the type of zz background to float zz or qq_gg ')
     parser.add_option('',   '--lumiscale', type='string', dest='LUMISCALE', default='1.0', help='Scale yields')
     # store options and arguments as global variables
     global opt, args
@@ -742,19 +743,31 @@ def geteffs(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_b
             c.SaveAs("Eff_plots_"+year+"/"+opt.OBSNAME+"/"+processBin+"_effs_"+recoweight+".png")
             c.SaveAs("Eff_plots_"+year+"/"+opt.OBSNAME+"/"+processBin+"_effs_"+recoweight+".pdf")
 
+obs_bins = opt.OBSBINS.split("|") 
+if (not (obs_bins[0] == '' and obs_bins[len(obs_bins)-1]=='')): 
+    print 'BINS OPTION MUST START AND END WITH A |' 
+obs_bins.pop()
+obs_bins.pop(0)
+print "obs_bins:  ", obs_bins
 
 m4l_bins = 35
 m4l_low = 105.0
-m4l_high = 140.0
-
+if (opt.BKG==''): m4l_high = 140.0
+if (opt.BKG=='' and opt.OBSNAME=='mass4l'): m4l_high = obs_bins[1]
+if (opt.BKG!=''): m4l_high = 160.0
+print "m4l_high:       ",m4l_high
 # Default to inclusive cross section
 obs_reco = 'mass4l'
 obs_gen = 'GENmass4l'
 obs_reco_low = 105.0
-obs_reco_high = 140.0
+#obs_reco_high = 140.0
 obs_gen_low = 105.0
-obs_gen_high = 140.0
-
+#obs_gen_high = 140.0
+if (opt.BKG==''): obs_reco_high= 140.0; obs_gen_high = 140.0
+if (opt.BKG=='' and opt.OBSNAME=='mass4l'): obs_reco_high= obs_bins[1]; obs_gen_high = obs_bins[1]
+if (opt.BKG!=''): obs_reco_high= 160.0; obs_gen_high = 160.0
+print "obs_gen_high:   ", obs_gen_high
+print "obs_reco_high:   ", obs_reco_high
 #test 
 obs_reco = opt.OBSNAME 
 obs_gen = "GEN"+opt.OBSNAME 
@@ -836,11 +849,13 @@ if (opt.OBSNAME == "mj1j2"):
 '''
     
 #obs_bins = {0:(opt.OBSBINS.split("|")[1:((len(opt.OBSBINS)-1)/2)]),1:['0','inf']}[opt.OBSNAME=='inclusive'] 
-obs_bins = opt.OBSBINS.split("|") 
-if (not (obs_bins[0] == '' and obs_bins[len(obs_bins)-1]=='')): 
-    print 'BINS OPTION MUST START AND END WITH A |' 
-obs_bins.pop()
-obs_bins.pop(0) 
+#obs_bins = opt.OBSBINS.split("|") 
+#if (not (obs_bins[0] == '' and obs_bins[len(obs_bins)-1]=='')): 
+#    print 'BINS OPTION MUST START AND END WITH A |' 
+#obs_bins.pop()
+#obs_bins.pop(0) 
+
+print "obs_bins:  ", obs_bins
 
 List = []
 if year=="2018": from LoadData_2018 import *;
@@ -878,7 +893,8 @@ if (not opt.CHAN==''):
 
 #with open('datacardInputs/inputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
 #with open('datacardInputs_'+year+'/inputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
-with open('datacardInputs_'+year+'/inputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
+#with open('datacardInputs_'+year+'/inputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
+with open('datacardInputs_'+year+opt.BKG+'/inputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
     f.write('acc = '+str(acceptance)+' \n')
     f.write('dacc = '+str(dacceptance)+' \n')
     f.write('acc_4l = '+str(acceptance_4l)+' \n')
@@ -897,7 +913,8 @@ with open('datacardInputs_'+year+'/inputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f
 
 #with open('datacardInputs/moreinputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
 #with open('datacardInputs_'+year+'/moreinputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
-with open('datacardInputs_'+year+'/moreinputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
+#with open('datacardInputs_'+year+'/moreinputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
+with open('datacardInputs_'+year+opt.BKG+'/moreinputs_sig_'+opt.OBSNAME+ext+'.py', 'w') as f:
     f.write('CB_mean = '+str(CB_mean_post)+' \n')
     #f.write('CB_dmean = '+str(CB_dmean_post)+' \n')
     f.write('CB_sigma = '+str(CB_sigma_post)+' \n')
