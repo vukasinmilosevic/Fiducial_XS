@@ -147,7 +147,7 @@ python plot_XS_vs_sqrts_Paper.py
 ```
 
 ### Measurement with the floating ZZ background in the fit
-The branch ```CMSSW_10_X_Combine``` currently supports to perform such measurement for inclusive case. 
+The branch ```CMSSW_10_X_Combine_zz``` currently supports to perform such measurement for inclusive case. 
 This can be done by adding an argument e.g. ```--bkg="zz"``` or ```--bkg="zz_chan"``` at the end of each commandline. (bash scripts are added with full command lines)
 The measurement is done with extended mass range i.e. ```|105.0|160.0|``` for which all the supplement inputs are covered with choice of ```--bkg``` argument. 
 
