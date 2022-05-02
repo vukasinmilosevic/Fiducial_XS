@@ -256,14 +256,14 @@ Observables:
     TauC_Inc_0j_EnergyWgt:
      bins: "|-10000|15|20|30|50|80|Inf|"
      label: "TCjmax"
-     unit: ""
+     unit: "GeV"
      gen: "GEN_TauC_Inc_0j_EnergyWgt"
      ifAbs: False
 
     TauB_Inc_0j_pTWgt:
      bins: "|-10000|30|70|130|250|400|Inf|"
      label: "TBjmax"
-     unit: ""
+     unit: "GeV"
      gen: "GEN_TauB_Inc_0j_pTWgt"
      ifAbs: False
 
