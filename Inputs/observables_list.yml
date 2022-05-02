@@ -58,11 +58,11 @@ Observables:
      ifAbs: False
 
     cosThetaStar:
-      bins: "|-1.0|-0.75|-0.5|-0.25|0.0|0.25|0.5|0.75|1.0|"
-      label: "cos(#theta*)"
-      unit: ""
-      gen: "GENcosThetaStar"
-      ifAbs: False
+     bins: "|-1.0|-0.75|-0.5|-0.25|0.0|0.25|0.5|0.75|1.0|"
+     label: "cos(#theta*)"
+     unit: ""
+     gen: "GENcosThetaStar"
+     ifAbs: False
 
     massZ1:
      bins: "|40.0|65.0|73.0|80.0|85.0|90.0|120.0|"
@@ -78,6 +78,20 @@ Observables:
      gen: "GENmassZ2"
      ifAbs: False
 
+    pt_leadingjet_pt30_eta4p7:
+     bins: "|-2.0|30.0|55.0|95.0|200.0|13000.0|"
+     label: "p_{T}(jet) |#eta|<4.7"
+     unit: "GeV"
+     gen: "GENpt_leadingjet_pt30_eta4p7"
+     ifAbs: False
+
+    njets_pt30_eta4p7:
+     bins: "|0.0|1.0|2.0|3.0|4.0|10.0|"
+     label: "N(jets) p_{T}>30 GeV |#eta|<4.7"
+     unit: ""
+     gen: "GENnjets_pt30_eta4p7"
+     ifAbs: False
+
     pt_leadingjet_pt30_eta2p5:
      bins: "|-2.0|30.0|55.0|95.0|200.0|13000.0|"
      label: "p_{T}(jet) |#eta|<2.5"
@@ -90,6 +104,167 @@ Observables:
      label: "N(jets) |#eta|<2.5"
      unit: ""
      gen: "GENnjets_pt30_eta2p5"
+     ifAbs: False
+
+    pTj2:
+     bins: "|-11|30|40|65|90|Inf|"
+     label: "p_{T}(jet2) |#eta|<4.7"
+     unit: "GeV"
+     gen: "GENpTj2"
+     ifAbs: False
+
+    pTj2_2p5:
+     bins: "|-11|30|40|65|90|Inf|"
+     label: "p_{T}(jet2) |#eta|<4.7"
+     unit: "GeV"
+     gen: "GENpTj2_2p5"
+     ifAbs: False
+
+    pT4lj:
+     bins: "|-2|0|30|60|110|Inf|"
+     label: "p_{T}(Hj) p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+     unit: "GeV"
+     gen: "GENpT4lj"
+     ifAbs: False
+
+    pT4lj_2p5:
+     bins: "|-2|0|30|60|110|Inf|"
+     label: "p_{T}(Hj) p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+     unit: "GeV"
+     gen: "GENpT4lj_2p5"
+     ifAbs: False
+
+    pT4ljj:
+     bins: "|0|20|40|60|110|Inf|"
+     label: "p_{T}(Hjj) p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+     unit: "GeV"
+     gen: "GENpT4ljj"
+     ifAbs: False
+
+    pT4ljj_2p5:
+     bins: "|0|20|40|60|110|Inf|"
+     label: "p_{T}(Hjj) p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+     unit: "GeV"
+     gen: "GENpT4ljj_2p5"
+     ifAbs: False
+
+    mass4lj:
+     bins: "|-11.0|110|180|220|300|400|600|3000|"
+     label: "m_{Hj} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+     unit: "GeV"
+     gen: "GENmass4lj"
+     ifAbs: False
+
+    mass4lj_2p5:
+     bins: "|-2.0|110|180|220|300|400|600|3000|"
+     label: "m_{Hj} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+     unit: "GeV"
+     gen: "GENmass4lj_2p5"
+     ifAbs: False
+
+    mj1j2:
+     bins: "|-1000|0|120|300|Inf|"
+     label: "m_{j1j2} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+     unit: "GeV"
+     gen: "GENmj1j2"
+     ifAbs: False
+
+    mj1j2_2p5:
+     bins: "|-11|0|120|300|Inf|"
+     label: "m_{j1j2} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+     unit: "GeV"
+     gen: "GENmj1j2_2p5"
+     ifAbs: False
+
+    dEtaj1j2:
+     bins: "|-10000|0|0.7|1.6|3|Inf|"
+     label: "#Delta#eta_{j1j2} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+     unit: ""
+     gen: "GENdEtaj1j2"
+     ifAbs: False
+
+    dEtaj1j2_2p5:
+     bins: "|-10000|0|0.7|1.6|3|Inf|"
+     label: "#Delta#eta_{j1j2} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+     unit: ""
+     gen: "GENdEtaj1j2_2p5"
+     ifAbs: False
+
+    #mass4ljj:
+    # bins: "||"
+    # label: ""
+    # unit: ""
+    # gen: "GENmass4ljj"
+
+
+    dPhij1j2:
+     bins: "|-10000|-TMath::Pi()|-TMath::Pi()/2|0|TMath::Pi()/2|TMath::Pi()|"
+     label: "#Delta#phi_{j1j2} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+     unit: ""
+     gen: "GENdPhij1j2"
+     ifAbs: False
+
+    dPhij1j2_2p5:
+     bins: "|-10000|-TMath::Pi()|-TMath::Pi()/2|0|TMath::Pi()/2|TMath::Pi()|"
+     label: "#Delta#phi_{j1j2} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
+     unit: ""
+     gen: "GENdPhij1j2_2p5"
+     ifAbs: False
+ 
+    D_0m:
+     bins: "|0|0.4|0.5|0.6|0.7|0.8|0.9|1.0|"
+     label: "D_{0-}^{dec}"
+     unit: ""
+     gen: "GEND_0m"
+     ifAbs: False
+ 
+    D_cp:
+     bins: "|-0.75|-0.25|-0.1|0|0.1|0.25|0.75|"
+     label: "D_{cp}^{dec}"
+     unit: ""
+     gen: "GEND_cp"
+     ifAbs: False
+ 
+    D_0hp:
+     bins: "|0|0.35|0.4|0.45|0.55|0.65|0.75|1|"
+     label: "D_{0+}^{dec}"
+     unit: ""
+     gen: "GEND_0hp"
+     ifAbs: False
+ 
+    D_int:
+     bins: "|0|0.7|0.8|0.9|0.95|1|"
+     label: "D_{int}^{dec}"
+     unit: ""
+     gen: "GEND_0int"
+     ifAbs: False
+ 
+    D_L1:
+     bins: "|0|0.45|0.5|0.6|0.7|1|"
+     label: "D_{#Lambda1}^{dec}"
+     unit: ""
+     gen: "GEND_L1"
+     ifAbs: False
+ 
+    D_L1Zg:
+     bins: "|0|0.35|0.45|0.5|0.55|0.65|1.0|"
+     label: "D_{#Lambda1}^{Z#gamma,dec}"
+     unit: ""
+     gen: "GEND_L1Zg"
+     ifAbs: False
+
+    TauC_Inc_0j_EnergyWgt:
+     bins: "|-10000|15|20|30|50|80|Inf|"
+     label: "TCjmax"
+     unit: ""
+     gen: "GEN_TauC_Inc_0j_EnergyWgt"
+     ifAbs: False
+
+    TauB_Inc_0j_pTWgt:
+     bins: "|-10000|30|70|130|250|400|Inf|"
+     label: "TBjmax"
+     unit: ""
+     gen: "GEN_TauB_Inc_0j_pTWgt"
      ifAbs: False
 
 
