@@ -114,7 +114,8 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
     #if ("NNLOPS" in sample or "nnlops" in sample):
     #    print ("Will skip: "+ sample)
 
-    recoweight = "genWeight*pileupWeight*dataMCWeight"
+    #recoweight = "genWeight*pileupWeight*dataMCWeight"
+    recoweight = "genWeight*pileupWeight*dataMCWeight_new*prefiringWeight"
 
 
     obs_reco_low = -1
@@ -212,7 +213,9 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
             #recoweight = "genWeight*pileupWeight*dataMCWeight"
             continue
         else:
-            recoweight = "genWeight*pileupWeight*dataMCWeight"
+            #recoweight = "genWeight*pileupWeight*dataMCWeight"
+            recoweight = "genWeight*pileupWeight*dataMCWeight_new*prefiringWeight"
+
 
         if (not Sample in Tree): continue
         if (not Tree[Sample]): continue
