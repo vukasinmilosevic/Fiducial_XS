@@ -69,11 +69,6 @@ def interpolate_pred(x, nbins, obsName, DEBUG):
                 key_amcatnloFXFX_M125='ggH_amcatnloFXFX_125_'+channel+'_'+obsName+'_genbin'+str(obsBin)
                 key_amcatnloFXFX_MX='ggH_amcatnloFXFX_'+str(x)+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)
 
-                # acceptance[key_powheg_MX]=0.0
-                # pdf_uncerUp[key_powheg_MX]=0.0
-                # pdf_uncerDn[key_powheg_MX]=0.0
-                # qcd_uncerUp[key_powheg_MX]=0.0
-                # qcd_uncerDn[key_powheg_MX]=0.0
 	        acc_points = []; pdf_points_uncerUp =[]; pdf_points_uncerDn =[]; qcd_points_uncerUp = []; qcd_points_uncerDn = [];
 	        for point in x_points:
 	            key = mode+str(point)+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)
@@ -81,12 +76,6 @@ def interpolate_pred(x, nbins, obsName, DEBUG):
 		    pdf_points_uncerUp.append(pdfunc_all[key]['uncerUp']);pdf_points_uncerDn.append(pdfunc_all[key]['uncerDn']);
 		    qcd_points_uncerUp.append(qcdunc_all[key]['uncerUp']);qcd_points_uncerDn.append(qcdunc_all[key]['uncerDn']);
 
-
-            #acc_points = [acc_all['ggH_powheg_JHUgen_124_'+channel+'_'+obsName+'_genbin'+str(obsBin)],acc_all['ggH_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin'+str(obsBin)],acc_all['ggH_powheg_JHUgen_126_'+channel+'_'+obsName+'_genbin'+str(obsBin)]]   #  [12,14,22,39,58,77]
-            #pdf_points_uncerUp = [pdfunc_all['ggH_powheg_JHUgen_124_'+channel+'_'+obsName+'_genbin'+str(obsBin)]['uncerUp'],pdfunc_all['ggH_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin'+str(obsBin)]['uncerUp'],pdfunc_all['ggH_powheg_JHUgen_126_'+channel+'_'+obsName+'_genbin'+str(obsBin)]['uncerUp']]   #  [12,14,22,39,58,77]
-            #pdf_points_uncerDn = [pdfunc_all['ggH_powheg_JHUgen_124_'+channel+'_'+obsName+'_genbin'+str(obsBin)]['uncerDn'],pdfunc_all['ggH_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin'+str(obsBin)]['uncerDn'],pdfunc_all['ggH_powheg_JHUgen_126_'+channel+'_'+obsName+'_genbin'+str(obsBin)]['uncerDn']]
-            #qcd_points_uncerUp = [qcdunc_all['ggH_powheg_JHUgen_124_'+channel+'_'+obsName+'_genbin'+str(obsBin)]['uncerUp'],qcdunc_all['ggH_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin'+str(obsBin)]['uncerUp'],qcdunc_all['ggH_powheg_JHUgen_126_'+channel+'_'+obsName+'_genbin'+str(obsBin)]['uncerUp']]   #  [12,14,22,39,58,77]
-            #qcd_points_uncerDn = [qcdunc_all['ggH_powheg_JHUgen_124_'+channel+'_'+obsName+'_genbin'+str(obsBin)]['uncerDn'],qcdunc_all['ggH_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin'+str(obsBin)]['uncerDn'],qcdunc_all['ggH_powheg_JHUgen_126_'+channel+'_'+obsName+'_genbin'+str(obsBin)]['uncerDn']]   #  [12,14,22,39,58,77]
 
                 if (DEBUG): print("[INFO]#L{:3}: {:21} {}".format(get_linenumber(), "acc_points", acc_points))
                 if (DEBUG): print("[INFO]#L{:3}: {:21} {}".format(get_linenumber(), "pdf_points_uncerUp", pdf_points_uncerUp))
@@ -158,8 +147,7 @@ def interpolate_pred(x, nbins, obsName, DEBUG):
     os.system('cp ' + DirForUncFiles + '/' + OutputDictFileName + " " +DirForUncFiles+'/'+ OutputDictFileName.replace('.py','_beforeInterpolation.py'))
 
     with open(DirForUncFiles + '/' + OutputDictFileName, 'w') as f:
-#        print("going write interpolated values in file:   " + OutputDictFileName)
-	print("going write interpolated values in file:   " + DirForUncFiles + '/' + OutputDictFileName)
+        print("going write interpolated values in file:   " + OutputDictFileName)
         f.write('acc = '+str(acc_all)+' \n')
         f.write('qcdUncert = '+str(qcdunc_all)+' \n')
         f.write('pdfUncert = '+str(pdfunc_all)+' \n')
