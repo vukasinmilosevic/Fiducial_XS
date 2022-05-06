@@ -13,6 +13,7 @@ from LoadData import *
 from sample_shortnames import *
 from Utils import *
 from read_bins import *
+import yaml
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -45,6 +46,8 @@ def parseOptions():
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
+    parser.add_option('', '--obs', dest='OneDOr2DObs', default=1, type=int, help="1 for 1D obs, 2 for 2D observable")
+    parser.add_option('',   '--inYAMLFile', dest='inYAMLFile', type='string', default="Inputs/observables_list.yml", help='Input YAML file having observable names and bin information')
 
     # store options and arguments as global variables
     global opt, args
@@ -872,17 +875,33 @@ obs_gen2 = ''
 
 label = ''
 
+ObsToStudy = "1D_Observables" if opt.OneDOr2DObs == 1 else "2D_Observables"
+with open(opt.inYAMLFile, 'r') as ymlfile:
+    cfg = yaml.load(ymlfile)
+    if ( ("Observables" not in cfg) or (ObsToStudy not in cfg['Observables']) ) :
+        print('''No section named 'observable' or sub-section name '1D-Observable' or '2D-Observable' found in file {}.
+                 Please check your YAML file format!!!'''.format(InputYAMLFile))
+
+    gen = cfg['Observables'][ObsToStudy][opt.OBSNAME]['gen']
+    border_msg("Label name: {}".format(gen))
+
+print gen
+
 if 'vs' in opt.OBSNAME:
     obs_reco = opt.OBSNAME.split(" vs ")[0]
-    obs_gen = "GEN" + obs_reco
+    obs_gen = gen.split(" vs ")[0]
 
     obs_reco2 = opt.OBSNAME.split(" vs ")[1]
-    obs_gen2 = "GEN" + obs_reco2
+    obs_gen2 = gen.split(" vs ")[0]
+
+    print obs_gen, obs_gen2
 
     label = obs_reco + "_vs_"+obs_reco2
 else:
     obs_reco = opt.OBSNAME
-    obs_gen = "GEN"+opt.OBSNAME
+    #obs_gen = "GEN"+opt.OBSNAME
+    obs_gen = gen
+    print obs_gen
 
     obs_reco2 = ''
     obs_gen2 = ''
