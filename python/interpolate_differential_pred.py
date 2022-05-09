@@ -1,10 +1,12 @@
 import optparse
 import optparse
 import os
+import sys
 
 from scipy import interpolate
 
 from Utils import *
+from Input_Info import datacardInputs
 
 def parseOptions():
 
@@ -17,8 +19,10 @@ def parseOptions():
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='2018',   help='Era to analyze, e.g. 2016, 2017, 2018 or Full ')
     parser.add_option('',   '--debug',  dest='DEBUG',  type='int',default=0,   help='0 if debug false, else debug True')
-    global opt, args
+    global opt, args, datacardInputs
     (opt, args) = parser.parse_args()
+    datacardInputs = datacardInputs.format(year = opt.YEAR)
+    sys.path.append('./'+datacardInputs)
 
 def interpolate_pred(x, nbins, obsName, DEBUG):
     """Module to get the interpolation from powheg and apply that SF to the NNLOPS sample
@@ -141,16 +145,16 @@ def interpolate_pred(x, nbins, obsName, DEBUG):
                 qcdunc_all[str(key_amcatnloFXFX_MX)]['uncerDn']=qcdunc_all[key_amcatnloFXFX_M125]['uncerDn']*qcdunc_all[str(key_powheg_MX)]['uncerDn']/qcdunc_all[str(key_powheg_M125)]['uncerDn']  #acceptance[key_powheg_MX]
 
 
-    # FIXME: Hardcoded path
-    DirForUncFiles = "python"
     OutputDictFileName = 'accUnc_'+obsName+'.py'
-    os.system('cp ' + DirForUncFiles + '/' + OutputDictFileName + " " +DirForUncFiles+'/'+ OutputDictFileName.replace('.py','_beforeInterpolation.py'))
+    os.system('cp ' + datacardInputs + '/' + OutputDictFileName + " " +datacardInputs+'/'+ OutputDictFileName.replace('.py','_beforeInterpolation.py'))
 
-    with open(DirForUncFiles + '/' + OutputDictFileName, 'w') as f:
+
+    with open(datacardInputs + '/' + OutputDictFileName, 'w') as f:
         print("going write interpolated values in file:   " + OutputDictFileName)
         f.write('acc = '+str(acc_all)+' \n')
         f.write('qcdUncert = '+str(qcdunc_all)+' \n')
         f.write('pdfUncert = '+str(pdfunc_all)+' \n')
+
 
 if __name__ == "__main__":
 
