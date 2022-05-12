@@ -9,7 +9,7 @@ Observables:
   1D_Observables:
 
     mass4l:
-     bins: "|105.0|140.0|"
+     bins: "|105.0|160.0|"
      label: "M_{4l}"
      unit: "GeV"
      gen: "GENmass4l"
