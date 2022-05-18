@@ -3,13 +3,14 @@ import os
 import sys
 from decimal import *
 from math import *
+import yaml
 
 # INFO: Following items are imported from either python directory or Inputs
 from LoadData import *
 from sample_shortnames import *
 from Utils import *
 from read_bins import *
-from Input_Info import datacardInputs
+from Input_Info import *
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
