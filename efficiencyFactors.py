@@ -224,7 +224,8 @@ def geteffs(channel, SampleList, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen,
         print ("Chosen reco/gen Bin is: {} / {}, Low reco bin value is: {}, High reco bin value is: {}, Lowest value is: {}, Highest value is: {}".format(recobin, genbin, obs_reco2_low, obs_reco2_high, obs_gen2_lowest, obs_gen2_highest))
 
 
-    if (obs_reco.startswith("mass4l")):
+    #if (obs_reco.startswith("mass4l")):
+    if (obs_reco=="mass4l"):
         m4l_low = float(obs_reco_low)
         m4l_high = float(obs_reco_high)
         m4l_bins = int((m4l_high-m4l_low)/2)
