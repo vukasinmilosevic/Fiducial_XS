@@ -166,7 +166,8 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
         print ("Chosen Gen Bin is: {}, Low geb bin value is: {}, High gen bin value is: {}, Lowest value is: {}, Highest value is: {}".format(genbin, obs_gen2_low, obs_gen2_high, obs_gen2_lowest, obs_gen2_highest))
 
 
-    if (obs_reco.startswith("mass4l")):
+    #if (obs_reco.startswith("mass4l")):
+    if (obs_reco=="mass4l"):
         m4l_low = float(obs_gen_low)
         m4l_high = float(obs_gen_high)
         m4l_bins = int((m4l_high-m4l_low)/2)
