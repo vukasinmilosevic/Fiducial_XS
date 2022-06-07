@@ -108,9 +108,12 @@ with open(InputYAMLFile, 'r') as ymlfile:
             if (args.step == 3 and (ObsToStudy != "2D_Observables")):  #  Don't run this step for 2D obs for now
                 border_msg_output = border_msg("Running Interpolation to get acceptance for MH = 125. 38 GeV and obs " + obsName)
                 f.write("\n{}\n".format(border_msg_output))
-                command = 'python python/interpolate_differential_full3.py --obsName="{obsName}" --obsBins="{obsBins}" --year={year}'.format(
+                command = ''
+                if args.nohup: command = 'nohup '
+                command += 'python python/interpolate_differential_full3.py --obsName="{obsName}" --obsBins="{obsBins}" --year={year}'.format(
                         obsName = obsName, obsBins = obsBin['bins'], year = args.year
                 )
+                if args.nohup: command += ' >& log_{year}/step_3_{obsName}.log &'.format(obsName = obsName, year = args.year)
                 print("Command: {}".format(command))
                 f.write("\n{}\n".format(command))
                 if (args.RunCommand): os.system(command)
@@ -121,7 +124,7 @@ with open(InputYAMLFile, 'r') as ymlfile:
                 # command = 'python -u getUnc_Unc.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" >& log/unc_{obsName}.log &'.format(
                 command = ''
                 if args.nohup: command = 'nohup '
-                command += 'python -u getUnc_Unc2.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" -y "{year}"'.format(
+                command += 'python -u getUnc_Unc.py -l -q -b --obsName="{obsName}" --obsBins="{obsBins}" -y "{year}"'.format(
                         obsName = obsName, obsBins = obsBin['bins'], year = args.year
                 )
                 if args.nohup: command += ' >& log_{year}/step_4_{obsName}.log &'.format(obsName = obsName, year = args.year)
