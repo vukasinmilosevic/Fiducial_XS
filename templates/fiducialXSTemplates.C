@@ -440,7 +440,7 @@ int getTemplateXS(TString processNameTag, TString processFileName, TString sqrts
     if (obsName2 != ""){
         fLocation = templatesDir + "/" + PROCESSING_TYPE + "_" + obsName + "_vs_" + obsName2 + "/" + sqrtsTag + "/";
     }
-    // std::cout << "[DEBUG: fiducialXSTemplates.C#441]  fLocation: " << fLocation << std::endl;
+    std::cout << "[DEBUG: fiducialXSTemplates.C#441]  fLocation: " << fLocation << std::endl;
     TFile *fTemplateTree = new TFile(fLocation + "/" + templateNameTag + "_" + sfinalState + ".root", fOption);
     TTree* TT = new TTree("selectedEvents","selectedEvents");
 
@@ -557,6 +557,7 @@ void storeTreeAndTemplatesXS(TTree* TT, TString obsName, TString obsBinDn, TStri
 
     // prepare cuts and get hist from the tree->Draw()
     TString treeCut = "((" + obsBinDn + " <= "+selectionObsName+") && ("+selectionObsName+" < " + obsBinUp + "))";
+    if (obsBinUp == "inf") treeCut = "((" + obsBinDn + " <= " + selectionObsName + "))";
     TString sM4l = "";
     if (useRefit) {sM4l = "mass4lREFIT>>m4l_";}
     else {sM4l = "mass4l>>m4l_";}
@@ -675,8 +676,10 @@ void storeTreeAndTemplatesXS(TTree *TT, TString obsName, TString obsBinDn, TStri
     // prepare cuts and get hist from the tree->Draw()
     // TString treeCut = "((" + obsBinDn + " <= "+selectionObsName+") && ("+selectionObsName+" < " + obsBinUp + "))";
     TString treeCut1 = "((" + obsBinDn + " <= " + selectionObsName + ") && (" + selectionObsName + " < " + obsBinUp + "))";
+    if (obsBinUp == "inf") treeCut1 = "((" + obsBinDn + " <= " + selectionObsName + "))";
     cout << "[  Tree cut 1 is............ " << treeCut1 << "]" << endl;
     TString treeCut2 = "((" + obsBinDn2 + " <= " + selectionObsName2 + ") && (" + selectionObsName2 + " < " + obsBinUp2 + "))";
+    if (obsBinUp2 == "inf") treeCut2 = "((" + obsBinDn2 + " <= " + selectionObsName2 + "))";
     cout << "[  Tree cut 2 is............ " << treeCut2 << "]" << endl;
     TString treeCut = "(" + treeCut1 + " && " + treeCut2 + ")"; // joint cut
     cout << "[  Tree cut is............ " << treeCut << "]" << endl;
