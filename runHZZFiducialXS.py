@@ -221,7 +221,7 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins, year, obs_if
 
                 ListObsName = (''.join(obsName.split())).split('vs')
                 logger.info(ListObsName[0]+ ' : ' + str(bin0_)+"\t"+ListObsName[1] + ' : '+str(bin1_))
-                cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[year][sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+ListObsName[0]+' "'+bin0_+'" "'+bin0_ +'" 13TeV templatesXS_'+str(year)+' DTreeXS ' + fitTypeZ4l+ ' 0' + ' '+obs_ifJES+' '+ListObsName[1]+' "'+bin1_+'" "'+bin1_ +'" '+obs_ifJES2
+                cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[year][sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+ListObsName[0]+' "'+bin0_+'" "'+bin0_ +'" 13TeV templatesXS_'+str(year)+' DTreeXS ' + fitTypeZ4l+ ' 0' + ' "'+str(obs_ifJES).lower()+'" '+ListObsName[1]+' "'+bin1_+'" "'+bin1_ +'" "'+str(obs_ifJES2).lower() +'"'
                 output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
                 tmp_fracs = output.split("[Bin fraction: ")
                 logger.debug('tmp_fracs: {}'.format(tmp_fracs))
