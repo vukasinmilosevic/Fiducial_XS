@@ -199,7 +199,9 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     
     // new obs.
     float pT4lj; float pT4ljj;
+    float pT4lj_2p5; float pT4ljj_2p5;
     float mass4lj; float mass4ljj;
+    float mass4lj_2p5;
     float pTj1; float mj1; float yj1; float etaj1; float phij1;
     float pTj2; float yj2; float mj2; float etaj2; float phij2;
     float pTj1_2p5; float mj1_2p5; float yj1_2p5; float etaj1_2p5; float phij1_2p5;
@@ -230,6 +232,8 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     float dPhij1j2_2p5_jesdn; float dPhiHj1j2_2p5_jesdn;
     float pTj1_VBF_jesdn; float dPhij1j2_VBF_jesdn; float dPhiHj1j2_VBF_jesdn;
     float mass4lj_jesdn; float mass4ljj_jesdn; float pT4lj_jesdn; float pT4ljj_jesdn;
+    float mass4lj_2p5_jesdn;
+    float pT4lj_2p5_jesdn; float pT4ljj_2p5_jesdn;
     // JES up reco
     float pTj1_jesup; float mj1_jesup; float yj1_jesup; float etaj1_jesup; float phij1_jesup;
     float pTj2_jesup; float yj2_jesup; float mj2_jesup; float etaj2_jesup; float phij2_jesup;
@@ -248,13 +252,15 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     float dPhij1j2_2p5_jesup; float dPhiHj1j2_2p5_jesup;
     float pTj1_VBF_jesup; float dPhij1j2_VBF_jesup; float dPhiHj1j2_VBF_jesup;
     float mass4lj_jesup; float mass4ljj_jesup;
+    float mass4lj_2p5_jesup; 
     float pT4lj_jesup; float pT4ljj_jesup;
+    float pT4lj_2p5_jesup; float pT4ljj_2p5_jesup;
 
     // KD based new observables
     float D_bkg_kin, D_bkg, D_g4, D_g1g4, D_0m, D_CP, D_0hp, D_int, D_L1, D_L1_int, D_L1Zg, D_L1Zgint;
 
     // Tau variables
-    float TauC_Inc_0j_EnergyWgt, TauB_Inc_0j_EnergyWgt;
+    float TauC_Inc_0j_EnergyWgt, TauB_Inc_0j_pTWgt;
 
     // load ggZZ k-graphs
     loadKFactorGraphs();
@@ -326,6 +332,9 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     if (tree->GetBranch("mass4lj")){tree->SetBranchAddress("mass4lj",&mass4lj);}
     if (tree->GetBranch("mass4lj_jesdn")){tree->SetBranchAddress("mass4lj_jesdn",&mass4lj_jesdn);}
     if (tree->GetBranch("mass4lj_jesup")){tree->SetBranchAddress("mass4lj_jesup",&mass4lj_jesup);}
+    if (tree->GetBranch("mass4lj_2p5")){tree->SetBranchAddress("mass4lj_2p5",&mass4lj_2p5);}
+    if (tree->GetBranch("mass4lj_2p5_jesdn")){tree->SetBranchAddress("mass4lj_2p5_jesdn",&mass4lj_2p5_jesdn);}
+    if (tree->GetBranch("mass4lj_2p5_jesup")){tree->SetBranchAddress("mass4lj_2p5_jesup",&mass4lj_2p5_jesup);}
     if (tree->GetBranch("pTj2")){tree->SetBranchAddress("pTj2",&pTj2);}
     if (tree->GetBranch("pTj2_jesdn")){tree->SetBranchAddress("pTj2_jesdn",&pTj2_jesdn);}
     if (tree->GetBranch("pTj2_jesup")){tree->SetBranchAddress("pTj2_jesup",&pTj2_jesup);}
@@ -412,9 +421,12 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     // other Higgs plus jet system variables
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     if (tree->GetBranch("mass4lj")){tree->SetBranchAddress("mass4lj",&mass4lj);}
+    if (tree->GetBranch("mass4lj_2p5")){tree->SetBranchAddress("mass4lj_2p5",&mass4lj_2p5);}
     if (tree->GetBranch("mass4ljj")){tree->SetBranchAddress("mass4ljj",&mass4ljj);}
     if (tree->GetBranch("pT4lj")){tree->SetBranchAddress("pT4lj",&pT4lj);}
+    if (tree->GetBranch("pT4lj_2p5")){tree->SetBranchAddress("pT4lj_2p5",&pT4lj_2p5);}
     if (tree->GetBranch("pT4ljj")){tree->SetBranchAddress("pT4ljj",&pT4ljj);}
+    if (tree->GetBranch("pT4ljj_2p5")){tree->SetBranchAddress("pT4ljj_2p5",&pT4ljj_2p5);}
     if (tree->GetBranch("dPhiHj1")){tree->SetBranchAddress("dPhiHj1",&dPhiHj1);}
     if (tree->GetBranch("dyHj1")){tree->SetBranchAddress("dyHj1",&dyHj1);}
     if (tree->GetBranch("mj1j2")){tree->SetBranchAddress("mj1j2",&mj1j2);}
@@ -426,9 +438,12 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
   
     // other Higgs plus jet system variables    JES dn
     if (tree->GetBranch("mass4lj_jesdn")){tree->SetBranchAddress("mass4lj_jesdn",&mass4lj_jesdn);}
+    if (tree->GetBranch("mass4lj_2p5_jesdn")){tree->SetBranchAddress("mass4lj_2p5_jesdn",&mass4lj_2p5_jesdn);}
     if (tree->GetBranch("mass4ljj_jesdn")){tree->SetBranchAddress("mass4ljj_jesdn",&mass4ljj_jesdn);}
     if (tree->GetBranch("pT4lj_jesdn")){tree->SetBranchAddress("pT4lj_jesdn",&pT4lj_jesdn);}
+    if (tree->GetBranch("pT4lj_2p5_jesdn")){tree->SetBranchAddress("pT4lj_2p5_jesdn",&pT4lj_2p5_jesdn);}
     if (tree->GetBranch("pT4ljj_jesdn")){tree->SetBranchAddress("pT4ljj_jesdn",&pT4ljj_jesdn);}
+    if (tree->GetBranch("pT4ljj_2p5_jesdn")){tree->SetBranchAddress("pT4ljj_2p5_jesdn",&pT4ljj_2p5_jesdn);}
     if (tree->GetBranch("dPhiHj1_jesdn")){tree->SetBranchAddress("dPhiHj1_jesdn",&dPhiHj1_jesdn);}
     if (tree->GetBranch("dyHj1_jesdn")){tree->SetBranchAddress("dyHj1_jesdn",&dyHj1_jesdn);}
     if (tree->GetBranch("mj1j2_jesdn")){tree->SetBranchAddress("mj1j2_jesdn",&mj1j2_jesdn);}
@@ -439,9 +454,12 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     if (tree->GetBranch("dPhiHj1j2_VBF_jesdn")){tree->SetBranchAddress("dPhiHj1j2_VBF_jesdn",&dPhiHj1j2_VBF_jesdn);}
     // other Higgs plus jet system variables    JES up
     if (tree->GetBranch("mass4lj_jesup")){tree->SetBranchAddress("mass4lj_jesup",&mass4lj_jesup);}
+    if (tree->GetBranch("mass4lj_2p5_jesup")){tree->SetBranchAddress("mass4lj_2p5_jesup",&mass4lj_2p5_jesup);}
     if (tree->GetBranch("mass4ljj_jesup")){tree->SetBranchAddress("mass4ljj_jesup",&mass4ljj_jesup);}
     if (tree->GetBranch("pT4lj_jesup")){tree->SetBranchAddress("pT4lj_jesup",&pT4lj_jesup);}
+    if (tree->GetBranch("pT4lj_2p5_jesup")){tree->SetBranchAddress("pT4lj_2p5_jesup",&pT4lj_2p5_jesup);}
     if (tree->GetBranch("pT4ljj_jesup")){tree->SetBranchAddress("pT4ljj_jesup",&pT4ljj_jesup);}
+    if (tree->GetBranch("pT4ljj_2p5_jesup")){tree->SetBranchAddress("pT4ljj_2p5_jesup",&pT4ljj_2p5_jesup);}
     if (tree->GetBranch("dPhiHj1_jesup")){tree->SetBranchAddress("dPhiHj1_jesup",&dPhiHj1_jesup);}
     if (tree->GetBranch("dyHj1_jesup")){tree->SetBranchAddress("dyHj1_jesup",&dyHj1_jesup);}
     if (tree->GetBranch("mj1j2_jesup")){tree->SetBranchAddress("mj1j2_jesup",&mj1j2_jesup);}
@@ -492,7 +510,7 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     if (tree->GetBranch("D_L1Zgint")){tree->SetBranchAddress("D_L1Zgint",&D_L1Zgint);}
 
     // Tau variables
-    if (tree->GetBranch("TauB_Inc_0j_EnergyWgt")){tree->SetBranchAddress("TauB_Inc_0j_EnergyWgt",&TauB_Inc_0j_EnergyWgt);}
+    if (tree->GetBranch("TauB_Inc_0j_pTWgt")){tree->SetBranchAddress("TauB_Inc_0j_pTWgt",&TauB_Inc_0j_pTWgt);}
     if (tree->GetBranch("TauC_Inc_0j_EnergyWgt")){tree->SetBranchAddress("TauC_Inc_0j_EnergyWgt",&TauC_Inc_0j_EnergyWgt);}
 
 
@@ -559,8 +577,11 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     TT->Branch("dPhij1j2_VBF",&dPhij1j2_VBF,"dPhij1j2_VBF/F");
     TT->Branch("dPhiHj1j2_VBF",&dPhiHj1j2_VBF,"dPhiHj1j2_VBF/F");
     TT->Branch("pT4lj",&pT4lj,"pT4lj/F");
+    TT->Branch("pT4lj_2p5",&pT4lj_2p5,"pT4lj_2p5/F");
     TT->Branch("pT4ljj",&pT4ljj,"pT4ljj/F");
+    TT->Branch("pT4ljj_2p5",&pT4ljj_2p5,"pT4ljj_2p5/F");
     TT->Branch("mass4lj",&mass4lj,"mass4lj/F");
+    TT->Branch("mass4lj_2p5",&mass4lj_2p5,"mass4lj_2p5/F");
     TT->Branch("mass4ljj",&mass4ljj,"mass4ljj/F");
 
     TT->Branch("pTj1_2p5",&pTj1_2p5,"pTj1_2p5/F");
@@ -624,9 +645,12 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     TT->Branch("dPhij1j2_2p5_jesdn",&dPhij1j2_2p5_jesdn,"dPhij1j2_2p5_jesdn/F");
     TT->Branch("dPhiHj1j2_2p5_jesdn",&dPhiHj1j2_2p5_jesdn,"dPhiHj1j2_2p5_jesdn/F");
     TT->Branch("mass4lj_jesdn",&mass4lj_jesdn,"mass4lj_jesdn/F");
+    TT->Branch("mass4lj_2p5_jesdn",&mass4lj_2p5_jesdn,"mass4lj_2p5_jesdn/F");
     TT->Branch("mass4ljj_jesdn",&mass4ljj_jesdn,"mass4ljj_jesdn/F");
     TT->Branch("pT4lj_jesdn",&pT4lj_jesdn,"pT4lj_jesdn/F");
+    TT->Branch("pT4lj_2p5_jesdn",&pT4lj_2p5_jesdn,"pT4lj_2p5_jesdn/F");
     TT->Branch("pT4ljj_jesdn",&pT4ljj_jesdn,"pT4ljj_jesdn/F");
+    TT->Branch("pT4ljj_2p5_jesdn",&pT4ljj_2p5_jesdn,"pT4ljj_2p5_jesdn/F");
 
     // JES up reco
     TT->Branch("pTj1_jesup",&pTj1_jesup,"pTj1_jesup/F");
@@ -670,9 +694,12 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     TT->Branch("dPhij1j2_2p5_jesup",&dPhij1j2_2p5_jesup,"dPhij1j2_2p5_jesup/F");
     TT->Branch("dPhiHj1j2_2p5_jesup",&dPhiHj1j2_2p5_jesup,"dPhiHj1j2_2p5_jesup/F");
     TT->Branch("mass4lj_jesup",&mass4lj_jesup,"mass4lj_jesup/F");
+    TT->Branch("mass4lj_2p5_jesup",&mass4lj_2p5_jesup,"mass4lj_2p5_jesup/F");
     TT->Branch("mass4ljj_jesup",&mass4ljj_jesup,"mass4ljj_jesup/F");
     TT->Branch("pT4lj_jesup",&pT4lj_jesup,"pT4lj_jesup/F");
+    TT->Branch("pT4lj_2p5_jesup",&pT4lj_2p5_jesup,"pT4lj_2p5_jesup/F");
     TT->Branch("pT4ljj_jesup",&pT4ljj_jesup,"pT4ljj_jesup/F");
+    TT->Branch("pT4ljj_2p5_jesup",&pT4ljj_2p5_jesup,"pT4ljj_2p5_jesup/F");
 
     //  KD based observables
     TT->Branch("D_bkg", &D_bkg, "D_bkg/F");
@@ -687,7 +714,7 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     TT->Branch("D_L1Zgint",&D_L1Zgint,"D_L1Zgint/F");
 
     // Tau variables
-    TT->Branch("TauB_Inc_0j_EnergyWgt",&TauB_Inc_0j_EnergyWgt,"TauB_Inc_0j_EnergyWgt/F");
+    TT->Branch("TauB_Inc_0j_pTWgt",&TauB_Inc_0j_pTWgt,"TauB_Inc_0j_pTWgt/F");
     TT->Branch("TauC_Inc_0j_EnergyWgt",&TauC_Inc_0j_EnergyWgt,"TauC_Inc_0j_EnergyWgt/F");
 
     // counters
