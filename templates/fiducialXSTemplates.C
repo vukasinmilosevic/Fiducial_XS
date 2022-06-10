@@ -963,9 +963,11 @@ void storeTreeAndTemplatesXS(TTree* TT, TString obsName, TString obsBinDn, TStri
     //if (obsName.Contains("jet")){ // assumes obserbale name in form "njets_pt{pt}_eta{eta}"
     if (obs_ifJES){
         TString treeCut_jesdn = "((" + obsBinDn + " <= "+obsName+"_jesdn) && ("+obsName+"_jesdn < " + obsBinUp + "))";
+        if (obsBinUp == "inf") treeCut_jesdn = "((" + obsBinDn + " <= "+obsName+"_jesdn))";
         double entriesBin_jesdn = TT->GetEntries(treeCut_jesdn);
         double fracBin_jesdn = (double) entriesBin_jesdn/entriesTot;
         TString treeCut_jesup = "((" + obsBinDn + " <= "+obsName+"_jesup) && ("+obsName+"_jesup < " + obsBinUp + "))";
+        if (obsBinUp == "inf") treeCut_jesup = "((" + obsBinDn + " <= "+obsName+"_jesup))";
         double entriesBin_jesup = TT->GetEntries(treeCut_jesup);
         double fracBin_jesup = (double) entriesBin_jesup/entriesTot;
         cout << "[Bin fraction (JESdn): " << fracBin_jesdn << "]" << endl;
@@ -1097,9 +1099,11 @@ void storeTreeAndTemplatesXS(TTree *TT, TString obsName, TString obsBinDn, TStri
     if (obs_ifJES)
     { // assumes obserbale name in form "njets_pt{pt}_eta{eta}"
         TString treeCut_jesdn = "((" + obsBinDn + " <= " + obsName + "_jesdn) && (" + obsName + "_jesdn < " + obsBinUp + "))";
+        if (obsBinUp == "inf") treeCut_jesdn = "((" + obsBinDn + " <= " + obsName + "_jesdn))";
         double entriesBin_jesdn = TT->GetEntries(treeCut_jesdn);
         double fracBin_jesdn = (double)entriesBin_jesdn / entriesTot;
         TString treeCut_jesup = "((" + obsBinDn + " <= " + obsName + "_jesup) && (" + obsName + "_jesup < " + obsBinUp + "))";
+        if (obsBinUp == "inf") treeCut_jesup = "((" + obsBinDn + " <= " + obsName + "_jesup))";
         double entriesBin_jesup = TT->GetEntries(treeCut_jesup);
         double fracBin_jesup = (double)entriesBin_jesup / entriesTot;
         cout << "[Bin fraction (JESdn): " << fracBin_jesdn << "]" << endl;
