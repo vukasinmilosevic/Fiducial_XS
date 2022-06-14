@@ -153,7 +153,7 @@ Observables:
      ifJES: True
 
     pT4ljj:
-     bins: "|0|20|40|60|110|inf|"
+     bins: "|-2|0|20|60|inf|"
      label: "p_{T}(Hjj) p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
      unit: "GeV"
      gen: "GENpT4ljj"
@@ -161,7 +161,7 @@ Observables:
      ifJES: True
 
     pT4ljj_2p5:
-     bins: "|0|20|40|60|110|inf|"
+     bins: "|-2|0|20|60|inf|"
      label: "p_{T}(Hjj) p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
      unit: "GeV"
      gen: "GENpT4ljj_2p5"
