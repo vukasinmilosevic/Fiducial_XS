@@ -89,10 +89,10 @@ with open(opt.inYAMLFile, 'r') as ymlfile:
 print gen
 
 if 'vs' in opt.OBSNAME:
-    obs_ifJES = ifJES.split(" vs ")[0]
-    obs_ifJES2 = ifJES.split(" vs ")[1]
+    obs_ifJES = eval(ifJES.split(" vs ")[0])
+    obs_ifJES2 = eval(ifJES.split(" vs ")[1])
 
-    print obs_ifJES, obs_ifJES2
+    print "obs_ifJES: ", obs_ifJES, "; obs_ifJES2: ", obs_ifJES2
 
 else:
     obs_ifJES = ifJES
