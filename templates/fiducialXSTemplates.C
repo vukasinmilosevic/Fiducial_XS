@@ -915,6 +915,7 @@ int getTemplateXS(TString processNameTag, TString processFileName, TString sqrts
             TString obsBinDn = ((TObjString *)ta->At(kEntry))->GetString();
             TString obsBinUp = ((TObjString *)ta->At(kEntry + 1))->GetString();
             cout << "[DEBUG]#502:  " << endl;
+            cout << "obs_ifJES: "<<obs_ifJES<<"; obs_ifJES2: "<<obs_ifJES2<<endl;
             storeTreeAndTemplatesXS(TT, obsName, obsBinDn, obsBinUp, sfinalState, fLocation, templateNameTag, fOption, fitTypeZ4l, useRefit, obs_ifJES, obsName2, obsBinDn2, obsBinUp2, obs_ifJES2);
         }
     } else { // if one set of up & down bin boundaries is passed - run for it
@@ -1124,14 +1125,38 @@ void storeTreeAndTemplatesXS(TTree *TT, TString obsName, TString obsBinDn, TStri
     cout << "[Tree and templates saved in: " << fLocation << "]" << endl;
     cout << "[Bin fraction: " << fracBin << "][end fraction]" << endl;
     //if (obsName.Contains("jet"))
-    if (obs_ifJES)
+    if (obs_ifJES || obs_ifJES2)
     { // assumes obserbale name in form "njets_pt{pt}_eta{eta}"
-        TString treeCut_jesdn = "((" + obsBinDn + " <= " + obsName + "_jesdn) && (" + obsName + "_jesdn < " + obsBinUp + "))";
-        if (obsBinUp == "inf") treeCut_jesdn = "((" + obsBinDn + " <= " + obsName + "_jesdn))";
+        TString treeCut1_jesdn = treeCut1;
+        TString treeCut1_jesup = treeCut1;
+        TString treeCut2_jesdn = treeCut2;
+        TString treeCut2_jesup = treeCut2;
+
+        if (obs_ifJES) {
+            treeCut1_jesdn = "((" + obsBinDn + " <= " + selectionObsName + "_jesdn) && (" + selectionObsName + "_jesdn < " + obsBinUp + "))";
+            if (obsBinUp == "inf") treeCut1_jesdn = "((" + obsBinDn + " <= " + selectionObsName + "_jesdn))";
+            treeCut1_jesup = "((" + obsBinDn + " <= " + selectionObsName + "_jesup) && (" + selectionObsName + "_jesup < " + obsBinUp + "))";
+            if (obsBinUp == "inf") treeCut1_jesup = "((" + obsBinDn + " <= " + selectionObsName + "_jesup))";
+        }
+        if (obs_ifJES2) {
+            treeCut2_jesdn = "((" + obsBinDn2 + " <= " + selectionObsName2 + "_jesdn) && (" + selectionObsName2 + "_jesdn < " + obsBinUp2 + "))";
+            if (obsBinUp2 == "inf") treeCut2_jesdn = "((" + obsBinDn2 + " <= " + selectionObsName2 + "_jesdn))";
+            treeCut2_jesup = "((" + obsBinDn2 + " <= " + selectionObsName2 + "_jesup) && (" + selectionObsName2 + "_jesup < " + obsBinUp2 + "))";
+            if (obsBinUp2 == "inf") treeCut2_jesup = "((" + obsBinDn2 + " <= " + selectionObsName2 + "_jesup))";
+        }
+
+        TString treeCut_jesdn = "(" + treeCut1_jesdn + " && " + treeCut2_jesdn + ")";
+        TString treeCut_jesup = "(" + treeCut1_jesup + " && " + treeCut2_jesup + ")";
+
+        cout << "[  Tree cut 1 jes_dn is............ " << treeCut1_jesdn << "]" << endl;
+        cout << "[  Tree cut 1 jes_up is............ " << treeCut1_jesup << "]" << endl;
+        cout << "[  Tree cut 2 jes_dn is............ " << treeCut2_jesdn << "]" << endl;
+        cout << "[  Tree cut 2 jes_up is............ " << treeCut2_jesup << "]" << endl;
+
+
         double entriesBin_jesdn = TT->GetEntries(treeCut_jesdn);
         double fracBin_jesdn = (double)entriesBin_jesdn / entriesTot;
-        TString treeCut_jesup = "((" + obsBinDn + " <= " + obsName + "_jesup) && (" + obsName + "_jesup < " + obsBinUp + "))";
-        if (obsBinUp == "inf") treeCut_jesup = "((" + obsBinDn + " <= " + obsName + "_jesup))";
+
         double entriesBin_jesup = TT->GetEntries(treeCut_jesup);
         double fracBin_jesup = (double)entriesBin_jesup / entriesTot;
         cout << "[Bin fraction (JESdn): " << fracBin_jesdn << "]" << endl;
