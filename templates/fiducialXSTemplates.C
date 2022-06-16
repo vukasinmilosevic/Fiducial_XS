@@ -139,6 +139,7 @@ void fiducialXSTemplates(TString processNameTag = "qqZZ", TString processFileNam
         nbinsX=15;
     }
     cout<<"Begin templatesXS"<<endl;
+    cout<<"obs_ifJES: "<<obs_ifJES<<endl;
     templatesXS(processNameTag, processFileName, sqrtsTag, sfinalState, obsName, obsBinDn, obsBinUp, fitTypeZ4l, useRefit, obs_ifJES, obsName2, obsBinDn2, obsBinUp2, obs_ifJES2);
 }
 

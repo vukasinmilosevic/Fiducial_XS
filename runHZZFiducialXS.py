@@ -189,7 +189,8 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins, year, obs_if
         logger.info("observableBins: "+str(observableBins))
 
         if (" vs " not in obsName ):
-            cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[year][sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+obsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS+'" 13TeV templatesXS_'+str(year)+' DTreeXS ' + fitTypeZ4l+ ' 0' +' "' +str(obs_ifJES).lower() +'"'
+            #cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[year][sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+obsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS+'" 13TeV templatesXS_'+str(year)+' DTreeXS ' + fitTypeZ4l+ ' 0' +' "' +str(obs_ifJES).lower() +'" '
+            cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[year][sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+obsName+' "'+opt.OBSBINS+'" "'+opt.OBSBINS+'" 13TeV templatesXS_'+str(year)+' DTreeXS ' + fitTypeZ4l+ ' 0 ' +str(int(obs_ifJES))
             output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
             # FIXME: URGENT: Here previous command copies all the cout info in variable `output`
             #               then from the string it is going to extract useful information about bin fraction
@@ -221,7 +222,8 @@ def extractBackgroundTemplatesAndFractions(obsName, observableBins, year, obs_if
 
                 ListObsName = (''.join(obsName.split())).split('vs')
                 logger.info(ListObsName[0]+ ' : ' + str(bin0_)+"\t"+ListObsName[1] + ' : '+str(bin1_))
-                cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[year][sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+ListObsName[0]+' "'+bin0_+'" "'+bin0_ +'" 13TeV templatesXS_'+str(year)+' DTreeXS ' + fitTypeZ4l+ ' 0' + ' "'+str(obs_ifJES).lower()+'" '+ListObsName[1]+' "'+bin1_+'" "'+bin1_ +'" "'+str(obs_ifJES2).lower() +'"'
+
+                cmd = './main_fiducialXSTemplates '+bkg_samples_shorttags[sample_tag]+' "'+tmpSrcDir+'/'+background_samples[year][sample_tag]+'" '+bkg_samples_fStates[sample_tag]+' '+ListObsName[0]+' "'+bin0_+'" "'+bin0_ +'" 13TeV templatesXS_'+str(year)+' DTreeXS ' + fitTypeZ4l+ ' 0 ' + str(int(obs_ifJES)) + ' ' + ListObsName[1]+' "'+bin1_+'" "'+bin1_ +'" '+str(int(obs_ifJES2))
                 output = processCmd(cmd, get_linenumber(), os.path.basename(__file__))
                 tmp_fracs = output.split("[Bin fraction: ")
                 logger.debug('tmp_fracs: {}'.format(tmp_fracs))
@@ -914,7 +916,7 @@ def runFiducialXS():
         print "obs1_ifJES: ", obs_ifJES, "obs2_ifJES: ", obs_ifJES2
 
     else:
-        obs_ifJES = ifJES
+        obs_ifJES = eval(str(ifJES))
         obs_ifJES2 = ''
 
         print "obs_ifJES: ", obs_ifJES
