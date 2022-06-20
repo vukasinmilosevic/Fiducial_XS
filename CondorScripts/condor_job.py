@@ -121,26 +121,34 @@ def condorSHFile(fileName = "test",
     outSHFile.write('\n'+'channel=$2')
     outSHFile.write('\n'+'obsBins=$3')
     outSHFile.write('\n'+'year=$4')
+
     outSHFile.write('\n'+'OneDOr2DObs=$5')
+
     outSHFile.write('\n'+'echo "Input arguments: "')
     outSHFile.write('\n'+'echo "obsName: ${obsName}"')
     outSHFile.write('\n'+'echo "channel: ${channel}"')
     outSHFile.write('\n'+'echo "obsBins: ${obsBins}"')
     outSHFile.write('\n'+'echo "year: ${year}"')
+
     outSHFile.write('\n'+'echo "OneDOr2DObs: ${OneDOr2DObs}"')
+
     outSHFile.write('\n'+'')
     outSHFile.write('\n'+'obsName=$(echo ${obsName} | sed "s/==/ /g")')
     outSHFile.write('\n'+'channel=$(echo ${channel} | sed "s/==/ /g")')
     outSHFile.write('\n'+'obsBins=$(echo ${obsBins} | sed "s/==/ /g")')
     outSHFile.write('\n'+'year=$(echo ${year} | sed "s/==/ /g")')
+
     outSHFile.write('\n'+'OneDOr2DObs=$(echo ${OneDOr2DObs} | sed "s/==/ /g")')
+
     outSHFile.write('\n'+'')
     outSHFile.write('\n'+'echo "Input arguments: "')
     outSHFile.write('\n'+'echo "obsName: ${obsName}"')
     outSHFile.write('\n'+'echo "channel: ${channel}"')
     outSHFile.write('\n'+'echo "obsBins: ${obsBins}"')
     outSHFile.write('\n'+'echo "year: ${year}"')
+
     outSHFile.write('\n'+'echo "OneDOr2DObs: ${OneDOr2DObs}"')
+
     outSHFile.write('\n'+'')
     outSHFile.write('\n'+'cp '+EOSPath+'/'+CMSSW+'.tgz .')
     outSHFile.write('\n'+'echo "==============="')
@@ -175,7 +183,9 @@ def condorSHFile(fileName = "test",
     outSHFile.write('\n'+'echo "Start of efficiency script"')
     outSHFile.write('\n'+'date')
     outSHFile.write('\n'+'echo "==============="')
+    
     outSHFile.write('\n'+'python -u efficiencyFactors.py -l -q -b --obsName="${obsName}" --obsBins="${obsBins}" -c "${channel}" -y "${year}" --obs=${OneDOr2DObs}')
+
     outSHFile.write('\n'+'echo "==============="')
     outSHFile.write('\n'+'date')
     outSHFile.write('\n'+'echo "==============="')

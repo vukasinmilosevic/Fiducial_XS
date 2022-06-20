@@ -3,6 +3,7 @@ import os
 import sys
 from decimal import *
 from math import *
+import yaml
 
 # INFO: Following items are imported from either python directory or Inputs
 from LoadData import *
@@ -12,6 +13,7 @@ from read_bins import *
 from Input_Info import datacardInputs
 from Input_Info import *
 import yaml
+
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -89,10 +91,12 @@ with open(opt.inYAMLFile, 'r') as ymlfile:
 print gen
 
 if 'vs' in opt.OBSNAME:
+
     obs_ifJES = eval(ifJES.split(" vs ")[0])
     obs_ifJES2 = eval(ifJES.split(" vs ")[1])
 
     print "obs_ifJES: ", obs_ifJES, "; obs_ifJES2: ", obs_ifJES2
+
 
 else:
     obs_ifJES = ifJES
@@ -100,27 +104,7 @@ else:
 
     print obs_ifJES
 
-####
-m4l_bins = INPUT_m4l_bins
-m4l_low = INPUT_m4l_low
-m4l_high = INPUT_m4l_high
 
-# Default to inclusive cross section
-obs_reco = 'mass4l'
-obs_gen = 'GENmass4l'
-obs_reco_low = INPUT_m4l_low
-obs_reco_high = INPUT_m4l_high
-obs_gen_low = INPUT_m4l_low
-obs_gen_high = INPUT_m4l_high
-
-obs_reco2 = ''
-obs_gen2 = ''
-obs_reco2_low = -1
-obs_reco2_high = -1
-obs_gen2_low = -1
-obs_gen2_high = -1
-
-####
 
 def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_reco_2 = '', obse_gen2 = ''):
 
@@ -349,24 +333,25 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
             print(processBin,acceptance[processBin],accerrstat,qcderrup,qcderrdn,pdferr)
             print("accerrup",accerrup,"accerrdn",accerrdn)
 
-#m4l_bins = INPUT_m4l_bins
-#m4l_low = INPUT_m4l_low
-#m4l_high = INPUT_m4l_high
-#
-## Default to inclusive cross section
-#obs_reco = 'mass4l'
-#obs_gen = 'GENmass4l'
-#obs_reco_low = INPUT_m4l_low
-#obs_reco_high = INPUT_m4l_high
-#obs_gen_low = INPUT_m4l_low
-#obs_gen_high = INPUT_m4l_high
-#
-#obs_reco2 = ''
-#obs_gen2 = ''
-#obs_reco2_low = -1
-#obs_reco2_high = -1
-#obs_gen2_low = -1
-#obs_gen2_high = -1
+
+m4l_bins = INPUT_m4l_bins
+m4l_low = INPUT_m4l_low
+m4l_high = INPUT_m4l_high
+
+# Default to inclusive cross section
+obs_reco = 'mass4l'
+obs_gen = 'GENmass4l'
+obs_reco_low = INPUT_m4l_low
+obs_reco_high = INPUT_m4l_high
+obs_gen_low = INPUT_m4l_low
+obs_gen_high = INPUT_m4l_high
+
+obs_reco2 = ''
+obs_gen2 = ''
+obs_reco2_low = -1
+obs_reco2_high = -1
+obs_gen2_low = -1
+obs_gen2_high = -1
 
 if 'vs' in opt.OBSNAME:
     obs_reco = opt.OBSNAME.split(" vs ")[0]
