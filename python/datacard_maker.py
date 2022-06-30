@@ -147,7 +147,8 @@ def DataCardMaker(process_names, process_rate, nbins, current_bin, channel, obse
                         line = line + mini_list[idx] + ' ' 
 
                 f.write(line+"\n")
-
+             
+            f.write('zz_norm_0 rateParam {}_recobin{} bkg_*zz 1 [0,2]'.format(bin_name, current_bin))
 
 
 Inputs = CollectFromConfig("Inputs/inputs_{}_{}.yml".format(channel, year))
