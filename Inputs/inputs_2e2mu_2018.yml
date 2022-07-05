@@ -10,13 +10,13 @@ Processes:
     Rate: '1.0'
   3:
     Name: bkg_qqzz
-    Rate: '43.9207437633'
+    Rate: '73.93219422690913'
   4:
     Name: bkg_ggzz
-    Rate: '2.69925809635'
+    Rate: '5.716913415319856'
   5:
     Name: bkg_zjets
-    Rate: '17.73'
+    Rate: '25.3246394142'
 
 Nuissances:
   100n:
@@ -48,13 +48,13 @@ Nuissances:
     Applied_To:
       - AllButZX
     Type: lnN
-    Value: '0.986/1.007'  
+    Value: '0.986/1.006'  
   105n: 
     Name: CMS_hzz2e2mu_Zjets_2018
     Applied_To:
       - bkg_zjets
     Type: lnN
-    Value: '0.67618/1.32828'
+    Value: '0.7660052/1.235647'
   106n:
     Name: CMS_zz4l_mean_m_sig_2018
     Applied_To:
@@ -114,7 +114,7 @@ Nuissances:
     Applied_To:
       - AllButZX
     Type: lnN
-    Value: '0.923/1.074'  
+    Value: '0.95/1.052'  
   116n:
     Name: CMS_zz4l_mean_e_sig_2018
     Applied_To:
