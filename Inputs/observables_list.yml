@@ -344,8 +344,8 @@ Observables:
         ifJES: "True vs True"
 
       "TauC_Inc_0j_EnergyWgt vs pT4l":
-        bins_v0: "|-10000|15| vs |0|15|30|45|70|120|inf| / |15|25| vs |0|120|inf| / |25|40| vs |0|120|inf| / |40|inf| vs |0|200|inf|"
-        bins: "|-10000|15|25|40|inf| vs |0|15|30|45|70|120|inf| / |0|120|inf| / |0|120|inf| / |0|200|inf|"
+        bins: "|-10000|15| vs |0|15|30|45|70|120|inf| / |15|25| vs |0|120|inf| / |25|40| vs |0|120|inf| / |40|inf| vs |0|200|inf|"
+        bins_VM: "|-10000|15|25|40|inf| vs |0|15|30|45|70|120|inf| / |0|120|inf| / |0|120|inf| / |0|200|inf|"
         label: ["TCjmax", "p_{T}(H)"]
         unit: ["GeV", "GeV"]
         gen: "GEN_TauC_Inc_0j_EnergyWgt vs GENpT4l"

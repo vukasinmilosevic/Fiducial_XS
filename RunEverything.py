@@ -29,7 +29,7 @@ from LoadData import dirMC
 
 parser = argparse.ArgumentParser(description='Input arguments')
 parser.add_argument( '-i', dest='inYAMLFile', default="Inputs/observables_list.yml", type=str, help='Input YAML file having observable names and bin information')
-parser.add_argument( '-s', dest='step', default=1, choices=[1, 2, 3, 4, 5, 6, 7], type=int, help='Which step to run')
+parser.add_argument( '-s', dest='step', default=1, choices=[1, 2, 3, 4, 5, 6, 7, 8], type=int, help='Which step to run')
 parser.add_argument( '-c', dest='channels', nargs="+",  default=["4mu", "4e", "2e2mu", "4l"], help='list of channels')
 parser.add_argument( '-model', dest='modelNames', default="SM_125",
                         help='Names of models for unfolding, separated by , (comma) . Default is "SM_125"')
@@ -173,5 +173,17 @@ with open(InputYAMLFile, 'r') as ymlfile:
                 logger.info("Command: {}".format(command))
                 f.write("\n{}\n".format(command))
                 if (args.RunCommand): os.system(command)
+
+	    # correlation matrices for differential measurements.
+	    if (args.step == 8):
+                border_msg("Running corr matrix: " + obsName)
+
+                command = 'python python/produce_corrMatrix.py --obsName="{obsName}"'.format(
+                        obsName = obsName
+                )
+                logger.info("Command: {}".format(command))
+                if (args.RunCommand): os.system(command)
+
+
 
 f.close()

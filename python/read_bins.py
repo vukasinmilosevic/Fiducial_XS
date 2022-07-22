@@ -62,16 +62,23 @@ def read_bins(obsBins):
             print (tmp)
             for i in range(len(tmp)):
                 proto_bin = tmp[i].split(" vs ")
-                #print(proto_bin)
+                print("proto_bin:   ",proto_bin)
                  
                 proto_2d_bin = []
                 for j in range(len(proto_bin)):
                     proto_bin_v2 = proto_bin[j].split("|")[1:len(proto_bin[j].split("|"))-1]
                     proto_2d_bin.append(proto_bin_v2)
                 
-                #print(proto_2d_bin)
+		for k in range(len(proto_2d_bin[1])-1):
+		   bin_pair=[];
+		   bin_frag=[]
+		   bin_frag.append(proto_2d_bin[1][k]); bin_frag.append(proto_2d_bin[1][k+1]);
+		   bin_pair.append(proto_2d_bin[0]);bin_pair.append(bin_frag);
+		   print("bin_pair:  ", bin_pair)
+		   obs_bins.append(bin_pair) 
 
-                obs_bins.append(proto_2d_bin)
+
+       #         obs_bins.append(proto_2d_bin)
             print("Final binning: ")
             print(obs_bins)
 
