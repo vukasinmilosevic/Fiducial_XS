@@ -101,7 +101,8 @@ deff = _temp.deff
 
 #modelNames = ['ggH_powheg_JHUgen_125','ggH_minloHJJ_125','VBF_powheg_125','WH_pythia_125','ZH_pythia_125','ttH_pythia_125']#,'SM_125','SMup_125','SMdn_125']
 #modelNames = ['ggH_amcatnloFXFX_125','ggH_NNLOPS_JHUgen_125','ggH_powheg_JHUgen_125','VBF_powheg_JHUgen_125','WH_powheg_JHUgen_125','ZH_powheg_JHUgen_125','ttH_powheg_JHUgen_125']#'SM_125','SMup_125','SMdn_125']
-modelNames = ['ggH_amcatnloFXFX_125','ggH_powheg_JHUgen_125','VBF_powheg_JHUgen_125','WH_powheg_JHUgen_125','ZH_powheg_JHUgen_125','ttH_powheg_JHUgen_125']#'SM_125','SMup_125','SMdn_125']
+#modelNames = ['ggH_amcatnloFXFX_125','ggH_powheg_JHUgen_125','VBF_powheg_JHUgen_125','WH_powheg_JHUgen_125','ZH_powheg_JHUgen_125','ttH_powheg_JHUgen_125']#'SM_125','SMup_125','SMdn_125']
+modelNames = ['ggH_powheg_JHUgen_125','VBF_powheg_JHUgen_125','WH_powheg_JHUgen_125','ZH_powheg_JHUgen_125','ttH_powheg_JHUgen_125']#'SM_125','SMup_125','SMdn_125']
 
 #modelNames = ['VBF_powheg_JHUgen_125']
 

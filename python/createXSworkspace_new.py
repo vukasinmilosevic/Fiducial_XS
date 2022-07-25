@@ -466,13 +466,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     trueH_norm = {}
 
     xH_shape = {}
-    fideff_xH = {}
-    fideff_xH_var = {}
     xH_norm = {}
 
     ggH_shape = {}
-    fideff_ggH = {}
-    fideff_ggH_var = {}
     ggH_norm = {}
 
     # nuisance describes the jet energy scale uncertainty
@@ -492,44 +488,18 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         ggH_shape[genbin].SetName("ggH"+channel+"Bin"+str(genbin))
         if (usecfactor): fideff[genbin] = cfactor[modelName+"_"+channel+"_"+obsNameDictKey+"_genbin"+str(genbin)+"_"+recobin]
         else: fideff[genbin] = eff[modelName+"_"+channel+"_"+obsNameDictKey+"_genbin"+str(genbin)+"_"+recobin]
-
-        if (usecfactor): fideff_ggH[genbin] = cfactor["ggH_powheg_JHUgen_125.38"+"_"+channel+"_"+obsNameDictKey+"_genbin"+str(genbin)+"_"+recobin]
-        else: fideff_ggH[genbin] = eff["ggH_powheg_JHUgen_125.38"+"_"+channel+"_"+obsNameDictKey+"_genbin"+str(genbin)+"_"+recobin]
-
-        xheff = 0.0
-        #sumxsec = higgs_xs['VBF_125.38']+higgs_xs['WH_125.38']+higgs_xs['ZH_125.38']+higgs_xs['ttH_125.38']
-        #########
-        #xheff += higgs_xs['ggH_125.38']*acc['ggH_powheg_JHUgen_125.38_'+channel+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)]*eff['ggH_powheg_JHUgen_125.38_'+channel+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-        xheff_VBF = higgs_xs['VBF_125.38']*higgs4l_br['125.38_'+channel]*acc['VBF_powheg_JHUgen_125.38_'+channel+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-        xheff_WH = higgs_xs['WH_125.38']*higgs4l_br['125.38_'+channel]*acc['WH_powheg_JHUgen_125.38_'+channel+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-        xheff_ZH = higgs_xs['ZH_125.38']*higgs4l_br['125.38_'+channel]*acc['ZH_powheg_JHUgen_125.38_'+channel+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-        xheff_ttH = higgs_xs['ttH_125.38']*higgs4l_br['125.38_'+channel]*acc['ttH_powheg_JHUgen_125.38_'+channel+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-
-        sumxsec = xheff_VBF + xheff_WH + xheff_ZH + xheff_ttH
-        xheff = xheff_VBF / sumxsec * max(eff['VBF_powheg_JHUgen_125.38_'+channel+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)], 0.0)
-        xheff += xheff_WH / sumxsec * max(eff['WH_powheg_JHUgen_125.38_'+channel+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)], 0.0)
-        xheff += xheff_ZH / sumxsec * max(eff['ZH_powheg_JHUgen_125.38_'+channel+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)], 0.0)
-        xheff+= xheff_ttH / sumxsec * max(eff['ttH_powheg_JHUgen_125.38_'+channel+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)], 0.0)
-        fideff_xH[genbin] = xheff
-
-        
-        if (usecfactor): fideff_xH[genbin] = cfactor[modelName+"_"+channel+"_"+obsNameDictKey+"_genbin"+str(genbin)+"_"+recobin]
-        #else: fideff_xH[genbin] = eff[modelName+"_"+channel+"_"+obsNameDictKey+"_genbin"+str(genbin)+"_"+recobin]
-
         logger.info("fideff[genbin]: {}".format(fideff[genbin]))
         logger.info("model name is   {}".format(modelName))
         fideff_var[genbin] = RooRealVar("effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year,"effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year, fideff[genbin]);
-        fideff_ggH_var[genbin] = RooRealVar("eff_ggH_Bin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year,"eff_ggH_Bin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year, fideff_ggH[genbin]);
-        fideff_xH_var[genbin] = RooRealVar("eff_xH_Bin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year,"eff_xH_Bin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year, fideff_xH[genbin]);
 
         if( not (obs_ifJES) or (not doJES)) :
-            #trueH_norm[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", RooArgList(fideff_var[genbin], lumi) );
-            xH_norm[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", RooArgList(fideff_xH_var[genbin], lumi) );
-            ggH_norm[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", RooArgList(fideff_ggH_var[genbin], lumi) );
+            trueH_norm[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", RooArgList(fideff_var[genbin], lumi) );
+            xH_norm[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", RooArgList(fideff_var[genbin], lumi) );
+            ggH_norm[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", RooArgList(fideff_var[genbin], lumi) );
         else :
-            #trueH_norm[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*(1-@2)", RooArgList(fideff_var[genbin], lumi, JES_sig_rfv) );
-            xH_norm[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*(1-@2)", RooArgList(fideff_xH_var[genbin], lumi, JES_sig_rfv) );
-            ggH_norm[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*(1-@2)", RooArgList(fideff_ggH_var[genbin], lumi, JES_sig_rfv) );
+            trueH_norm[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*(1-@2)", RooArgList(fideff_var[genbin], lumi, JES_sig_rfv) );
+            xH_norm[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*(1-@2)", RooArgList(fideff_var[genbin], lumi, JES_sig_rfv) );
+            ggH_norm[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*(1-@2)", RooArgList(fideff_var[genbin], lumi, JES_sig_rfv) );
 
 
     trueH_norm_final = {}
@@ -569,6 +539,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     for genbin in range(nBins):
         if (physicalModel=="v3"):
             fidxs = {}
+            #fidxs_xh = {}
             for fState in ['4e','4mu', '2e2mu']:
                 fidxs[fState] = 0
                 #fidxs_xh[fState] = 0
@@ -579,8 +550,13 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
                 fidxs[fState] += higgs_xs['ZH_125.38']*higgs4l_br['125.38_'+fState]*acc['ZH_powheg_JHUgen_125.38_'+fState+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
                 fidxs[fState] += higgs_xs['ttH_125.38']*higgs4l_br['125.38_'+fState]*acc['ttH_powheg_JHUgen_125.38_'+fState+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
                 
+                #fidxs_xh[fState] += higgs_xs['VBF_125.38']*higgs4l_br['125.38_'+fState]*acc['VBF_powheg_JHUgen_125.38_'+fState+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                #fidxs_xh[fState] += higgs_xs['WH_125.38']*higgs4l_br['125.38_'+fState]*acc['WH_powheg_JHUgen_125.38_'+fState+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                #fidxs_xh[fState] += higgs_xs['ZH_125.38']*higgs4l_br['125.38_'+fState]*acc['ZH_powheg_JHUgen_125.38_'+fState+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                #fidxs_xh[fState] += higgs_xs['ttH_125.38']*higgs4l_br['125.38_'+fState]*acc['ttH_powheg_JHUgen_125.38_'+fState+'_'+obsNameDictKey+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
 
             fidxs['4l'] = fidxs['4e'] + fidxs['4mu'] + fidxs['2e2mu']
+            #fidxs_xh['4l'] = fidxs_xh['4e'] + fidxs_xh['4mu'] + fidxs_xh['2e2mu']
 
             fracSM4eBin[str(genbin)] = RooRealVar('fracSM4eBin'+str(genbin), 'fracSM4eBin'+str(genbin), fidxs['4e']/fidxs['4l'])
             fracSM4eBin[str(genbin)].setConstant(True)
@@ -589,6 +565,13 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             K1Bin[str(genbin)] = RooRealVar('K1Bin'+str(genbin), 'K1Bin'+str(genbin), 1.0, 0.0,  1.0/fracSM4eBin[str(genbin)].getVal())
             K2Bin[str(genbin)] = RooRealVar('K2Bin'+str(genbin), 'K2Bin'+str(genbin), 1.0, 0.0, (1.0-fracSM4eBin[str(genbin)].getVal())/fracSM4muBin[str(genbin)].getVal())
 
+            #fracXH4eBin[str(genbin)] = RooRealVar('fracXH4eBin'+str(genbin), 'fracXH4eBin'+str(genbin), fidxs_xh['4e']/fidxs_xh['4l'])
+            #fracXH4eBin[str(genbin)].setConstant(True)
+            #fracXH4muBin[str(genbin)] = RooRealVar('fracXH4muBin'+str(genbin), 'fracXH4muBin'+str(genbin), fidxs_xh['4mu']/fidxs_xh['4l'])
+            #fracXH4muBin[str(genbin)].setConstant(True)
+            #K1XHBin[str(genbin)] = RooRealVar('K1XHBin'+str(genbin), 'K1XHBin'+str(genbin), 1.0, 0.0,  1.0/fracXH4eBin[str(genbin)].getVal())
+            #K2XHBin[str(genbin)] = RooRealVar('K2XHBin'+str(genbin), 'K2XHBin'+str(genbin), 1.0, 0.0, (1.0-fracXH4eBin[str(genbin)].getVal())/fracXH4muBin[str(genbin)].getVal())
+##########
 
             SigmaBin[str(genbin)] = RooRealVar('SigmaBin'+str(genbin), 'SigmaBin'+str(genbin), fidxs['4l'], 0.0, 10.0)
             SigmaHBin['4e'+str(genbin)] = RooFormulaVar("Sigma4eBin"+str(genbin),"(@0*@1*@2)", RooArgList(SigmaBin[str(genbin)], fracSM4eBin[str(genbin)], K1Bin[str(genbin)]))
@@ -597,10 +580,11 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             #if (obsName == "nJets" or ("jet" in obsName)):
             if (obs_ifJES):
                 trueH_norm_final[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*(1-@3)" ,RooArgList(SigmaHBin[channel+str(genbin)],fideff_var[genbin],lumi,JES_sig_rfv))
-                trueH_norm[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*@2*(1-@3)", RooArgList(SigmaHBin[channel+str(genbin)], fideff_var[genbin], lumi,JES_sig_rfv));
             else:
                 trueH_norm_final[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2" ,RooArgList(SigmaHBin[channel+str(genbin)],fideff_var[genbin],lumi))
-                trueH_norm[genbin] = RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*@2", RooArgList(SigmaHBin[channel+str(genbin)], fideff_var[genbin], lumi) );
+                #trueH_norm_final[genbin] = RooFormulaVar("smH_PTH_"+obs_bin_lowest_+"_"+obs_bin_highest+"_norm","@0*@1*@2" ,RooArgList(SigmaHBin[channel+str(genbin)],fideff_var[genbin],lumi))
+                #if (obs_bin_highest_=="13000"):
+                #    trueH_norm_final[genbin] = RooFormulaVar("smH_PTH_GT"+obs_bin_lowest_+"_norm","@0*@1*@2" ,RooArgList(SigmaHBin[channel+str(genbin)],fideff_var[genbin],lumi))
         elif (physicalModel=="v1"):
             fracBin['4mu'+str(genbin)] = RooRealVar("frac4muBin"+str(genbin),"frac4muBin"+str(genbin), 0.25, 0.0, 0.5) # frac 4mu
             fracBin['4e'+str(genbin)] = RooRealVar("frac4eBin"+str(genbin),"frac4eBin"+str(genbin), 0.25, 0.0, 0.5) # frac 4e
@@ -662,9 +646,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             SigmaHBin_XH['4mu'+str(genbin)] = RooFormulaVar("SigmaXH4muBin"+str(genbin),"(@0*(1.0-@1*@2)*@3*@4/(1.0-@1))", RooArgList(SigmaXHBin[str(genbin)], fracXH4eBin[str(genbin)], K1XHBin[str(genbin)], K2XHBin[str(genbin)], fracXH4muBin[str(genbin)]))
             SigmaHBin_XH['2e2mu'+str(genbin)] = RooFormulaVar("SigmaXH2e2muBin"+str(genbin),"(@0*(1.0-@1*@2)*(1.0-@3*@4/(1.0-@1)))", RooArgList(SigmaXHBin[str(genbin)], fracXH4eBin[str(genbin)], K1XHBin[str(genbin)], K2XHBin[str(genbin)], fracXH4muBin[str(genbin)]))
             if (obs_ifJES):
-                xH_norm_final[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*(1-@3)" ,RooArgList(SigmaHBin_XH[channel+str(genbin)],fideff_xH_var[genbin],lumi,JES_sig_rfv))
+                xH_norm_final[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*(1-@3)" ,RooArgList(SigmaHBin_XH[channel+str(genbin)],fideff_var[genbin],lumi,JES_sig_rfv))
             else:
-                xH_norm_final[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2" ,RooArgList(SigmaHBin_XH[channel+str(genbin)],fideff_xH_var[genbin],lumi))
+                xH_norm_final[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2" ,RooArgList(SigmaHBin_XH[channel+str(genbin)],fideff_var[genbin],lumi))
         elif (physicalModel=="v1"):
             fracXHBin['4mu'+str(genbin)] = RooRealVar("fracXH4muBin"+str(genbin),"fracXH4muBin"+str(genbin), 0.25, 0.0, 0.5) # frac 4mu
             fracXHBin['4e'+str(genbin)] = RooRealVar("fracXH4eBin"+str(genbin),"fracXH4eBin"+str(genbin), 0.25, 0.0, 0.5) # frac 4e
@@ -674,17 +658,17 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             rBin_XH[str(genbin)] = RooRealVar("rBin_XH"+str(genbin),"rBin_XH"+str(genbin), 1.0, 0.0, 10.0)
             rBin_XH[str(genbin)].setConstant(True)
             if (obs_ifJES):
-                xH_norm_final[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*@3*(1-@4)" ,RooArgList(rBin_XH[str(genbin)],fracXHBin[channel+str(genbin)],fideff_xH_var[genbin],lumi,JES_sig_rfv))
+                xH_norm_final[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*@3*(1-@4)" ,RooArgList(rBin_XH[str(genbin)],fracXHBin[channel+str(genbin)],fideff_var[genbin],lumi,JES_sig_rfv))
             else:
-                xH_norm_final[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*@3" ,RooArgList(rBin_XH[str(genbin)],fracXHBin[channel+str(genbin)],fideff_xH_var[genbin],lumi))
+                xH_norm_final[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*@3" ,RooArgList(rBin_XH[str(genbin)],fracXHBin[channel+str(genbin)],fideff_var[genbin],lumi))
         else:
             rBin_XH_channel[str(genbin)] = RooRealVar("r"+channel+"Bin_XH"+str(genbin),"r"+channel+"Bin_XH"+str(genbin), 1.0, 0.0, 10.0)
             rBin_XH_channel[str(genbin)].setConstant(True)
             #if (obsName == "nJets" or ("jet" in obsName)):
             if (obs_ifJES):
-                xH_norm_final[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*(1-@3)", RooArgList(rBin_XH_channel[str(genbin)], fideff_xH_var[genbin],lumi,JES_sig_rfv))
+                xH_norm_final[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*(1-@3)", RooArgList(rBin_XH_channel[str(genbin)], fideff_var[genbin],lumi,JES_sig_rfv))
             else:
-                xH_norm_final[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2", RooArgList(rBin_XH_channel[str(genbin)], fideff_xH_var[genbin],lumi))
+                xH_norm_final[genbin] = RooFormulaVar("xH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2", RooArgList(rBin_XH_channel[str(genbin)], fideff_var[genbin],lumi))
 
 ###################
 ####ggH
@@ -713,9 +697,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             SigmaHBin_GGH['4mu'+str(genbin)] = RooFormulaVar("SigmaGGH4muBin"+str(genbin),"(@0*(1.0-@1*@2)*@3*@4/(1.0-@1))", RooArgList(SigmaGGHBin[str(genbin)], fracGGH4eBin[str(genbin)], K1GGHBin[str(genbin)], K2GGHBin[str(genbin)], fracGGH4muBin[str(genbin)]))
             SigmaHBin_GGH['2e2mu'+str(genbin)] = RooFormulaVar("SigmaGGH2e2muBin"+str(genbin),"(@0*(1.0-@1*@2)*(1.0-@3*@4/(1.0-@1)))", RooArgList(SigmaGGHBin[str(genbin)], fracGGH4eBin[str(genbin)], K1GGHBin[str(genbin)], K2GGHBin[str(genbin)], fracGGH4muBin[str(genbin)]))
             if (obs_ifJES):
-                ggH_norm_final[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*(1-@3)" ,RooArgList(SigmaHBin_GGH[channel+str(genbin)],fideff_ggH_var[genbin],lumi,JES_sig_rfv))
+                ggH_norm_final[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*(1-@3)" ,RooArgList(SigmaHBin_GGH[channel+str(genbin)],fideff_var[genbin],lumi,JES_sig_rfv))
             else:
-                ggH_norm_final[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2" ,RooArgList(SigmaHBin_GGH[channel+str(genbin)],fideff_ggH_var[genbin],lumi))
+                ggH_norm_final[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2" ,RooArgList(SigmaHBin_GGH[channel+str(genbin)],fideff_var[genbin],lumi))
         elif (physicalModel=="v1"):
             fracGGHBin['4mu'+str(genbin)] = RooRealVar("fracGGH4muBin"+str(genbin),"fracGGH4muBin"+str(genbin), 0.25, 0.0, 0.5) # frac 4mu
             fracGGHBin['4e'+str(genbin)] = RooRealVar("fracGGH4eBin"+str(genbin),"fracGGH4eBin"+str(genbin), 0.25, 0.0, 0.5) # frac 4e
@@ -725,17 +709,17 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             rBin_GGH[str(genbin)] = RooRealVar("rBin_GGH"+str(genbin),"rBin_GGH"+str(genbin), 1.0, 0.0, 10.0)
             rBin_GGH[str(genbin)].setConstant(True)
             if (obs_ifJES):
-                ggH_norm_final[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*@3*(1-@4)" ,RooArgList(rBin_GGH[str(genbin)],fracGGHBin[channel+str(genbin)],fideff_ggH_var[genbin],lumi,JES_sig_rfv))
+                ggH_norm_final[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*@3*(1-@4)" ,RooArgList(rBin_GGH[str(genbin)],fracGGHBin[channel+str(genbin)],fideff_var[genbin],lumi,JES_sig_rfv))
             else:
-                ggH_norm_final[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*@3" ,RooArgList(rBin_GGH[str(genbin)],fracGGHBin[channel+str(genbin)],fideff_ggH_var[genbin],lumi))
+                ggH_norm_final[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*@3" ,RooArgList(rBin_GGH[str(genbin)],fracGGHBin[channel+str(genbin)],fideff_var[genbin],lumi))
         else:
             rBin_GGH_channel[str(genbin)] = RooRealVar("r"+channel+"Bin_GGH"+str(genbin),"r"+channel+"Bin_GGH"+str(genbin), 1.0, 0.0, 10.0)
             rBin_GGH_channel[str(genbin)].setConstant(True)
             #if (obsName == "nJets" or ("jet" in obsName)):
             if (obs_ifJES):
-                ggH_norm_final[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*(1-@3)", RooArgList(rBin_GGH_channel[str(genbin)], fideff_ggH_var[genbin],lumi,JES_sig_rfv))
+                ggH_norm_final[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*(1-@3)", RooArgList(rBin_GGH_channel[str(genbin)], fideff_var[genbin],lumi,JES_sig_rfv))
             else:
-                ggH_norm_final[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2", RooArgList(rBin_GGH_channel[str(genbin)], fideff_ggH_var[genbin],lumi))
+                ggH_norm_final[genbin] = RooFormulaVar("ggH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2", RooArgList(rBin_GGH_channel[str(genbin)], fideff_var[genbin],lumi))
 
 ###################
 
@@ -954,22 +938,22 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         # Reference: https://root-forum.cern.ch/t/rooworkspace-import-roofit-silence-does-not-work-when-importing-datasets/32591/2
         trueH_shape[genbin].SetName("smH"+binName_re)
         trueH_norm[genbin].SetName("smH"+binName_re+"_norm")
-        trueH_norm_final[genbin].SetName("smH"+binName_re+"_"+recobin+"_final")
+        trueH_norm_final[genbin].SetName("smH"+binName_re+"_final")
         getattr(wout,'import')(trueH_shape[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
         getattr(wout,'import')(trueH_norm[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
         getattr(wout,'import')(trueH_norm_final[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
 
         xH_shape[genbin].SetName("xH"+binName_re)
-        #xH_norm[genbin].SetName("xH"+binName_re+"_norm")
-        xH_norm_final[genbin].SetName("xH"+binName_re+"_norm")
+        xH_norm[genbin].SetName("xH"+binName_re+"_norm")
+        xH_norm_final[genbin].SetName("xH"+binName_re+"_final")
         getattr(wout,'import')(xH_shape[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
-        #getattr(wout,'import')(xH_norm[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
+        getattr(wout,'import')(xH_norm[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
         getattr(wout,'import')(xH_norm_final[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
         ggH_shape[genbin].SetName("ggH"+binName_re)
-        #ggH_norm[genbin].SetName("ggH"+binName_re+"_norm")
-        ggH_norm_final[genbin].SetName("ggH"+binName_re+"_norm")
+        ggH_norm[genbin].SetName("ggH"+binName_re+"_norm")
+        ggH_norm_final[genbin].SetName("ggH"+binName_re+"_final")
         getattr(wout,'import')(ggH_shape[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
-        #getattr(wout,'import')(ggH_norm[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
+        getattr(wout,'import')(ggH_norm[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
         getattr(wout,'import')(ggH_norm_final[genbin],RooFit.RecycleConflictNodes()) # RooFit.Silence()
 
     if (not usecfactor):
@@ -1020,18 +1004,15 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     return data_obs.numEntries()
 
 #def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfactor, addfakeH, modelName, physicalModel, year, obs_ifJES, obs_ifJES2, zzFloatType = ''):
-for finalS in ["4e", '4mu', '2e2mu']:
-    for binN in range(9):
-        createXSworkspace('pT4l', finalS, 9, binN, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
-#createXSworkspace('pT4l', "4mu", 9, 0, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
-#createXSworkspace('pT4l', "4mu", 9, 1, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
-#createXSworkspace('pT4l', "4mu", 9, 2, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
-#createXSworkspace('pT4l', "4mu", 9, 3, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
-#createXSworkspace('pT4l', "4mu", 9, 4, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
-#createXSworkspace('pT4l', "4mu", 9, 5, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
-#createXSworkspace('pT4l', "4mu", 9, 6, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
-#createXSworkspace('pT4l', "4mu", 9, 7, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
-#createXSworkspace('pT4l', "4mu", 9, 8, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
+createXSworkspace('pT4l', "4mu", 9, 0, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
+createXSworkspace('pT4l', "4mu", 9, 1, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
+createXSworkspace('pT4l', "4mu", 9, 2, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
+createXSworkspace('pT4l', "4mu", 9, 3, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
+createXSworkspace('pT4l', "4mu", 9, 4, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
+createXSworkspace('pT4l', "4mu", 9, 5, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
+createXSworkspace('pT4l', "4mu", 9, 6, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
+createXSworkspace('pT4l', "4mu", 9, 7, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
+createXSworkspace('pT4l', "4mu", 9, 8, ['0', '15', '30', '45', '80', '120', '200', '350', '600', '13000'],False, True,"SM_125", "v3", "2018", False, '',)
 #createXSworkspace("pT4l", "2e2mu", 4, 1, False, True)
 #createXSworkspace("pT4l", "2e2mu", 4, 2, False, True)
 #createXSworkspace("pT4l", "2e2mu", 4, 3, False, True)

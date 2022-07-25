@@ -3,7 +3,6 @@ import io
 import argparse
 import os
 from Input_Info import *
-from Utils import  processCmd, get_linenumber
 
 
 parser = argparse.ArgumentParser(description='Main input options')
@@ -155,10 +154,10 @@ def DataCardMaker(process_names, process_rate, nbins, current_bin, channel, obse
 
                 f.write(line+"\n")
              
-            #f.write('zz_norm_0 rateParam {}_recobin{} bkg_*zz 1 [0,2]'.format(bin_name, current_bin))
+            f.write('zz_norm_0 rateParam {}_recobin{} bkg_*zz 1 [0,2]'.format(bin_name, current_bin))
 
 
-Inputs = CollectFromConfig("Inputs/ggH_xH/inputs_{}_{}.yml".format(channel, year))
+Inputs = CollectFromConfig("Inputs/inputs_{}_{}.yml".format(channel, year))
 process_names = Inputs[0]
 process_rate = Inputs[1]
 nuisances_name = Inputs[2]
@@ -183,11 +182,3 @@ if not os.path.exists(path_dir):
 
 for current_bin in range(nbins):
     DataCardMaker(process_names, process_rate, nbins, current_bin, channel, observation, nuisances_name, nuisances_applied_to, nuisances_type, nuisances_value, path_dir)
-
-Bin=['0_15','15_30', '30_45', '45_80', '80_120', '120_200', '200_350', '350_600', 'GT600']
-for N in range(nbins):
-    UpdateObservationValue = "sed -i 's/_recobin"+str(N)+"/_"+Bin[N]+"/g' "+path_dir+"/hzz4l_"+channel+"S_13TeV_xs_bin"+str(N)+".txt"
-    processCmd(UpdateObservationValue, get_linenumber(), os.path.basename(__file__))
-    for i in range(nbins):
-        UpdateObservationValue = "sed -i 's/HBin"+str(i)+"/H_PTH_"+Bin[i]+"/g' "+path_dir+"/hzz4l_"+channel+"S_13TeV_xs_bin"+str(N)+".txt"
-        processCmd(UpdateObservationValue, get_linenumber(), os.path.basename(__file__))

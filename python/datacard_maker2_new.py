@@ -3,7 +3,6 @@ import io
 import argparse
 import os
 from Input_Info import *
-from Utils import  processCmd, get_linenumber
 
 
 parser = argparse.ArgumentParser(description='Main input options')
@@ -72,7 +71,7 @@ def DataCardMaker(process_names, process_rate, nbins, current_bin, channel, obse
             f.write("------------"+"\n")
 
             #f.write("shapes * * ../hzz4l_{}S_13TeV_xs.Databin{}.root w:$PROCESS".format(channel, current_bin)+"\n") 
-            f.write("shapes * * ../hzz4l_{}S_13TeV_xs_SM_125_pT4l_v3.Databin{}.root w:$PROCESS".format(channel, current_bin)+"\n")
+            f.write("shapes * * ../hzz4l_{}S_13TeV_xs_SM_125_pT4l_v3.Databin{}.root w:$PROCESS".format(channel, current_bin)+"\n") 
 
             f.write("------------"+"\n")
 
@@ -82,7 +81,7 @@ def DataCardMaker(process_names, process_rate, nbins, current_bin, channel, obse
             f.write("------------"+"\n")
             #f.write("## mass window [105.0,140.0]\n")
             f.write("## mass window [{},{}]".format(INPUT_m4l_low, INPUT_m4l_high)+"\n")
-            f.write("bin " + (bin_name+"_recobin{}{} ").format(current_bin,bin_name2)*(nbins*2 + nprocesses - 2) +"\n")
+            f.write("bin " + (bin_name+"_recobin{}{} ").format(current_bin,bin_name2)*(nbins + nprocesses - 1) +"\n")
 
             tmp_line = "process "
             tmp_line2 = "process "
@@ -93,15 +92,10 @@ def DataCardMaker(process_names, process_rate, nbins, current_bin, channel, obse
                 tmp_line2 = tmp_line2 + "-" + str(i + 1) + " "
                 tmp_line3 = tmp_line3 + str(process_rate[0]) + " "
 
-            for i in range(nbins):
-                tmp_line = tmp_line + process_names[1]+str(i)+ " "
-                tmp_line2 = tmp_line2 + str(i + 1) + " "
-                tmp_line3 = tmp_line3 + str(process_rate[1]) + " "
 
-
-            for i in range(2,nprocesses):
+            for i in range(1,nprocesses):
                 tmp_line = tmp_line + process_names[i]+" "
-                tmp_line2 = tmp_line2 + str(i+nbins-1) + " "
+                tmp_line2 = tmp_line2 + str(i) + " "
                 tmp_line3 = tmp_line3 + str(process_rate[i]) + " "
                 
             f.write(tmp_line+"\n")
@@ -123,20 +117,20 @@ def DataCardMaker(process_names, process_rate, nbins, current_bin, channel, obse
                     line = line + nuisances_type[i] + ' '
 
                 if "All" in nuisances_applied_to[i][0]:
-                    line = line + (nuisances_value[i] + " ")*nbins*2
+                    line = line + (nuisances_value[i] + " ")*nbins
                     
                     if "ButZX" in nuisances_applied_to[i][0]:
-                        line = line + (nuisances_value[i] + " ")*(nprocesses - 3) + "-"
+                        line = line + (nuisances_value[i] + " ")*(nprocesses - 2) + "-"
                     else:
-                        line = line + (nuisances_value[i] + " ")*(nprocesses - 2)
+                        line = line + (nuisances_value[i] + " ")*(nprocesses - 1)
 
                 
                 else:
                     if process_names[0] in nuisances_applied_to[i]:
-                        line = line + (nuisances_value[i] + " ")*nbins*2
+                        line = line + (nuisances_value[i] + " ")*nbins
                         nuisances_applied_to[i].remove(process_names[0])
                     else:
-                        line = line + ("- ")*nbins*2
+                        line = line + ("- ")*nbins
                     
                     indices_list = []
                     values_list = []
@@ -145,20 +139,20 @@ def DataCardMaker(process_names, process_rate, nbins, current_bin, channel, obse
                             indices_list.append(process_names.index(nuisances_applied_to[i][j]))
                             values_list.append(nuisances_value[i])
                     
-                    mini_list = ["-" for m in range(nprocesses-2)]
+                    mini_list = ["-" for m in range(nprocesses-1)]
 
                     for idx in range(len(indices_list)):
-                        mini_list[indices_list[idx] - 2] = values_list[idx]
+                        mini_list[indices_list[idx] - 1] = values_list[idx]
 
                     for idx in range(len(mini_list)):
                         line = line + mini_list[idx] + ' ' 
 
                 f.write(line+"\n")
              
-            #f.write('zz_norm_0 rateParam {}_recobin{} bkg_*zz 1 [0,2]'.format(bin_name, current_bin))
+            f.write('zz_norm_0 rateParam {}_recobin{} bkg_*zz 1 [0,2]'.format(bin_name, current_bin))
 
 
-Inputs = CollectFromConfig("Inputs/ggH_xH/inputs_{}_{}.yml".format(channel, year))
+Inputs = CollectFromConfig("Inputs/old/inputs_{}_{}.yml".format(channel, year))
 process_names = Inputs[0]
 process_rate = Inputs[1]
 nuisances_name = Inputs[2]
@@ -183,11 +177,3 @@ if not os.path.exists(path_dir):
 
 for current_bin in range(nbins):
     DataCardMaker(process_names, process_rate, nbins, current_bin, channel, observation, nuisances_name, nuisances_applied_to, nuisances_type, nuisances_value, path_dir)
-
-Bin=['0_15','15_30', '30_45', '45_80', '80_120', '120_200', '200_350', '350_600', 'GT600']
-for N in range(nbins):
-    UpdateObservationValue = "sed -i 's/_recobin"+str(N)+"/_"+Bin[N]+"/g' "+path_dir+"/hzz4l_"+channel+"S_13TeV_xs_bin"+str(N)+".txt"
-    processCmd(UpdateObservationValue, get_linenumber(), os.path.basename(__file__))
-    for i in range(nbins):
-        UpdateObservationValue = "sed -i 's/HBin"+str(i)+"/H_PTH_"+Bin[i]+"/g' "+path_dir+"/hzz4l_"+channel+"S_13TeV_xs_bin"+str(N)+".txt"
-        processCmd(UpdateObservationValue, get_linenumber(), os.path.basename(__file__))
