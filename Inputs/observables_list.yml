@@ -73,7 +73,8 @@ Observables:
      ifJES: False
 
     massZ1:
-     bins: "|40.0|65.0|73.0|80.0|85.0|90.0|120.0|"
+     #bins: "|40.0|65.0|73.0|80.0|85.0|90.0|120.0|"
+     bins: "|40.0|65.0|75.0|85.0|92.0|120.0|"
      label: "m(Z_{1})"
      unit: "GeV"
      gen: "GENmassZ1"
@@ -81,7 +82,8 @@ Observables:
      ifJES: False
 
     massZ2:
-     bins: "|12.0|22.0|25.0|28.0|30.0|32.0|35.0|40.0|50.0|65.0|"
+     #bins: "|12.0|22.0|25.0|28.0|30.0|32.0|35.0|40.0|50.0|65.0|"
+     bins: "|12.0|20.0|25.0|28.0|32.0|40.0|50.0|65.0|"
      label: "m(Z_{2})"
      unit: "GeV"
      gen: "GENmassZ2"
@@ -201,7 +203,8 @@ Observables:
      ifJES: True
 
     dEtaj1j2:
-     bins: "|-10000|0|0.7|1.6|3|inf|"
+     #bins: "|-10000|0|0.7|1.6|3|inf|"
+     bins: "|-10000|0|1.6|3|inf|"
      label: "#Delta#eta_{j1j2} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
      unit: ""
      gen: "GENdEtaj1j2"
@@ -209,7 +212,8 @@ Observables:
      ifJES: True
 
     dEtaj1j2_2p5:
-     bins: "|-10000|0|0.7|1.6|3|inf|"
+     #bins: "|-10000|0|0.7|1.6|3|inf|"
+     bins: "|-10000|0|1.6|3|inf|"
      label: "#Delta#eta_{j1j2} p_{T}_{j}>30 GeV |#eta_{j}|<4.7"
      unit: ""
      gen: "GENdEtaj1j2_2p5"
