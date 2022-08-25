@@ -90,7 +90,7 @@ Commands to run: ::
   python RunEverything.py -r 1 -s 5 # step-5: interpolation for the NNLOPS sample using powheg sample
   python RunEverything.py -r 1 -s 6 # step-6: Run background template maker
   python RunEverything.py -r 1 -s 7 # step-7: Final measurement and plotter
-
+  python RunEverything.py -r 1 -s 8 # step-8: Correlation matrices plotter
 
 2.2 Detailed, step-by-step instructions
 ---------------------------------------
