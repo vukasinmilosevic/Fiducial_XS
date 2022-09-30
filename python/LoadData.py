@@ -10,9 +10,11 @@ dirMC = {}
 #dirMC['2016'] = '/eos/home-v/vmilosev/Skim_2018_HZZ/WoW/' # 2018 for now until we sort out the locations
 dirMC['2018'] = '/eos/user/q/qguo/newNTuple_UL/2018/Slimmed_2p5/'
 dirMC['2017'] = '/eos/user/q/qguo/newNTuple_UL/2017/Slimmed_2p5/'
-dirMC['2016'] = '/eos/cms/store/group/phys_muon/TagAndProbe/HZZ4L/2016/UL/MC/postVFP/'
+#This one contains signal, beware! VM dirMC['2016'] = '/eos/cms/store/group/phys_muon/TagAndProbe/HZZ4L/2016/UL/MC/postVFP/'
+# dirMC['2016'] = '/eos/user/q/qguo/newNTuple_UL/2016/Slimmed_2p5_LumiWeight/' # Not skimmed
+dirMC['2016'] = '/eos/cms/store/group/phys_muon/TagAndProbe/HZZ4L/2016/UL/MC/' # Updated ntuples by Tahir; issue fixed and with JES
 
-dirData_94 = '/eos/home-v/vmilosev/Skim_2018_HZZ/WoW/'  
+dirData_94 = '/eos/home-v/vmilosev/Skim_2018_HZZ/WoW/'
 
 border_msg("samples directory: "+dirMC['2018'])
 
@@ -21,7 +23,7 @@ SamplesMC['2018'] = [
 #File missing or needs to be redirected (Vukasin)'GluGluHToZZTo4L_M125_13TeV_powheg2_minloHJ_NNLOPS_JHUgenV702_pythia8.root',   # path needs to be redirected
 ###
 'testGGH_nnlops_GENonly_slimmed',
-'ggH_amcatnloFXFX_2018_slimmed',
+'ggh_amcatnloFXFX_gen_slimmed_newMuSF_add2p5',
 'GluGluHToZZTo4L_M120_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8_slimmed_newMuSF_add2p5',
 'GluGluHToZZTo4L_M124_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8_slimmed_newMuSF_add2p5',
 'GluGluHToZZTo4L_M125_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8_slimmed_newMuSF_add2p5',
@@ -79,7 +81,7 @@ SamplesMC['2018'] = [
 
 SamplesMC['2017'] = [
 'testGGH_nnlops_GENonly_slimmed',
-'ggH_amcatnloFXFX_2018_slimmed',
+'ggh_amcatnloFXFX_gen_slimmed_newMuSF_add2p5',
 'GluGluHToZZTo4L_M120_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8_slimmed_newMuSF_add2p5',
 'GluGluHToZZTo4L_M124_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8_slimmed_newMuSF_add2p5',
 'GluGluHToZZTo4L_M125_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8_slimmed_newMuSF_add2p5',
@@ -126,7 +128,7 @@ SamplesMC['2017'] = [
 
 SamplesMC['2016'] = [
 'testGGH_nnlops_GENonly_slimmed',
-'ggH_amcatnloFXFX_2018_slimmed',
+'ggh_amcatnloFXFX_gen_slimmed_newMuSF_add2p5',
 'GluGluHToZZTo4L_M120_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8_slimmed_newMuSF_add2p5',
 'GluGluHToZZTo4L_M124_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8_slimmed_newMuSF_add2p5',
 'GluGluHToZZTo4L_M125_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8_slimmed_newMuSF_add2p5',

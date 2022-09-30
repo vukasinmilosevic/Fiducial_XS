@@ -30,6 +30,9 @@
 
 using namespace std;
 
+// # FIXME: This is temporary bool. If we are running with LLR template keep it True.
+const bool ifLLR = false;        // 
+
 //--------------Global definitions---------------//
 // default cuts
 const double CUT_ELPT = 7.;
@@ -108,7 +111,8 @@ int fillEmptyBinsHist1D(TH1D* &h1D, double floor = .00001);
 void loadKFactorGraphs();
 double getGluGluZZKFactor(double m4l);
 // proposed variable template binning
-int nbinsX=35; const int nbinsY=35;
+int nbinsX=20;//35 changed to 20 for easier comparison with LLR, this one is used for mass4l
+const int nbinsY=35;
 
 double nEvents = -1;
 
@@ -220,6 +224,10 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     float pt_leadingjet_pt30_eta4p7, pt_leadingjet_pt30_eta4p7_jesdn, pt_leadingjet_pt30_eta4p7_jesup;
     float pt_leadingjet_pt30_eta2p5, pt_leadingjet_pt30_eta2p5_jesdn, pt_leadingjet_pt30_eta2p5_jesup;
 
+    // additional weights
+    float prefiringWeight, pileupWeight, Lumi_Weight;
+    bool need_Lumi_Weight=false;
+
     // new obs.
     float pT4lj; float pT4ljj;
     float pT4lj_2p5; float pT4ljj_2p5;
@@ -293,6 +301,8 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     tree->SetBranchAddress("LumiSect",&LumiSect);
     tree->SetBranchAddress("Event",&Event);
     tree->SetBranchAddress("eventWeight",&eventWeight);
+    tree->SetBranchAddress("pileupWeight",&pileupWeight);
+    tree->SetBranchAddress("prefiringWeight",&prefiringWeight);
     tree->SetBranchAddress("genWeight",&genWeight);
     tree->SetBranchAddress("k_qqZZ_qcd_M",&k_qqZZ_qcd_M);
     tree->SetBranchAddress("k_qqZZ_ewk",&k_qqZZ_ewk);
@@ -300,6 +310,7 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
     tree->SetBranchAddress("crossSection",&crossSection);
     if (tree->GetBranch("dataMCWeight")) {tree->SetBranchAddress("dataMCWeight",&dataMCWeight);}
     if (tree->GetBranch("dataMCWeight_new")) {tree->SetBranchAddress("dataMCWeight_new",&dataMCWeight_new);}
+    if (tree->GetBranch("Lumi_Weight")) {tree->SetBranchAddress("Lumi_Weight",&Lumi_Weight);need_Lumi_Weight=true;}
     tree->SetBranchAddress("passedFullSelection",&passedFullSelection);
     tree->SetBranchAddress("passedZ4lSelection",&passedZ4lSelection);
     tree->SetBranchAddress("passedZXCRSelection",&passedZXCRSelection);
@@ -757,6 +768,9 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
         int nentries_int = static_cast<int>(nentries);
         TMath::Sort(nentries_int, tree->GetV1(), index, false);
     }
+
+    cout<<"need_Lumi_Weight: "<<need_Lumi_Weight<<endl;
+
     for(int iEvt=0; iEvt < nentries; iEvt++){
         if (SORT_EVENTS)
             tree->GetEntry(index[iEvt]);	//index[iEvt]);}// take sorted entries
@@ -769,7 +783,10 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
         // weight
         //if (dataMCWeight==0) dataMCWeight = 1;
         if (dataMCWeight_new==0 || dataMCWeight_new==-1) dataMCWeight_new = 1;
-        float weight = (scale)? genWeight*crossSection*dataMCWeight_new: 1.;
+//        float weight = (scale)? genWeight*crossSection*dataMCWeight_new: 1.;
+        float weight = (scale)? genWeight*crossSection*dataMCWeight_new*pileupWeight*prefiringWeight: 1.;
+        if (need_Lumi_Weight)  weight *=Lumi_Weight;
+
         if (processNameTag == "qqZZ") {
             weight *= k_qqZZ_qcd_M*k_qqZZ_ewk;
         }
@@ -786,10 +803,9 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
 
         // for the predefined mass window only
         if ((PROCESSING_TYPE!="XSTreeZ4l")&&(CUT_M4LLOW > mass4l || mass4l > CUT_M4LHIGH)) continue;
-
         // in case of Z+X temaplte include fake rate factors
         double fr4, fr3;
-        if (iFinState==5) {
+        if (processNameTag == "ZJetsCR") {
             // fake rate factor for L4
             if ((abs(idL4) == 11) && (abs(etaL4) < 1.47)) fr4 = getFakeRateWeight("el", "EB", pTL4);
             if ((abs(idL4) == 11) && (abs(etaL4) > 1.47)) fr4 = getFakeRateWeight("el", "EE", pTL4);
@@ -805,9 +821,8 @@ int getHistTreesXS(TChain* tree, TString processNameTag, TString sqrtsTag, TTree
             if (0. >= fr3 || fr3 >= 1.) continue;
             if (0. >= fr4 || fr4 >= 1.) continue;
             // test-only
-            // weight = weight * fr3 * fr4;
+            if (!ifLLR) weight = weight * fr3 * fr4;
         }
-
         nEvtMassWindow++;
 
         // fill 2D hists
@@ -875,6 +890,13 @@ int getTemplateXS(TString processNameTag, TString processFileName, TString sqrts
     }
     sigTree->Add(processFileName);
 
+    std::cout << "Entries: " << sigTree->GetEntries() << std::endl;
+
+    if (sigTree->GetEntries() <= 1){
+        cout << "Input file#929: " << processFileName << " is empty. nentries <=0" << endl;
+        exit(0);
+    }
+
     // tree for a set of variables, for selected events
     TString fOption = "RECREATE";
     TString templateNameTag = getTemplateNameTag(processNameTag);
@@ -884,11 +906,28 @@ int getTemplateXS(TString processNameTag, TString processFileName, TString sqrts
     }
     std::cout << "[DEBUG: fiducialXSTemplates.C#441]  fLocation: " << fLocation << std::endl;
     TFile *fTemplateTree = new TFile(fLocation + "/" + templateNameTag + "_" + sfinalState + ".root", fOption);
+    if (fTemplateTree->IsZombie())
+    {
+        std::cout << "No input file found (templateNameTag): " << fLocation + "/" + templateNameTag + "_" + sfinalState + ".root" << std::endl;
+        exit(0);
+    }
+    else{
+        std::cout << "Input file found (templateNameTag): " << fLocation + "/" + templateNameTag + "_" + sfinalState + ".root" << std::endl;
+    }
     TTree* TT = new TTree("selectedEvents","selectedEvents");
 
     //nEvents
     if ((processNameTag != "Data")&&(processNameTag != "ZJetsCR")) {
+        std::cout << "Input file found (processFileName): " << processFileName << std::endl;
         TFile *f = TFile::Open(processFileName);
+        if (f->IsZombie())
+        {
+            std::cout << "No input file found: " << processFileName << std::endl;
+            exit(0);
+        }
+        else{
+            std::cout << "Input file found: " << processFileName << std::endl;
+        }
         TH1D* hNEvents = (TH1D*) f->Get("Ana/nEvents");
         nEvents = hNEvents->GetBinContent(1);
     }
@@ -970,7 +1009,7 @@ void storeTreeAndTemplatesXS(TTree* TT, TString obsName, TString obsBinDn, TStri
     TString selectionObsName = "1";
     if (obsName=="costhetastar"){
         selectionObsName = "abs(cosThetaStar)";
-    }else if (obsName=="cosThetaStar"){
+/*    }else if (obsName=="cosThetaStar"){
         selectionObsName = "abs(cosThetaStar)";
     }else if (obsName=="cosTheta1"){
         selectionObsName = "abs(cosTheta1)";
@@ -989,9 +1028,11 @@ void storeTreeAndTemplatesXS(TTree* TT, TString obsName, TString obsBinDn, TStri
     }else if (obsName=="phi1"){
         selectionObsName = "abs(Phi1)";
     }else if (obsName=="eta4l"){
-        selectionObsName = "abs(eta4l)";
+        selectionObsName = "abs(eta4l)"; */
     }else if (obsName=="rapidity4l"){
         selectionObsName = "abs(rapidity4l)";
+    }else if (obsName=="dEtaj1j2"){
+        selectionObsName = "abs(dEtaj1j2)";
     }else if (obsName=="inclusive"){
         selectionObsName = "pT4l";
     }else {
@@ -1029,7 +1070,6 @@ void storeTreeAndTemplatesXS(TTree* TT, TString obsName, TString obsBinDn, TStri
     TString treeWeightedCut; treeWeightedCut = sWeight + treeCut;
     TT->Draw(treeReq.Data(), treeWeightedCut.Data(), "goff");
 
-    // std::cout << "==>#582 fLocation: " << fLocation << std::endl;
     TString templateLocation = fLocation + "/" + templateNameTag + "_" + sfinalState + "_" + obsTag + ".root";
     TFile* fTemplate = new TFile(templateLocation, fOption);
     fTemplate->cd();

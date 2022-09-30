@@ -40,10 +40,13 @@ def parseOptions():
     parser.add_option("-b",action="callback",callback=callback_rootargs)
 
     # store options and arguments as global variables
-    global opt, args, combineOutputs
+    global opt, args, combineOutputs, unblindString
     (opt, args) = parser.parse_args()
 
     combineOutputs = combineOutputs.format(year = opt.ERA)
+
+    unblindString = ""
+    if (opt.UNBLIND): unblindString = "_unblind"
 
 # parse the arguments and options
 global opt, args, runAllSteps
@@ -69,7 +72,7 @@ obsName = opt.OBSNAME
 if (opt.ERA == '2016'): years = ['2016']
 if (opt.ERA == '2017'): years = ['2017']
 if (opt.ERA == '2018'): years = ['2018']
-if (opt.ERA == 'Full'): years = ['2016','2017','2018']
+if (opt.ERA == 'allYear'): years = ['2016','2017','2018']
 
 ListObsName = (''.join(obsName.split())).split('vs')
 
@@ -83,8 +86,8 @@ if len(ListObsName) == 2:    # INFO: for 2D this list size == 2
 logger.debug("nBins: = "+str(nBins))
 
 
-if len(ListObsName) == 1:    # INFO: for 2D this list size == 1
-    print("{}".format(float(observableBins[nBins])))
+# if len(ListObsName) == 1:    # INFO: for 2D this list size == 1
+    # print("{}".format(float(observableBins[nBins])))
     # if float(observableBins[nBins])>200.0:
         # observableBins[nBins]='200.0'
 
@@ -107,7 +110,7 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
     # FIXME: Improve the directory naming/pointer of hardcoded directory
-    inFile = combineOutputs+"/"+asimovDataModel+'_all_'+obsName.replace(' ','_')+'_13TeV_Asimov_'+asimovPhysicalModel+'.root'
+    inFile = combineOutputs+"/"+asimovDataModel+'_all_'+obsName.replace(' ','_')+'_13TeV_Asimov_'+asimovPhysicalModel+unblindString+'.root'
     f_asimov = TFile(inFile, 'READ')
     logger.debug("Asimov file is :  {}".format(inFile))
 
@@ -134,6 +137,7 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     n_out_trueH_asimov = {}
     n_qqzz_asimov = {}
     n_zz_asimov = {}
+    logger.debug("Years: {}".format(years))
     for year in years:
         for recobin in range(nBins):
             n_trueH_asimov["4lrecobin"+str(recobin)+year] = 0.0
@@ -148,7 +152,9 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     for year in years:
         for fState in fStates:
             for recobin in range(nBins):
-                TaggerFromWS = "n_exp_final_bin"+obsName.replace(' ','_')+"_"+fState+"S_"+year+"_"+obsName.replace(' ','_')+"_"+fState+"S_"+str(recobin)+"_"+year
+                if (len(years) > 1): AdditionalAllYearText = obsName.replace(' ','_')+"_4e4mu2e2mu_"+year+"_"
+                else: AdditionalAllYearText = ""
+                TaggerFromWS = "n_exp_final_bin"+AdditionalAllYearText+obsName.replace(' ','_')+"_"+fState+"S_"+year+"_"+obsName.replace(' ','_')+"_"+fState+"S_"+str(recobin)+"_"+year
                 for bin in range(nBins):
                     trueH_asimov[fState+"Bin"+str(bin)+"recobin"+str(recobin)+year] = w_asimov.function(TaggerFromWS+"_proc_trueH"+fState+"Bin"+str(bin))
                 zjets_asimov[fState+"recobin"+str(recobin)+year] = w_asimov.function(TaggerFromWS+"_proc_bkg_zjets")
@@ -183,22 +189,29 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     logger.debug(type(mass))
 
     databin = {}
+    logger.debug("databin: {}".format(databin))
     if (fstate=="4l"):
         for year in years:
             for recobin in range(nBins):
                 datacut = ''
                 for fState in fStates:
-                    sbin = obsName.replace(' ','_')+"_"+fstate+"S_"+year+"_"+obsName.replace(' ','_')+"_"+fstate+"S_"+str(recobin)+"_"+year
+                    if (len(years) > 1): AdditionalAllYearText = obsName.replace(' ','_')+"_4e4mu2e2mu_"+year+"_"
+                    else: AdditionalAllYearText = ""
+                    sbin = AdditionalAllYearText+obsName.replace(' ','_')+"_"+fstate+"S_"+year+"_"+obsName.replace(' ','_')+"_"+fstate+"S_"+str(recobin)+"_"+year
                     datacut += "CMS_channel==CMS_channel::"+sbin+" || "
                 datacut = datacut.rstrip(" || ")
                 logger.debug("datacut is :    {}".format(datacut))
                 databin[str(recobin)+year] = data.reduce(RooFit.Cut(datacut))
+        logger.debug("databin: {}".format(databin))
     else:
         for year in years:
             for recobin in range(nBins):
-                sbin = obsName.replace(' ','_')+"_"+fstate+"S_"+year+"_"+obsName.replace(' ','_')+"_"+fstate+"S_"+str(recobin)+"_"+year
+                if (len(years) > 1): AdditionalAllYearText = obsName.replace(' ','_')+"_4e4mu2e2mu_"+year+"_"
+                else: AdditionalAllYearText = ""
+                sbin = AdditionalAllYearText+obsName.replace(' ','_')+"_"+fstate+"S_"+year+"_"+obsName.replace(' ','_')+"_"+fstate+"S_"+str(recobin)+"_"+year
                 databin[str(recobin)+year] = data.reduce(RooFit.Cut("CMS_channel==CMS_channel::"+sbin))
-
+                logger.debug("databin: {}".format(databin))
+        logger.debug("databin: {}".format(databin))
 
     if (obsName.startswith('njets')):
         h_data = TH1D("h_data","h_data",nBins,0,nBins)
@@ -207,11 +220,15 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
         h_zx = TH1D("h_zx","h_zx",nBins,0,nBins)
     else:
         CustomBinInfo = [float(observableBins[i]) for i in range(nBins+1)]
-        CustomBinInfo[0] = 0.0
+        # CustomBinInfo[0] = 0.0
+        if str(CustomBinInfo[-1]) == "inf": # if the value is "inf" set it to large number
+            CustomBinInfo[-1] = 10000
+        logger.debug("nBins: {}, CustomBinInfo: {}".format(nBins, CustomBinInfo))
         h_data = TH1D("h_data","h_data",nBins,array('d',CustomBinInfo))
         h_sig = TH1D("h_sig","h_xig",nBins,array('d',CustomBinInfo))
         h_zz = TH1D("h_zz","h_zz",nBins,array('d',CustomBinInfo))
         h_zx = TH1D("h_zx","h_zx",nBins,array('d',CustomBinInfo))
+        logger.debug("CustomBinInfo: {}".format(CustomBinInfo))
 
     nH={};
     nZZ={};
@@ -239,6 +256,7 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
             nData[fstate+"recobin"+str(recobin)]+=databin[str(recobin)+year].sumEntries()
             logger.debug('Data:'+str(databin[str(recobin)+year].sumEntries()))
 
+        logger.debug("nH[fstate+recobin+str(recobin)]: {}".format(nH[fstate+"recobin"+str(recobin)]))
         h_sig.SetBinContent(recobin+1,nH[fstate+"recobin"+str(recobin)])
         h_zz.SetBinContent(recobin+1,nZZ[fstate+"recobin"+str(recobin)])
         h_zx.SetBinContent(recobin+1,nZX[fstate+"recobin"+str(recobin)])
@@ -274,13 +292,16 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
         cfg = yaml.load(ymlfile)
         if ( ("Observables" not in cfg) or ("1D_Observables" not in cfg['Observables']) ) :
             print('''No section named 'observable' or sub-section name '1D-Observable' found in file {}.
-                    Please check your YAML file format!!!'''.format(InputYAMLFile))
+                    Please check your YAML file format!!!'''.format(opt.inYAMLFile))
 
         label = cfg['Observables']['1D_Observables'][obsName]['label']
         unit = cfg['Observables']['1D_Observables'][obsName]['unit']
-        border_msg("Label name: {}, Unit: {}".format(label, unit))
+        # border_msg("Label name: {}, Unit: {}".format(label, unit))
 
 
+    if str(observableBins[nBins]) == "inf":
+        observableBins[nBins] = 10000
+    logger.debug("boundary and bins: nBins: {}, bin start val: {}, last bin val: {}".format(nBins, float(observableBins[0]),float(observableBins[nBins])))
     if (obsName.startswith("njets")):
         dummy = TH1D("","",nBins,0,nBins)
     else:
@@ -317,15 +338,15 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     latex2.SetTextFont(42)
     latex2.SetTextAlign(31) # align right
     if (not opt.LUMISCALE=="1.0"):
-        if (opt.ERA=='2016') : lumi = round(35.9*float(opt.LUMISCALE),1)
-        elif (opt.ERA=='2017') : lumi = round(41.7*float(opt.LUMISCALE),1)
+        if (opt.ERA=='2016') : lumi = round(Lumi_2016*float(opt.LUMISCALE),1)
+        elif (opt.ERA=='2017') : lumi = round(Lumi_2017*float(opt.LUMISCALE),1)
         else  : lumi = round(58.5*float(opt.LUMISCALE),1)
         latex2.DrawLatex(0.94, 0.94,str(lumi)+" fb^{-1} (13 TeV)")
     else:
-        if (opt.ERA=='2016') : latex2.DrawLatex(0.94, 0.94,"35.9 fb^{-1} (13 TeV)")
-        elif (opt.ERA=='2017') : latex2.DrawLatex(0.94, 0.94,"41.7 fb^{-1} (13 TeV)")
-        elif (opt.ERA=='2018') : latex2.DrawLatex(0.94, 0.94,"58.8 fb^{-1} (13 TeV)")
-        else : latex2.DrawLatex(0.94, 0.94,"137 fb^{-1} (13 TeV)")
+        if (opt.ERA=='2016') : latex2.DrawLatex(0.94, 0.94, str(Lumi_2016) + " fb^{-1} (13 TeV)")
+        elif (opt.ERA=='2017') : latex2.DrawLatex(0.94, 0.94, str(Lumi_2017) + " fb^{-1} (13 TeV)")
+        elif (opt.ERA=='2018') : latex2.DrawLatex(0.94, 0.94, str(Lumi_2018) + " fb^{-1} (13 TeV)")
+        else : latex2.DrawLatex(0.94, 0.94, str(Lumi_Run2) + " fb^{-1} (13 TeV)")
 
     latex2.SetTextSize(0.9*c.GetTopMargin())
     latex2.SetTextFont(62)
@@ -353,13 +374,17 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
 
     # Create output directory if it does not exits
     OutputPath = DifferentialBins.format(year = year, obsName = obsName.replace(' ','_'))
+    logger.debug("OutputPath: {}".format(OutputPath))
+    logger.debug("asimovDataModel: {}".format(asimovDataModel))
+    logger.debug("asimovPhysicalModel: {}".format(asimovPhysicalModel))
+    logger.debug(OutputPath+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_"+obsName.replace(' ','_')+'_'+fstate+".pdf")
     GetDirectory(OutputPath)
     if (not opt.UNBLIND):
         c.SaveAs(OutputPath+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_"+obsName.replace(' ','_')+'_'+fstate+".pdf")
         c.SaveAs(OutputPath+"/asimovdata_"+asimovDataModel+"_"+asimovPhysicalModel+"_"+obsName.replace(' ','_')+'_'+fstate+".png")
     else:
-        c.SaveAs(OutputPath+"/data_"+obsName.replace(' ','_')+'_'+fstate+".pdf")
-        c.SaveAs(OutputPath+"/data_"+obsName.replace(' ','_')+'_'+fstate+".png")
+        c.SaveAs(OutputPath+"/data_"+asimovDataModel+"_"+asimovPhysicalModel+"_"+obsName.replace(' ','_')+'_'+fstate+".pdf")
+        c.SaveAs(OutputPath+"/data_"+asimovDataModel+"_"+asimovPhysicalModel+"_"+obsName.replace(' ','_')+'_'+fstate+".png")
 
 
 # fStates = ["4e","4mu","2e2mu","4l"]
