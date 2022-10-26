@@ -66,7 +66,7 @@ def CreateCMSSWTarFile(OutputPath_):
     print "copying the " + CMSSWRel + ".tgz  file to eos path: " + OutputPath_ + "\n"
     os.system('mv ' + CMSSWRel + ".tgz" + ' ' + OutputPath_ + '/' + CMSSWRel + ".tgz")
 
-def GetArgumentTextFile(InputYAMLFile = "", OneDOr2DObs = "", fileName = "test", year = "2018"):
+def GetArgumentTextFile(InputYAMLFile = "", OneDOr2DObs = 1, fileName = "test", year = "2018"):
     ObsToStudy = "1D_Observables" if OneDOr2DObs == 1 else "2D_Observables"
 
     with open(InputYAMLFile, 'r') as ymlfile:
@@ -175,7 +175,7 @@ def condorSHFile(fileName = "test",
     outSHFile.write('\n'+'echo "Start of efficiency script"')
     outSHFile.write('\n'+'date')
     outSHFile.write('\n'+'echo "==============="')
-    outSHFile.write('\n'+'python -u efficiencyFactors.py -l -q -b --obsName="${obsName}" --obsBins="${obsBins}" -c "${channel}" -y "${year}" --obs=${OneDOr2DObs}')
+    outSHFile.write('\n'+'python -u efficiencyFactors.py -l -q -b --obsName="${obsName}" --obsBins="${obsBins}" -c "${channel}" -y "${year}" --obs=2')
     outSHFile.write('\n'+'echo "==============="')
     outSHFile.write('\n'+'date')
     outSHFile.write('\n'+'echo "==============="')
