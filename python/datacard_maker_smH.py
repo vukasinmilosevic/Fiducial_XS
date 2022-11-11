@@ -54,7 +54,7 @@ def DataCardMaker(process_names, process_rate, nbins, current_bin, channel, obse
         if channel == "4e":
             bin_name2 = "_cat4e"
         if channel == "2e2mu":
-            bin_name2 = "_cat42e2mu"
+            bin_name2 = "_cat2e2mu"
 
         datacard_name = '/hzz4l_{}S_13TeV_xs_bin{}.txt'.format(channel, current_bin)
         if nbins == 1:
@@ -150,7 +150,7 @@ def DataCardMaker(process_names, process_rate, nbins, current_bin, channel, obse
 
                 f.write(line+"\n")
              
-            #f.write('zz_norm_0 rateParam {}_recobin{} bkg_*zz 1 [0,2]'.format(bin_name, current_bin))
+            #f.write('zz_norm_0 rateParam {}_recobin{}{} bkg_*zz 1 [0,2]'.format(bin_name, current_bin, bin_name2))
 
 
 Inputs = CollectFromConfig("Inputs/smH/inputs_{}_{}.yml".format(channel, year))
